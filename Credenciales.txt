@@ -1,0 +1,11 @@
+// Credenciales 
+    if (email === "admin@correo.com" && password === "admin123") {
+      window.location.href = "indexAdmin.html"; // Página de Administrador
+    } 
+    else if (email === "empleado@correo.com" && password === "empleado123") {
+      window.location.href = "indexEmpleado.html"; // Página de Empleado 
+    } 
+    else if (email === "cliente@correo.com" && password === "cliente123") {
+      window.location.href = "indexCliente.html"; // Página de Cliente
+    } 
+    else 

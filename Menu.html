@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Productos</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #6f42c1;
+            --secondary-color: #9c6ade;
+            --dark-color: #2d0247;
+        }
+
+        .navbar {
+            background: var(--dark-color);
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            border: none;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--secondary-color);
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            transition: 0.3s;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .filter-box {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+
+            <!-- Logo -->
+            <a class="navbar-brand" href="Principal.html">Vibra Urbana</a>
+
+            <!-- Botón móvil -->
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <!-- Contenido -->
+            <div class="collapse navbar-collapse" id="navbarNav">
+
+                <!-- Menú izquierda -->
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="Principal.html">Inicio</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="Menu.html">Productos</a>
+                    </li>
+                </ul>
+
+                <!-- 🔥 DERECHA: carrito + perfil -->
+                <ul class="navbar-nav align-items-center">
+
+                    <!-- Carrito -->
+                    <li class="nav-item me-3">
+                        <a class="nav-link position-relative" href="carrito.html">
+                            <i class="fas fa-shopping-cart"></i>
+                            <span class="position-absolute top-0 start-100 translate-middle badge bg-danger">
+                                3
+                            </span>
+                        </a>
+                    </li>
+
+                    <!-- Usuario -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
+                            <i class="fas fa-user"></i>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="PrincipalCliente.html">Mi Cuenta</a></li>
+                            <li><a class="dropdown-item" href="CerrarSesion.html">Cerrar Sesión</a></li>
+                        </ul>
+                    </li>
+
+                </ul>
+
+            </div>
+        </div>
+    </nav>
+
+
+    <section class="py-5">
+        <div class="container">
+            <div class="row">
+
+                <!-- 🔹 FILTROS -->
+                <div class="col-lg-3">
+                    <div class="filter-box shadow-sm">
+                        <h5>Filtros</h5>
+                        <hr>
+
+                        <!-- Buscar -->
+                        <div class="mb-3">
+                            <label>Buscar</label>
+                            <input type="text" class="form-control" id="searchInput" placeholder="Ej: blusa, jeans...">
+                        </div>
+
+                        <!-- Categorías -->
+                        <div class="mb-3">
+                            <label>Categoría</label>
+                            <select class="form-select" id="categoryFilter">
+                                <option value="all">Todas</option>
+                                <option value="mujer">Mujer</option>
+                                <option value="hombre">Hombre</option>
+                                <option value="unisex">Unisex</option>
+                            </select>
+                        </div>
+
+                        <button class="btn btn-primary w-100" onclick="filtrar()">Aplicar</button>
+                    </div>
+                </div>
+
+                <!-- 🔹 PRODUCTOS -->
+                <div class="col-lg-9">
+                    <div class="row g-4" id="productList">
+
+                        <!-- Producto -->
+                        <div class="col-md-4 producto" data-name="blusa" data-category="mujer">
+                            <div class="card h-100">
+                                <img src="https://images.unsplash.com/photo-1774005906344-57048d3f5856?q=80&w=764&auto=format&fit=crop"
+                                    class="card-img-top">
+                                <div class="card-body">
+                                    <h5>Blusa Casual</h5>
+                                    <p>$25</p>
+                                    <a href="DetalleBlusa.html" class="btn btn-primary">Ver</a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-4 producto" data-name="jeans" data-category="hombre">
+                            <div class="card h-100">
+                                <img src="https://images.unsplash.com/photo-1714143136372-ddaf8b606da7?q=80&w=880&auto=format&fit=crop"
+                                    class="card-img-top">
+                                <div class="card-body">
+                                    <h5>Jeans Slim Fit</h5>
+                                    <p>$35</p>
+                                    <a href="DetalleJean.html" class="btn btn-primary">Ver</a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-4 producto" data-name="chaqueta" data-category="unisex">
+                            <div class="card h-100">
+                                <img src="https://images.unsplash.com/photo-1611312449408-fcece27cdbb7?q=80&w=669&auto=format&fit=crop"
+                                    class="card-img-top">
+                                <div class="card-body">
+                                    <h5>Chaqueta Denim</h5>
+                                    <p>$45</p>
+                                    <a href="DetalleChaqueta.html" class="btn btn-primary">Ver</a>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <script>
+        function filtrar() {
+            let search = document.getElementById("searchInput").value.toLowerCase();
+            let category = document.getElementById("categoryFilter").value;
+            let productos = document.querySelectorAll(".producto");
+
+            productos.forEach(p => {
+                let name = p.dataset.name;
+                let cat = p.dataset.category;
+
+                let coincideNombre = name.includes(search);
+                let coincideCategoria = (category === "all" || cat === category);
+
+                if (coincideNombre && coincideCategoria) {
+                    p.style.display = "block";
+                } else {
+                    p.style.display = "none";
+                }
+            });
+        }
+    </script>
+
+</body>
+
+</html>

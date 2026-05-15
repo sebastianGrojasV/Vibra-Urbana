@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Confirmar Pago SINPE</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <link href="css/custom.css" rel="stylesheet">
+
+    <style>
+        body {
+            background: #f5f2fb;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .card {
+            border-radius: 20px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+            border: none;
+        }
+
+        .card-header {
+            background-color: #6f42c1;
+            color: white;
+            font-weight: bold;
+            font-size: 1.2rem;
+            border-radius: 20px 20px 0 0;
+        }
+
+        .btn-primary {
+            background-color: #6f42c1;
+            border: none;
+            border-radius: 12px;
+        }
+
+        .btn-primary:hover {
+            background-color: #9c6ade;
+        }
+
+        .btn-secondary {
+            border-radius: 12px;
+        }
+
+        .sinpe-box {
+            background: #ffffff;
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .sinpe-number {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #6f42c1;
+            margin-top: 10px;
+        }
+
+        .form-control {
+            border-radius: 10px;
+        }
+
+        .form-label {
+            font-weight: 500;
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+
+            <!-- Logo -->
+            <a class="navbar-brand" href="Principal.html">Vibra Urbana</a>
+
+            <!-- Botón móvil -->
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <!-- Contenido -->
+            <div class="collapse navbar-collapse" id="navbarNav">
+
+                <!-- Menú izquierda -->
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="Principal.html">Inicio</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="Menu.html">Productos</a>
+                    </li>
+                </ul>
+
+                <!--  -->
+                <ul class="navbar-nav align-items-center">
+
+                    <!-- Carrito -->
+                    <li class="nav-item me-3">
+                        <a class="nav-link position-relative" href="carrito.html">
+                            <i class="fas fa-shopping-cart"></i>
+                            <span class="position-absolute top-0 start-100 translate-middle badge bg-danger">
+                                3
+                            </span>
+                        </a>
+                    </li>
+
+                    <!-- Usuario -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
+                            <i class="fas fa-user"></i>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="PrincipalCliente.html">Mi Cuenta</a></li>
+                            <li><a class="dropdown-item" href="CerrarSesion.html">Cerrar Sesión</a></li>
+                        </ul>
+                    </li>
+
+                </ul>
+
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-5 mb-5">
+        <div class="row justify-content-center">
+
+            <div class="col-md-8">
+
+                <div class="card">
+
+                    <div class="card-header">
+                        Confirmar Pago por SINPE
+                    </div>
+
+                    <div class="card-body">
+
+                        <!-- 🔹 BLOQUE SINPE -->
+                        <div class="sinpe-box mb-4">
+
+                            <!-- -->
+                            <img src="https://images.seeklogo.com/logo-png/42/1/sinpe-movil-logo-png_seeklogo-424651.png"
+                                alt="SINPE Móvil" class="img-fluid mb-3" style="max-height:150px;">
+
+                            <!--  -->
+                            <div class="sinpe-number">
+                                SINPE Móvil: 8888-8888
+                            </div>
+
+                            <p class="text-muted mt-2">
+                                Realiza el pago y luego completa el formulario
+                            </p>
+                        </div>
+
+                        <!-- 🔹 FORMULARIO -->
+                        <form>
+
+                            <div class="mb-3">
+                                <label class="form-label">Nombre Completo</label>
+                                <input type="text" class="form-control" placeholder="Ingrese su nombre" required>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Correo Electrónico</label>
+                                <input type="email" class="form-control" placeholder="ejemplo@email.com" required>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">ID de Transacción SINPE</label>
+                                <input type="text" class="form-control" placeholder="Número de comprobante" required>
+                            </div>
+
+                            <div class="d-grid gap-2 mt-4">
+                                <button type="submit" class="btn btn-primary">
+                                    Confirmar Pago
+                                </button>
+
+                                <button type="button" class="btn btn-secondary" onclick="history.back()">
+                                    Cancelar / Regresar
+                                </button>
+                            </div>
+
+                        </form>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+</body>
+
+</html>

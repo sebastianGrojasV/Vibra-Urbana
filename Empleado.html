@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Perfil de Empleado</title>
+  <!-- Bootstrap -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<style>
+  body {
+    background: linear-gradient(135deg, #e0f7fa, #ffffff);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  }
+
+  .card {
+    border-radius: 25px;
+    box-shadow: 0px 12px 25px rgba(0,0,0,0.1);
+  }
+
+  .profile-pic {
+    width: 140px;
+    height: 140px;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 4px solid #6f42c1; /* 🔥 morado */
+    margin-bottom: 20px;
+  }
+
+  /* Tabs activas */
+  .nav-tabs .nav-link.active {
+    background-color: #6f42c1; /* 🔥 morado */
+    color: white;
+    border-radius: 15px 15px 0 0;
+    font-weight: bold;
+  }
+
+  /* Tabs normales */
+  .nav-tabs .nav-link {
+    border-radius: 15px 15px 0 0;
+    color: #6f42c1; /* 🔥 morado */
+    font-weight: 500;
+  }
+
+  .btn {
+    border-radius: 12px;
+    font-weight: bold;
+    transition: 0.3s;
+  }
+
+  .btn:hover {
+    transform: scale(1.05);
+  }
+
+  .list-group-item {
+    border-radius: 12px;
+    margin-bottom: 8px;
+    border: 1px solid #dee2e6;
+  }
+</style>
+</head>
+<body>
+  <div class="container d-flex justify-content-center mt-5">
+    <div class="col-md-6">
+      <div class="card p-4 text-center">
+        <img src="https://img.freepik.com/fotos-premium/mujer-hermosa-maquillaje-natural-mujeres-piel-limpia-fresca-ojos-oscuros-ojos-azules_150254-452.jpg?semt=ais_hybrid&w=740&q=80" alt="Foto de perfil" class="profile-pic" id="fotoPerfil">
+
+        <!-- Pestañas -->
+        <ul class="nav nav-tabs justify-content-center mb-4" id="perfilTabs" role="tablist">
+          <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="ver-tab" data-bs-toggle="tab" data-bs-target="#ver" type="button" role="tab">Ver Perfil</button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" id="editar-tab" data-bs-toggle="tab" data-bs-target="#editar" type="button" role="tab">Editar Perfil</button>
+          </li>
+        </ul>
+
+        <div class="tab-content" id="perfilTabsContent">
+          <!-- Ver Perfil -->
+          <div class="tab-pane fade show active" id="ver" role="tabpanel">
+            <ul class="list-group list-group-flush text-start">
+              <li class="list-group-item"><strong>Nombre:</strong> <span id="verNombre">Maria</span></li>
+              <li class="list-group-item"><strong>Apellidos:</strong> <span id="verApellidos">Pérez</span></li>
+              <li class="list-group-item"><strong>Email:</strong> <span id="verEmail">Maria.perez@empresa.com</span></li>
+              <li class="list-group-item"><strong>Teléfono:</strong> <span id="verTelefono">8888-8888</span></li>
+              <li class="list-group-item"><strong>Cargo:</strong> <span id="verCargo">Cajera</span></li>
+            </ul>
+          </div>
+
+          <!-- Editar Perfil -->
+          <div class="tab-pane fade" id="editar" role="tabpanel">
+            <form id="editarForm" class="text-start mt-3">
+              <div class="mb-3">
+                <label for="nombre" class="form-label">Nombre</label>
+                <input type="text" class="form-control" id="nombre" value="Juan">
+              </div>
+              <div class="mb-3">
+                <label for="apellidos" class="form-label">Apellidos</label>
+                <input type="text" class="form-control" id="apellidos" value="Pérez">
+              </div>
+              <div class="mb-3">
+                <label for="email" class="form-label">Email</label>
+                <input type="email" class="form-control" id="email" value="juan.perez@empresa.com">
+              </div>
+              <div class="mb-3">
+                <label for="telefono" class="form-label">Teléfono</label>
+                <input type="tel" class="form-control" id="telefono" value="8888-8888">
+              </div>
+              <div class="mb-3">
+                <label for="cargo" class="form-label">Cargo</label>
+                <input type="text" class="form-control" id="cargo" value="Administrador">
+              </div>
+              <button type="button" class="btn btn-success w-100" id="guardarBtn">Guardar Cambios</button>
+              <div>
+                .
+              </div>
+              <button type="button" class="btn btn-secondary w-100" onclick="window.location.href='indexEmpleado.html'">Regresar</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+    const guardarBtn = document.getElementById('guardarBtn');
+
+    guardarBtn.addEventListener('click', () => {
+      // Obtener valores del formulario
+      const nombre = document.getElementById('nombre').value;
+      const apellidos = document.getElementById('apellidos').value;
+      const email = document.getElementById('email').value;
+      const telefono = document.getElementById('telefono').value;
+      const cargo = document.getElementById('cargo').value;
+
+      // Actualizar pestaña de ver perfil
+      document.getElementById('verNombre').textContent = nombre;
+      document.getElementById('verApellidos').textContent = apellidos;
+      document.getElementById('verEmail').textContent = email;
+      document.getElementById('verTelefono').textContent = telefono;
+      document.getElementById('verCargo').textContent = cargo;
+
+      alert('✅ Perfil actualizado correctamente');
+    });
+  </script>
+</body>
+</html>

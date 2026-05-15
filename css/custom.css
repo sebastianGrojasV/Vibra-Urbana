@@ -1,0 +1,388 @@
+/* =========================
+   VARIABLES (TEMA GLOBAL)
+========================= */
+:root {
+  --primary-color: #6f42c1;
+  --secondary-color: #9c6ade;
+  --dark-color: #2d0247;
+  --light-color: #f8f9fa;
+  --text-color: #212529;
+}
+
+/* =========================
+   BASE
+========================= */
+body {
+  background-color: var(--light-color);
+  color: var(--text-color);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* =========================
+   NAVBAR
+========================= */
+.navbar {
+  background: #2d0247 !important;
+  position: sticky;
+  top: 0;
+  z-index: 1050;
+}
+
+.navbar-brand {
+  font-weight: bold;
+  color: white !important;
+}
+
+.nav-link {
+  color: #ddd !important;
+  transition: 0.3s;
+}
+
+.nav-link:hover,
+.nav-link.active {
+  color: var(--secondary-color) !important;
+}
+
+/* =========================
+   BOTONES
+========================= */
+.btn-primary {
+  background-color: var(--primary-color);
+  border: none;
+}
+
+.btn-primary:hover {
+  background-color: var(--secondary-color);
+}
+
+.btn-outline-primary {
+  border-color: var(--primary-color);
+  color: var(--primary-color);
+}
+
+.btn-outline-primary:hover {
+  background-color: var(--primary-color);
+  color: white;
+}
+
+/* =========================
+   CARDS (PRODUCTOS)
+========================= */
+.card {
+  border: none;
+  border-radius: 12px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(111, 66, 193, 0.2);
+}
+
+.card-title {
+  color: var(--primary-color);
+  font-weight: bold;
+}
+
+/* =========================
+   TABLAS (ADMIN / HISTORIAL)
+========================= */
+.table thead {
+  background-color: var(--primary-color);
+  color: white;
+}
+
+.table tbody tr:hover {
+  background-color: #f1ebff;
+}
+
+/* =========================
+   BADGES (ESTADOS)
+========================= */
+.badge.bg-success {
+  background-color: #28a745 !important;
+}
+
+.badge.bg-warning {
+  background-color: #ffc107 !important;
+  color: #000;
+}
+
+.badge.bg-danger {
+  background-color: #dc3545 !important;
+}
+
+/* =========================
+   FILTROS (SIDEBAR)
+========================= */
+.filter-box {
+  background: white;
+  padding: 15px;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+
+/* =========================
+   FOOTER
+========================= */
+footer {
+  background: var(--dark-color);
+  color: #d6c7f7;
+}
+
+/* =========================
+   UTILIDADES
+========================= */
+.shadow-soft {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.rounded-custom {
+  border-radius: 12px;
+}
+
+/* 🔹 SIDEBAR - texto más visible */
+.sb-sidenav-dark .nav-link {
+  color: rgba(255, 255, 255, 0.85);
+  /* blanco suave */
+  transition: all 0.2s ease;
+}
+
+/* Hover */
+.sb-sidenav-dark .nav-link:hover {
+  color: #ffffff;
+  background-color: rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
+}
+
+/* Activo */
+.sb-sidenav-dark .nav-link.active {
+  color: #ffffff;
+  background-color: rgba(111, 66, 193, 0.6);
+  /* morado suave */
+  border-radius: 6px;
+}
+
+/* Títulos (Barra Principal, etc.) */
+.sb-sidenav-dark .sb-sidenav-menu-heading {
+  color: rgba(255, 255, 255, 0.8);
+  /* más visible */
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-top: 10px;
+}
+
+/* Footer */
+.sb-sidenav-dark .sb-sidenav-footer {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+/* 🔹 HEADINGS (Barra Principal, etc.) */
+.sb-sidenav-dark .sb-sidenav-menu .sb-sidenav-menu-heading {
+  color: #ffffff !important;
+  opacity: 0.85;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-top: 10px;
+}
+
+/* 🔹 LINKS */
+.sb-sidenav-dark .sb-sidenav-menu .nav-link {
+  color: rgba(255, 255, 255, 0.9) !important;
+}
+
+/* Hover */
+.sb-sidenav-dark .sb-sidenav-menu .nav-link:hover {
+  color: #ffffff !important;
+  background-color: rgba(255, 255, 255, 0.08);
+}
+
+/* Activo */
+.sb-sidenav-dark .sb-sidenav-menu .nav-link.active {
+  color: #ffffff !important;
+  background-color: rgba(111, 66, 193, 0.6);
+}
+
+/* =========================
+   ADMIN - CAMBIO A MORADO
+========================= */
+
+/* Cards (los cuadros azules) */
+.bg-primary {
+  background-color: #6f42c1 !important;
+}
+
+/* Botones */
+.btn-primary {
+  background-color: #6f42c1 !important;
+  border-color: #6f42c1 !important;
+}
+
+.btn-primary:hover {
+  background-color: #9c6ade !important;
+  border-color: #9c6ade !important;
+}
+
+/* Tabla encabezado */
+.table thead {
+  background-color: #6f42c1 !important;
+  color: white;
+}
+
+/* Navbar botón search */
+#btnNavbarSearch {
+  background-color: #6f42c1 !important;
+  border-color: #6f42c1 !important;
+}
+
+/* Sidebar activo */
+.sb-sidenav-dark .nav-link.active {
+  background-color: rgba(111, 66, 193, 0.7) !important;
+}
+
+/* Hover sidebar */
+.sb-sidenav-dark .nav-link:hover {
+  background-color: rgba(156, 106, 222, 0.2) !important;
+}
+
+/* =========================
+   FONDO GENERAL
+========================= */
+body {
+  background: #f3efff;
+  /* blanco con tono morado suave */
+}
+
+/* =========================
+   CARD
+========================= */
+.card {
+  border-radius: 20px;
+  box-shadow: 0 8px 25px rgba(111, 66, 193, 0.2);
+}
+
+/* =========================
+   BOTON PRINCIPAL
+========================= */
+.btn-primary {
+  background-color: #6f42c1;
+  border: none;
+}
+
+.btn-primary:hover {
+  background-color: #9c6ade;
+}
+
+/* BOTON SECUNDARIO */
+.btn-secondary {
+  background-color: #2d0247;
+  border: none;
+}
+
+.btn-secondary:hover {
+  background-color: #4b0a7a;
+}
+
+/* =========================
+   TABLA HEADER
+========================= */
+.table-dark {
+  background-color: #2d0247 !important;
+  color: white;
+}
+
+/* =========================
+   FILAS HOVER
+========================= */
+.table-hover tbody tr:hover {
+  background-color: #f1ebff;
+}
+
+
+/* =========================
+   TITULO
+========================= */
+h3 {
+  color: #2d0247;
+  font-weight: bold;
+}
+
+/* =========================
+   TITULO
+========================= */
+h2 {
+  color: #2d0247;
+  font-weight: bold;
+}
+
+/* =========================
+   CARD
+========================= */
+.card {
+  border-radius: 15px;
+  box-shadow: 0 8px 20px rgba(111, 66, 193, 0.2);
+}
+
+/* HEADER (QUITAR AZUL) */
+.card-header {
+  background-color: #6f42c1 !important;
+  color: white !important;
+  font-weight: bold;
+}
+
+/* =========================
+   TABLA
+========================= */
+.table thead {
+  background-color: #2d0247;
+  color: white;
+}
+
+.table-hover tbody tr:hover {
+  background-color: #f1ebff;
+}
+
+/* BORDES MÁS SUAVES */
+.table-bordered {
+  border-color: #d6c7f7;
+}
+
+/* =========================
+   CHECKBOXES (más visibles)
+========================= */
+input[type="checkbox"] {
+  transform: scale(1.2);
+  accent-color: #6f42c1;
+  /* color moderno del checkbox */
+  cursor: pointer;
+}
+
+/* =========================
+   BOTONES
+========================= */
+.btn-success {
+  background-color: #6f42c1;
+  border: none;
+}
+
+.btn-success:hover {
+  background-color: #9c6ade;
+}
+
+.btn-secondary {
+  background-color: #2d0247;
+  border: none;
+}
+
+.btn-secondary:hover {
+  background-color: #4b0a7a;
+}
+
+/* =========================
+   ESPACIADO BOTONES
+========================= */
+.d-flex .btn {
+  margin-left: 10px;
+}

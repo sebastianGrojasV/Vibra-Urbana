@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rastreo de Producto</title>
+  <!-- Bootstrap -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      background: linear-gradient(135deg, #f1f8ff, #ffffff);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    .card {
+      border-radius: 20px;
+      box-shadow: 0px 8px 20px rgba(0,0,0,0.1);
+    }
+    .form-control {
+      border-radius: 12px;
+    }
+    .btn-primary, .btn-secondary {
+      border-radius: 12px;
+      padding: 10px;
+      font-weight: bold;
+      width: 100%;
+      transition: 0.3s;
+      margin-top: 10px;
+    }
+    .btn-primary:hover {
+      background-color: #0d47a1;
+      transform: scale(1.02);
+    }
+    .btn-secondary:hover {
+      background-color: #424242;
+      transform: scale(1.02);
+      color: white;
+    }
+    h2 {
+      font-weight: 600;
+      color: #1a237e;
+    }
+  </style>
+</head>
+<body>
+  <div class="container d-flex justify-content-center align-items-center vh-100">
+    <div class="col-md-6">
+      <div class="card p-4">
+        <h2 class="text-center mb-4">Rastreo de Producto</h2>
+        <form id="rastreoForm">
+          <div class="mb-3">
+            <label for="codigoRastreo" class="form-label">Número de rastreo</label>
+            <input type="text" class="form-control" id="codigoRastreo" placeholder="Ej: ABC123456" required>
+          </div>
+          <button type="submit" class="btn btn-primary">Rastrear</button>
+        </form>
+
+        <!-- Botón regresar -->
+        <button class="btn btn-secondary" onclick="history.back()">Regresar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de alerta -->
+  <div class="modal fade" id="alertaModal" tabindex="-1" aria-labelledby="alertaLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content rounded-4 shadow">
+        <div class="modal-header bg-primary text-white">
+          <h5 class="modal-title" id="alertaLabel">Historial del paquete</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        </div>
+        <div class="modal-body fs-6" id="estadoPaquete"></div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-success" data-bs-dismiss="modal">Aceptar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  
+  <script>
+    // Historial global
+    let historial = [];
+
+    document.getElementById('rastreoForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      const estados = [
+        "📦 En preparación en bodega",
+        "🚚 En tránsito hacia la ciudad de destino",
+        "📍 En reparto con el mensajero",
+        "✅ Entregado al destinatario"
+      ];
+
+      // Estado aleatorio
+      const estadoAleatorio = estados[Math.floor(Math.random() * estados.length)];
+
+      // Agregar al historial
+      historial.push(estadoAleatorio);
+
+      // Crear HTML del historial
+      let historialHTML = '<ul class="list-group">';
+      historial.forEach((estado, index) => {
+          historialHTML += `<li class="list-group-item">${index + 1}. ${estado}</li>`;
+      });
+      historialHTML += '</ul>';
+
+      // Insertar en el modal
+      document.getElementById('estadoPaquete').innerHTML = historialHTML;
+
+      // Mostrar modal
+      const alertaModal = new bootstrap.Modal(document.getElementById('alertaModal'));
+      alertaModal.show();
+    });
+  </script>
+</body>
+</html>
