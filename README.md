@@ -1,41 +1,66 @@
 # Vibra Urbana
 
-Proyecto académico desarrollado para la tienda Vibra Urbana como parte del proceso de análisis, diseño, desarrollo e implantación de un sistema web.
+Vibra Urbana es un proyecto academico para la gestion comercial de una tienda de ropa. Esta version corresponde a la estructura base del sistema web en ASP.NET Core MVC.
 
-## Descripción
+## Estado actual
 
-Esta versión corresponde a una beta inicial de vistas estáticas en HTML, CSS y JavaScript. Su objetivo es mostrar una primera propuesta visual del sistema y validar la navegación general entre los principales módulos.
+Estructura base ASP.NET Core MVC para Sprint 1. La aplicacion ya cuenta con navegacion inicial, layout compartido, controladores base, vistas Razor minimas y archivos estaticos organizados. Todavia no incluye autenticacion real, CRUD, inventario funcional, ventas, facturacion, carrito, reportes reales ni conexion a base de datos.
 
-## Módulos representados
+## Tecnologias utilizadas
 
-- Inicio de sesión
-- Registro de usuario
-- Recuperación de contraseña
-- Panel de administrador
-- Panel de empleado
-- Perfil de cliente
-- Gestión de productos
-- Inventario
-- Carrito de compras
-- Confirmación de pago por SINPE
-- Historial de ventas
-- Cierre de caja
-- Reportes y gráficos
-
-## Tecnologías utilizadas
-
-- HTML5
-- CSS3
-- JavaScript
+- ASP.NET Core MVC .NET 8
+- C#
+- Razor Views
 - Bootstrap
-- Font Awesome
-- SB Admin Template como base visual administrativa
+- JavaScript
+- Entity Framework Core preparado para etapas posteriores
+- SQL Server preparado para etapas posteriores
 
-## Estado del proyecto
+## Estructura general
 
-Beta visual inicial.  
-Las vistas todavía no cuentan con conexión a base de datos ni backend funcional.
+```text
+VibraUrbana-main/
+├── Controllers/
+├── Models/
+├── ViewModels/
+├── Views/
+│   ├── Account/
+│   ├── Admin/
+│   ├── Home/
+│   └── Shared/
+├── Services/
+├── Repositories/
+├── Data/
+├── wwwroot/
+│   ├── assets/
+│   ├── css/
+│   ├── img/
+│   ├── js/
+│   └── lib/
+├── Program.cs
+├── appsettings.json
+└── VibraUrbana.csproj
+```
 
-## Objetivo
+La beta visual estatica fue retirada de la raiz para evitar duplicidad. Los CSS, JavaScript y recursos visuales necesarios quedaron organizados en `wwwroot` para integrarlos con ASP.NET Core.
 
-Servir como prototipo visual para validar la estructura de pantallas, navegación y diseño general del sistema antes de avanzar hacia la implementación completa.
+## Como ejecutar localmente
+
+1. Verificar que el SDK o runtime de .NET compatible con `net8.0` este instalado.
+2. Restaurar dependencias:
+
+```bash
+dotnet restore
+```
+
+3. Ejecutar la aplicacion:
+
+```bash
+dotnet run
+```
+
+4. Abrir la URL indicada por la consola. La ruta inicial carga `Home/Index`.
+
+## Paquetes NuGet
+
+No se agregaron paquetes NuGet adicionales para esta tarea. La base MVC usa las dependencias incluidas por `Microsoft.NET.Sdk.Web` y los recursos estaticos generados por la plantilla.

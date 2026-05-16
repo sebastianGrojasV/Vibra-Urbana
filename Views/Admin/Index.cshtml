@@ -1,0 +1,34 @@
+@{
+    ViewData["Title"] = "Panel Administrativo";
+}
+
+<section class="container py-5">
+    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
+        <div>
+            <p class="vu-eyebrow">Administracion</p>
+            <h1>Panel administrativo</h1>
+        </div>
+        <span class="badge text-bg-dark">Vista inicial</span>
+    </div>
+
+    <div class="row g-3">
+        <div class="col-md-4">
+            <a class="vu-module vu-module-link" asp-controller="Producto" asp-action="Index">
+                <h2>Productos</h2>
+                <p>Modulo preparado para el catalogo.</p>
+            </a>
+        </div>
+        <div class="col-md-4">
+            <a class="vu-module vu-module-link" asp-controller="Inventario" asp-action="Index">
+                <h2>Inventario</h2>
+                <p>Modulo preparado para existencias.</p>
+            </a>
+        </div>
+        <div class="col-md-4">
+            <a class="vu-module vu-module-link" asp-controller="Reporte" asp-action="Index">
+                <h2>Reportes</h2>
+                <p>Modulo preparado para indicadores.</p>
+            </a>
+        </div>
+    </div>
+</section>

@@ -1,0 +1,116 @@
+:root {
+    --vu-ink: #171717;
+    --vu-muted: #6f6f6f;
+    --vu-line: #e7e0d8;
+    --vu-soft: #f7f3ef;
+    --vu-accent: #c84c35;
+}
+
+html {
+    min-height: 100%;
+}
+
+body {
+    min-height: 100vh;
+    color: var(--vu-ink);
+    background: #fffdfb;
+    font-family: "Segoe UI", Arial, sans-serif;
+}
+
+.vu-navbar {
+    background: #fffdfb;
+    border-bottom: 1px solid var(--vu-line);
+}
+
+.vu-navbar .navbar-brand {
+    font-weight: 800;
+    letter-spacing: 0;
+}
+
+.vu-navbar .nav-link {
+    color: var(--vu-ink);
+    font-weight: 600;
+}
+
+.vu-hero {
+    padding: 5rem 0;
+    background: linear-gradient(120deg, #fffdfb 0%, #f7f3ef 55%, #f3ece4 100%);
+    border-bottom: 1px solid var(--vu-line);
+}
+
+.vu-hero h1,
+.vu-form-shell h1,
+.container h1 {
+    font-weight: 800;
+    letter-spacing: 0;
+}
+
+.vu-hero h1 {
+    font-size: clamp(2.5rem, 6vw, 5rem);
+}
+
+.vu-lead {
+    max-width: 42rem;
+    color: var(--vu-muted);
+    font-size: 1.2rem;
+}
+
+.vu-eyebrow {
+    margin-bottom: .5rem;
+    color: var(--vu-accent);
+    font-size: .82rem;
+    font-weight: 800;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+}
+
+.vu-status-panel,
+.vu-form-shell,
+.vu-module {
+    border: 1px solid var(--vu-line);
+    border-radius: 8px;
+    background: #ffffff;
+    box-shadow: 0 16px 40px rgba(23, 23, 23, .06);
+}
+
+.vu-status-panel {
+    padding: 2rem;
+}
+
+.vu-form-shell {
+    padding: 2rem;
+}
+
+.vu-module {
+    height: 100%;
+    padding: 1.5rem;
+}
+
+.vu-module h2 {
+    font-size: 1.2rem;
+    font-weight: 800;
+}
+
+.vu-module p,
+.vu-status-panel p {
+    color: var(--vu-muted);
+}
+
+.vu-module-link {
+    display: block;
+    color: inherit;
+    text-decoration: none;
+    transition: transform .15s ease, border-color .15s ease;
+}
+
+.vu-module-link:hover {
+    color: inherit;
+    border-color: var(--vu-accent);
+    transform: translateY(-2px);
+}
+
+.vu-footer {
+    padding: 1.5rem 0;
+    color: var(--vu-muted);
+    border-top: 1px solid var(--vu-line);
+}
