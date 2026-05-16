@@ -2,33 +2,97 @@
     ViewData["Title"] = "Panel Administrativo";
 }
 
-<section class="container py-5">
-    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
-        <div>
-            <p class="vu-eyebrow">Administracion</p>
-            <h1>Panel administrativo</h1>
-        </div>
-        <span class="badge text-bg-dark">Vista inicial</span>
-    </div>
+<section class="vu-admin-shell">
+    <div class="container-fluid">
+        <div class="row g-0">
+            <aside class="col-lg-3 col-xl-2 vu-admin-sidebar">
+                <div class="vu-sidebar-brand">Vibra Urbana</div>
+                <nav class="vu-sidebar-nav">
+                    <a class="active" asp-controller="Admin" asp-action="Index">Panel inicial</a>
+                    <a asp-controller="Cliente" asp-action="Index">Clientes</a>
+                    <a asp-controller="Producto" asp-action="Index">Productos</a>
+                    <a asp-controller="Inventario" asp-action="Index">Inventario</a>
+                    <a asp-controller="Venta" asp-action="Index">Ventas</a>
+                    <a asp-controller="Factura" asp-action="Index">Facturacion</a>
+                    <a asp-controller="Reporte" asp-action="Index">Reportes</a>
+                    <a asp-controller="Pedido" asp-action="Index">Pedidos</a>
+                </nav>
+            </aside>
 
-    <div class="row g-3">
-        <div class="col-md-4">
-            <a class="vu-module vu-module-link" asp-controller="Producto" asp-action="Index">
-                <h2>Productos</h2>
-                <p>Modulo preparado para el catalogo.</p>
-            </a>
-        </div>
-        <div class="col-md-4">
-            <a class="vu-module vu-module-link" asp-controller="Inventario" asp-action="Index">
-                <h2>Inventario</h2>
-                <p>Modulo preparado para existencias.</p>
-            </a>
-        </div>
-        <div class="col-md-4">
-            <a class="vu-module vu-module-link" asp-controller="Reporte" asp-action="Index">
-                <h2>Reportes</h2>
-                <p>Modulo preparado para indicadores.</p>
-            </a>
+            <div class="col-lg-9 col-xl-10 vu-admin-content">
+                <div class="vu-admin-header">
+                    <div>
+                        <p class="vu-eyebrow">Administracion</p>
+                        <h1>Panel inicial</h1>
+                        <p>Vista base para organizar los modulos comerciales de Vibra Urbana.</p>
+                    </div>
+                    <a class="btn btn-outline-primary" asp-controller="Account" asp-action="Login">Cerrar vista</a>
+                </div>
+
+                <div class="row g-3 mb-4">
+                    <div class="col-md-6 col-xl-3">
+                        <div class="vu-dashboard-card">
+                            <span>Usuarios</span>
+                            <strong>Base lista</strong>
+                            <p>Roles y permisos preparados.</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-xl-3">
+                        <div class="vu-dashboard-card">
+                            <span>Productos</span>
+                            <strong>Catalogo</strong>
+                            <p>Estructura preparada.</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-xl-3">
+                        <div class="vu-dashboard-card">
+                            <span>Inventario</span>
+                            <strong>Control</strong>
+                            <p>Modulo pendiente.</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-xl-3">
+                        <div class="vu-dashboard-card">
+                            <span>Ventas</span>
+                            <strong>Operacion</strong>
+                            <p>Flujo pendiente.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row g-4">
+                    <div class="col-xl-8">
+                        <div class="vu-panel">
+                            <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+                                <div>
+                                    <h2>Modulos principales</h2>
+                                    <p>Accesos iniciales para validar la navegacion MVC.</p>
+                                </div>
+                            </div>
+                            <div class="vu-module-grid">
+                                <a asp-controller="Cliente" asp-action="Index">Clientes</a>
+                                <a asp-controller="Producto" asp-action="Index">Productos</a>
+                                <a asp-controller="Inventario" asp-action="Index">Inventario</a>
+                                <a asp-controller="Venta" asp-action="Index">Ventas</a>
+                                <a asp-controller="Factura" asp-action="Index">Facturacion</a>
+                                <a asp-controller="Reporte" asp-action="Index">Reportes</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xl-4">
+                        <div class="vu-panel">
+                            <h2>Estado del sprint</h2>
+                            <ul class="vu-status-list">
+                                <li><span></span> MVC base configurado</li>
+                                <li><span></span> EF Core preparado</li>
+                                <li><span></span> Login funcional pendiente</li>
+                                <li><span></span> CRUD pendiente</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </section>

@@ -1,9 +1,11 @@
 :root {
-    --vu-ink: #171717;
-    --vu-muted: #6f6f6f;
-    --vu-line: #e7e0d8;
-    --vu-soft: #f7f3ef;
-    --vu-accent: #c84c35;
+    --vu-ink: #23142f;
+    --vu-muted: #6f637a;
+    --vu-line: #e3d8f0;
+    --vu-soft: #f6f1ff;
+    --vu-accent: #6f42c1;
+    --vu-accent-2: #9c6ade;
+    --vu-deep: #2d0247;
 }
 
 html {
@@ -13,28 +15,34 @@ html {
 body {
     min-height: 100vh;
     color: var(--vu-ink);
-    background: #fffdfb;
+    background: #f3efff;
     font-family: "Segoe UI", Arial, sans-serif;
 }
 
 .vu-navbar {
-    background: #fffdfb;
-    border-bottom: 1px solid var(--vu-line);
+    background: var(--vu-deep);
+    border-bottom: 1px solid rgba(255, 255, 255, .08);
 }
 
 .vu-navbar .navbar-brand {
+    color: #ffffff;
     font-weight: 800;
     letter-spacing: 0;
 }
 
 .vu-navbar .nav-link {
-    color: var(--vu-ink);
+    color: rgba(255, 255, 255, .84);
     font-weight: 600;
+}
+
+.vu-navbar .nav-link:hover,
+.vu-navbar .navbar-brand:hover {
+    color: #ffffff;
 }
 
 .vu-hero {
     padding: 5rem 0;
-    background: linear-gradient(120deg, #fffdfb 0%, #f7f3ef 55%, #f3ece4 100%);
+    background: linear-gradient(120deg, #fbf8ff 0%, #f3efff 55%, #e7dcfb 100%);
     border-bottom: 1px solid var(--vu-line);
 }
 
@@ -111,6 +119,255 @@ body {
 
 .vu-footer {
     padding: 1.5rem 0;
+    color: #d6c7f7;
+    background: var(--vu-deep);
+    border-top: 1px solid rgba(255, 255, 255, .08);
+}
+
+.min-vh-75 {
+    min-height: 75vh;
+}
+
+.vu-auth-page {
+    padding: 3rem 0;
+    background:
+        radial-gradient(circle at top left, rgba(156, 106, 222, .28), transparent 34rem),
+        linear-gradient(135deg, #2d0247 0%, #4b0a7a 45%, #f3efff 45%, #f3efff 100%);
+}
+
+.vu-auth-copy {
+    max-width: 36rem;
+    color: #ffffff;
+}
+
+.vu-auth-copy h1 {
+    font-size: clamp(2.2rem, 5vw, 4.4rem);
+    font-weight: 800;
+    letter-spacing: 0;
+}
+
+.vu-auth-copy p {
+    color: rgba(255, 255, 255, .82);
+    font-size: 1.08rem;
+}
+
+.vu-auth-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .6rem;
+    margin-top: 1.5rem;
+}
+
+.vu-auth-pills span {
+    padding: .45rem .8rem;
+    color: #ffffff;
+    background: rgba(255, 255, 255, .12);
+    border: 1px solid rgba(255, 255, 255, .22);
+    border-radius: 999px;
+    font-size: .88rem;
+    font-weight: 700;
+}
+
+.vu-auth-card {
+    padding: 2rem;
+    background: #ffffff;
+    border: 1px solid rgba(111, 66, 193, .18);
+    border-radius: 8px;
+    box-shadow: 0 24px 64px rgba(45, 2, 71, .25);
+}
+
+.vu-auth-card h2 {
+    color: var(--vu-deep);
+    font-weight: 800;
+}
+
+.vu-auth-card p {
     color: var(--vu-muted);
-    border-top: 1px solid var(--vu-line);
+}
+
+.vu-brand-mark {
+    display: inline-grid;
+    width: 4rem;
+    height: 4rem;
+    margin-bottom: 1rem;
+    place-items: center;
+    color: #ffffff;
+    background: var(--vu-accent);
+    border-radius: 8px;
+    font-weight: 900;
+}
+
+.vu-text-link {
+    color: var(--vu-accent);
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.vu-text-link:hover {
+    color: var(--vu-accent-2);
+}
+
+.vu-admin-shell {
+    min-height: calc(100vh - 130px);
+    background: #f3efff;
+}
+
+.vu-admin-sidebar {
+    min-height: calc(100vh - 130px);
+    padding: 1.5rem;
+    color: #ffffff;
+    background: var(--vu-deep);
+}
+
+.vu-sidebar-brand {
+    margin-bottom: 1.5rem;
+    font-size: 1.15rem;
+    font-weight: 900;
+}
+
+.vu-sidebar-nav {
+    display: grid;
+    gap: .35rem;
+}
+
+.vu-sidebar-nav a {
+    padding: .75rem .85rem;
+    color: rgba(255, 255, 255, .84);
+    border-radius: 8px;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.vu-sidebar-nav a:hover,
+.vu-sidebar-nav a.active {
+    color: #ffffff;
+    background: rgba(156, 106, 222, .28);
+}
+
+.vu-admin-content {
+    padding: 2rem;
+}
+
+.vu-admin-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.vu-admin-header h1 {
+    margin-bottom: .35rem;
+    color: var(--vu-deep);
+    font-weight: 900;
+}
+
+.vu-admin-header p {
+    margin-bottom: 0;
+    color: var(--vu-muted);
+}
+
+.vu-dashboard-card,
+.vu-panel {
+    background: #ffffff;
+    border: 1px solid rgba(111, 66, 193, .15);
+    border-radius: 8px;
+    box-shadow: 0 12px 32px rgba(45, 2, 71, .08);
+}
+
+.vu-dashboard-card {
+    height: 100%;
+    padding: 1.25rem;
+}
+
+.vu-dashboard-card span {
+    color: var(--vu-accent);
+    font-size: .82rem;
+    font-weight: 800;
+    text-transform: uppercase;
+}
+
+.vu-dashboard-card strong {
+    display: block;
+    margin: .4rem 0;
+    color: var(--vu-deep);
+    font-size: 1.35rem;
+}
+
+.vu-dashboard-card p,
+.vu-panel p {
+    margin-bottom: 0;
+    color: var(--vu-muted);
+}
+
+.vu-panel {
+    height: 100%;
+    padding: 1.5rem;
+}
+
+.vu-panel h2 {
+    color: var(--vu-deep);
+    font-size: 1.25rem;
+    font-weight: 900;
+}
+
+.vu-module-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: .75rem;
+}
+
+.vu-module-grid a {
+    padding: 1rem;
+    color: var(--vu-deep);
+    background: var(--vu-soft);
+    border: 1px solid var(--vu-line);
+    border-radius: 8px;
+    font-weight: 800;
+    text-decoration: none;
+}
+
+.vu-module-grid a:hover {
+    color: #ffffff;
+    background: var(--vu-accent);
+}
+
+.vu-status-list {
+    display: grid;
+    gap: .85rem;
+    padding: 0;
+    margin: 1rem 0 0;
+    list-style: none;
+}
+
+.vu-status-list li {
+    display: flex;
+    align-items: center;
+    gap: .65rem;
+    color: var(--vu-muted);
+    font-weight: 700;
+}
+
+.vu-status-list span {
+    width: .65rem;
+    height: .65rem;
+    background: var(--vu-accent);
+    border-radius: 999px;
+}
+
+@media (max-width: 991.98px) {
+    .vu-auth-page {
+        background:
+            radial-gradient(circle at top left, rgba(156, 106, 222, .28), transparent 28rem),
+            linear-gradient(180deg, #2d0247 0%, #4b0a7a 45%, #f3efff 45%, #f3efff 100%);
+    }
+
+    .vu-admin-sidebar {
+        min-height: auto;
+    }
+
+    .vu-admin-content {
+        padding: 1.25rem;
+    }
 }

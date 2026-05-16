@@ -1,0 +1,97 @@
+- generic [active] [ref=e1]:
+  - banner [ref=e2]:
+    - navigation [ref=e3]:
+      - generic [ref=e4]:
+        - link "Vibra Urbana" [ref=e5] [cursor=pointer]:
+          - /url: /
+        - list [ref=e7]:
+          - listitem [ref=e8]:
+            - link "Inicio" [ref=e9] [cursor=pointer]:
+              - /url: /
+          - listitem [ref=e10]:
+            - link "Admin" [ref=e11] [cursor=pointer]:
+              - /url: /Admin
+          - listitem [ref=e12]:
+            - link "Productos" [ref=e13] [cursor=pointer]:
+              - /url: /Producto
+          - listitem [ref=e14]:
+            - link "Inventario" [ref=e15] [cursor=pointer]:
+              - /url: /Inventario
+          - listitem [ref=e16]:
+            - link "Login" [ref=e17] [cursor=pointer]:
+              - /url: /Account/Login
+  - main [ref=e18]:
+    - generic [ref=e21]:
+      - complementary [ref=e22]:
+        - generic [ref=e23]: Vibra Urbana
+        - navigation [ref=e24]:
+          - link "Panel inicial" [ref=e25] [cursor=pointer]:
+            - /url: /Admin
+          - link "Clientes" [ref=e26] [cursor=pointer]:
+            - /url: /Cliente
+          - link "Productos" [ref=e27] [cursor=pointer]:
+            - /url: /Producto
+          - link "Inventario" [ref=e28] [cursor=pointer]:
+            - /url: /Inventario
+          - link "Ventas" [ref=e29] [cursor=pointer]:
+            - /url: /Venta
+          - link "Facturacion" [ref=e30] [cursor=pointer]:
+            - /url: /Factura
+          - link "Reportes" [ref=e31] [cursor=pointer]:
+            - /url: /Reporte
+          - link "Pedidos" [ref=e32] [cursor=pointer]:
+            - /url: /Pedido
+      - generic [ref=e33]:
+        - generic [ref=e34]:
+          - generic [ref=e35]:
+            - paragraph [ref=e36]: Administracion
+            - heading "Panel inicial" [level=1] [ref=e37]
+            - paragraph [ref=e38]: Vista base para organizar los modulos comerciales de Vibra Urbana.
+          - link "Cerrar vista" [ref=e39] [cursor=pointer]:
+            - /url: /Account/Login
+        - generic [ref=e40]:
+          - generic [ref=e42]:
+            - text: Usuarios
+            - strong [ref=e43]: Base lista
+            - paragraph [ref=e44]: Roles y permisos preparados.
+          - generic [ref=e46]:
+            - text: Productos
+            - strong [ref=e47]: Catalogo
+            - paragraph [ref=e48]: Estructura preparada.
+          - generic [ref=e50]:
+            - text: Inventario
+            - strong [ref=e51]: Control
+            - paragraph [ref=e52]: Modulo pendiente.
+          - generic [ref=e54]:
+            - text: Ventas
+            - strong [ref=e55]: Operacion
+            - paragraph [ref=e56]: Flujo pendiente.
+        - generic [ref=e57]:
+          - generic [ref=e59]:
+            - generic [ref=e61]:
+              - heading "Modulos principales" [level=2] [ref=e62]
+              - paragraph [ref=e63]: Accesos iniciales para validar la navegacion MVC.
+            - generic [ref=e64]:
+              - link "Clientes" [ref=e65] [cursor=pointer]:
+                - /url: /Cliente
+              - link "Productos" [ref=e66] [cursor=pointer]:
+                - /url: /Producto
+              - link "Inventario" [ref=e67] [cursor=pointer]:
+                - /url: /Inventario
+              - link "Ventas" [ref=e68] [cursor=pointer]:
+                - /url: /Venta
+              - link "Facturacion" [ref=e69] [cursor=pointer]:
+                - /url: /Factura
+              - link "Reportes" [ref=e70] [cursor=pointer]:
+                - /url: /Reporte
+          - generic [ref=e72]:
+            - heading "Estado del sprint" [level=2] [ref=e73]
+            - list [ref=e74]:
+              - listitem [ref=e75]: MVC base configurado
+              - listitem [ref=e77]: EF Core preparado
+              - listitem [ref=e79]: Login funcional pendiente
+              - listitem [ref=e81]: CRUD pendiente
+  - contentinfo [ref=e83]:
+    - generic [ref=e84]:
+      - generic [ref=e85]: © 2026 Vibra Urbana
+      - generic [ref=e86]: Estructura base ASP.NET Core MVC
