@@ -9,6 +9,7 @@ obj/
 
 # Sensitive or local files
 Credenciales.txt
+appsettings.Development.json
 appsettings.*.local.json
 secrets.json
 

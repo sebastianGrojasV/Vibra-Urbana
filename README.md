@@ -1,10 +1,12 @@
 # Vibra Urbana
 
-Vibra Urbana es un proyecto academico para la gestion comercial de una tienda de ropa. Esta version corresponde a la estructura base del sistema web en ASP.NET Core MVC.
+Vibra Urbana es un proyecto academico para la gestion comercial de una tienda de ropa. Esta version corresponde a la base del sistema web en ASP.NET Core MVC con configuracion inicial de Entity Framework Core.
 
 ## Estado actual
 
-Estructura base ASP.NET Core MVC para Sprint 1. La aplicacion ya cuenta con navegacion inicial, layout compartido, controladores base, vistas Razor minimas y archivos estaticos organizados. Todavia no incluye autenticacion real, CRUD, inventario funcional, ventas, facturacion, carrito, reportes reales ni conexion a base de datos.
+Estructura base ASP.NET Core MVC con navegacion inicial, layout compartido, controladores base, vistas Razor minimas, archivos estaticos organizados y configuracion inicial de base de datos para usuarios, roles y permisos.
+
+Todavia no incluye login funcional, CRUD, inventario funcional, ventas, facturacion, carrito ni reportes reales.
 
 ## Tecnologias utilizadas
 
@@ -13,54 +15,90 @@ Estructura base ASP.NET Core MVC para Sprint 1. La aplicacion ya cuenta con nave
 - Razor Views
 - Bootstrap
 - JavaScript
-- Entity Framework Core preparado para etapas posteriores
-- SQL Server preparado para etapas posteriores
+- Entity Framework Core
+- SQL Server
 
 ## Estructura general
 
 ```text
 VibraUrbana-main/
-├── Controllers/
-├── Models/
-├── ViewModels/
-├── Views/
-│   ├── Account/
-│   ├── Admin/
-│   ├── Home/
-│   └── Shared/
-├── Services/
-├── Repositories/
-├── Data/
-├── wwwroot/
-│   ├── assets/
-│   ├── css/
-│   ├── img/
-│   ├── js/
-│   └── lib/
-├── Program.cs
-├── appsettings.json
-└── VibraUrbana.csproj
+|-- Controllers/
+|-- Models/
+|-- ViewModels/
+|-- Views/
+|   |-- Account/
+|   |-- Admin/
+|   |-- Home/
+|   |-- Shared/
+|-- Services/
+|-- Repositories/
+|-- Data/
+|   |-- ApplicationDbContext.cs
+|   |-- DbInitializer.cs
+|-- wwwroot/
+|   |-- assets/
+|   |-- css/
+|   |-- img/
+|   |-- js/
+|   |-- lib/
+|-- Program.cs
+|-- appsettings.json
+|-- VibraUrbana.csproj
 ```
 
-La beta visual estatica fue retirada de la raiz para evitar duplicidad. Los CSS, JavaScript y recursos visuales necesarios quedaron organizados en `wwwroot` para integrarlos con ASP.NET Core.
+## Base de datos
+
+La aplicacion esta configurada para usar SQL Server Express con la base local `VibraUrbanaDb`.
+
+Cadena de conexion de desarrollo:
+
+```text
+Server=localhost\SQLEXPRESS;Database=VibraUrbanaDb;Trusted_Connection=True;TrustServerCertificate=True;
+```
+
+Entidades iniciales:
+
+- `Usuario`
+- `Rol`
+- `Permiso`
+- `RolPermiso`
+
+Tambien existe `DbInitializer` para preparar roles y permisos iniciales cuando se conecte el flujo de migraciones o inicializacion controlada.
 
 ## Como ejecutar localmente
 
-1. Verificar que el SDK o runtime de .NET compatible con `net8.0` este instalado.
+1. Verificar que SQL Server Express este activo y que exista la base `VibraUrbanaDb`.
 2. Restaurar dependencias:
 
 ```bash
 dotnet restore
 ```
 
-3. Ejecutar la aplicacion:
+3. Compilar:
+
+```bash
+dotnet build
+```
+
+4. Ejecutar la aplicacion:
 
 ```bash
 dotnet run
 ```
 
-4. Abrir la URL indicada por la consola. La ruta inicial carga `Home/Index`.
+5. Abrir la URL indicada por la consola. La ruta inicial carga `Home/Index`.
 
-## Paquetes NuGet
+## Migraciones EF Core
 
-No se agregaron paquetes NuGet adicionales para esta tarea. La base MVC usa las dependencias incluidas por `Microsoft.NET.Sdk.Web` y los recursos estaticos generados por la plantilla.
+Cuando se quiera crear la primera migracion:
+
+```bash
+dotnet ef migrations add InitialIdentitySchema
+dotnet ef database update
+```
+
+## Paquetes NuGet agregados
+
+- `Microsoft.EntityFrameworkCore.SqlServer`: proveedor de SQL Server para EF Core.
+- `Microsoft.EntityFrameworkCore.Tools`: herramientas para migraciones y comandos EF.
+- `Microsoft.EntityFrameworkCore.Design`: soporte de diseno requerido por las herramientas EF.
