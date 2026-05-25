@@ -4,9 +4,9 @@ Vibra Urbana es un proyecto academico para la gestion comercial de una tienda de
 
 ## Estado actual
 
-Estructura base ASP.NET Core MVC con navegacion inicial, layout compartido, controladores base, vistas Razor minimas, archivos estaticos organizados y configuracion inicial de base de datos para usuarios, roles y permisos.
+Estructura ASP.NET Core MVC con navegacion inicial, layout compartido, controladores base, vistas Razor minimas, archivos estaticos organizados y base de datos relacional completa para los modulos principales del sistema.
 
-Todavia no incluye login funcional, CRUD, inventario funcional, ventas, facturacion, carrito ni reportes reales.
+Todavia no incluye login funcional, CRUD, inventario funcional, ventas, facturacion, carrito ni reportes reales en la interfaz.
 
 ## Tecnologias utilizadas
 
@@ -62,8 +62,28 @@ Entidades iniciales:
 - `Rol`
 - `Permiso`
 - `RolPermiso`
+- `Bitacora`
+- `Cliente`
+- `Categoria`
+- `Producto`
+- `Inventario`
+- `MovimientoInventario`
+- `Venta`
+- `DetalleVenta`
+- `Factura`
+- `MetodoPago`
+- `CierreCaja`
+- `Pedido`
+- `DetallePedido`
+- `ComprobantePago`
 
-Tambien existe `DbInitializer` para preparar roles y permisos iniciales cuando se conecte el flujo de migraciones o inicializacion controlada.
+La migracion `CrearBaseDatosCompleta` crea la estructura completa y carga datos iniciales para roles, permisos, asignaciones rol-permiso y metodos de pago.
+
+Datos iniciales:
+
+- Roles: Administrador, Cajero, Inventario, Consulta.
+- Metodos de pago: Efectivo, SINPE, Tarjeta.
+- Permisos base: usuarios, roles, clientes, productos, inventario, ventas, facturacion y reportes.
 
 ## Como ejecutar localmente
 
@@ -90,12 +110,16 @@ dotnet run
 
 ## Migraciones EF Core
 
-Cuando se quiera crear la primera migracion:
+Para aplicar la base de datos en un entorno local:
 
 ```bash
-dotnet ef migrations add InitialIdentitySchema
 dotnet ef database update
 ```
+
+Migraciones actuales:
+
+- `InitialIdentityStructure`
+- `CrearBaseDatosCompleta`
 
 ## Paquetes NuGet agregados
 

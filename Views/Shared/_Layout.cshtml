@@ -32,7 +32,17 @@
                             <a class="nav-link" asp-controller="Inventario" asp-action="Index">Inventario</a>
                         </li>
                         <li class="nav-item">
-                            <a class="btn btn-sm btn-dark" asp-controller="Account" asp-action="Login">Login</a>
+                            @if (User.Identity?.IsAuthenticated == true)
+                            {
+                                <form asp-controller="Account" asp-action="Logout" method="post">
+                                    @Html.AntiForgeryToken()
+                                    <button class="btn btn-sm btn-light" type="submit">Salir</button>
+                                </form>
+                            }
+                            else
+                            {
+                                <a class="btn btn-sm btn-light" asp-controller="Account" asp-action="Login">Login</a>
+                            }
                         </li>
                     </ul>
                 </div>
