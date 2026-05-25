@@ -1,13 +1,86 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using VibraUrbana.Services;
+using VibraUrbana.ViewModels;
 
 namespace VibraUrbana.Controllers;
 
 [Authorize(Roles = "Administrador")]
 public class AdminController : Controller
 {
+    private readonly IUsuarioRegistrationService _usuarioRegistrationService;
+
+    public AdminController(IUsuarioRegistrationService usuarioRegistrationService)
+    {
+        _usuarioRegistrationService = usuarioRegistrationService;
+    }
+
     public IActionResult Index()
     {
         return View();
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> Usuarios()
+    {
+        return View(await BuildCrearUsuarioViewModelAsync());
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Usuarios(CrearUsuarioViewModel model)
+    {
+        if (!ModelState.IsValid)
+        {
+            ModelState.AddModelError(string.Empty, "Completa los campos obligatorios para registrar el usuario.");
+            model.Roles = await BuildRoleSelectListAsync(model.RolId);
+            return View(model);
+        }
+
+        var result = await _usuarioRegistrationService.CreateAsync(model);
+
+        if (result == RegistroUsuarioResult.Success)
+        {
+            TempData["SuccessMessage"] = "Usuario registrado correctamente.";
+            return RedirectToAction(nameof(Usuarios));
+        }
+
+        AddRegistrationError(result);
+        model.Roles = await BuildRoleSelectListAsync(model.RolId);
+        return View(model);
+    }
+
+    private async Task<CrearUsuarioViewModel> BuildCrearUsuarioViewModelAsync()
+    {
+        return new CrearUsuarioViewModel
+        {
+            Roles = await BuildRoleSelectListAsync()
+        };
+    }
+
+    private async Task<IEnumerable<SelectListItem>> BuildRoleSelectListAsync(int? selectedRolId = null)
+    {
+        var roles = await _usuarioRegistrationService.GetActiveRolesAsync();
+
+        return roles.Select(rol => new SelectListItem
+        {
+            Value = rol.Id.ToString(),
+            Text = rol.Nombre,
+            Selected = selectedRolId == rol.Id
+        });
+    }
+
+    private void AddRegistrationError(RegistroUsuarioResult result)
+    {
+        var message = result switch
+        {
+            RegistroUsuarioResult.DuplicateCedula => "La cedula ya se encuentra registrada.",
+            RegistroUsuarioResult.DuplicateCorreo => "El correo electronico ya se encuentra registrado.",
+            RegistroUsuarioResult.RolNotFound => "El rol seleccionado no esta disponible.",
+            _ => "No fue posible registrar el usuario."
+        };
+
+        ModelState.AddModelError(string.Empty, message);
     }
 }
