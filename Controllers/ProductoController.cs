@@ -1,7 +1,9 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace VibraUrbana.Controllers;
 
+[Authorize(Roles = "Administrador,Inventario")]
 public class ProductoController : Controller
 {
     public IActionResult Index()

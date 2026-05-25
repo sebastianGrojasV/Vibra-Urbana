@@ -9,6 +9,7 @@ public static class DbInitializer
     {
         await SeedRolesAsync(context);
         await SeedPermisosAsync(context);
+        await SeedMetodosPagoAsync(context);
         await SeedRolPermisosAsync(context);
     }
 
@@ -56,6 +57,28 @@ public static class DbInitializer
             if (!exists)
             {
                 context.Permisos.Add(permiso);
+            }
+        }
+
+        await context.SaveChangesAsync();
+    }
+
+    private static async Task SeedMetodosPagoAsync(ApplicationDbContext context)
+    {
+        var metodosPago = new[]
+        {
+            new MetodoPago { Nombre = "Efectivo" },
+            new MetodoPago { Nombre = "SINPE" },
+            new MetodoPago { Nombre = "Tarjeta" }
+        };
+
+        foreach (var metodoPago in metodosPago)
+        {
+            var exists = await context.MetodosPago.AnyAsync(existing => existing.Nombre == metodoPago.Nombre);
+
+            if (!exists)
+            {
+                context.MetodosPago.Add(metodoPago);
             }
         }
 

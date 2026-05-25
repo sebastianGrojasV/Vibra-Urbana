@@ -1,3 +1,5 @@
+@model VibraUrbana.ViewModels.LoginViewModel
+
 @{
     ViewData["Title"] = "Iniciar sesion";
 }
@@ -29,26 +31,45 @@
                         <p>Ingresa con tu cuenta asignada para continuar.</p>
                     </div>
 
-                    <form>
+                    <form asp-controller="Account" asp-action="Login" method="post" novalidate>
+                        @Html.AntiForgeryToken()
+                        <input asp-for="ReturnUrl" type="hidden" />
+
+                        @if (ViewData.ModelState[string.Empty]?.Errors.Count > 0)
+                        {
+                            <div class="alert alert-danger" role="alert">
+                                @foreach (var error in ViewData.ModelState[string.Empty]!.Errors)
+                                {
+                                    <div>@error.ErrorMessage</div>
+                                }
+                            </div>
+                        }
+
                         <div class="mb-3">
-                            <label class="form-label" for="correo">Correo electronico</label>
-                            <input class="form-control form-control-lg" id="correo" name="correo" type="email" autocomplete="email" placeholder="usuario@vibraurbana.com" />
+                            <label asp-for="Correo" class="form-label"></label>
+                            <input asp-for="Correo" class="form-control form-control-lg" autocomplete="email" placeholder="usuario@vibraurbana.com" />
+                            <span asp-validation-for="Correo" class="text-danger small"></span>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label" for="password">Contrasena</label>
-                            <input class="form-control form-control-lg" id="password" name="password" type="password" autocomplete="current-password" placeholder="Ingresa tu contrasena" />
+                            <label asp-for="Password" class="form-label"></label>
+                            <input asp-for="Password" class="form-control form-control-lg" autocomplete="current-password" placeholder="Ingresa tu contrasena" />
+                            <span asp-validation-for="Password" class="text-danger small"></span>
                         </div>
                         <div class="d-flex align-items-center justify-content-between mb-4">
                             <div class="form-check">
-                                <input class="form-check-input" id="recordarme" type="checkbox" />
-                                <label class="form-check-label" for="recordarme">Recordarme</label>
+                                <input asp-for="Recordarme" class="form-check-input" />
+                                <label asp-for="Recordarme" class="form-check-label"></label>
                             </div>
                             <a class="vu-text-link" asp-controller="Home" asp-action="Index">Volver al inicio</a>
                         </div>
-                        <button class="btn btn-primary btn-lg w-100" type="button">Entrar</button>
+                        <button class="btn btn-primary btn-lg w-100" type="submit">Iniciar sesion</button>
                     </form>
                 </div>
             </div>
         </div>
     </div>
 </section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
