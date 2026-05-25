@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using VibraUrbana.Data;
+using VibraUrbana.Filters;
 using VibraUrbana.Models;
 using VibraUrbana.Services;
 
@@ -25,7 +26,10 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
         options.SlidingExpiration = true;
     });
 
-builder.Services.AddControllersWithViews();
+builder.Services.AddControllersWithViews(options =>
+{
+    options.Filters.Add<NoCacheForAuthenticatedUsersFilter>();
+});
 
 var app = builder.Build();
 
