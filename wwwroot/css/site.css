@@ -13,10 +13,16 @@ html {
 }
 
 body {
+    display: flex;
+    flex-direction: column;
     min-height: 100vh;
     color: var(--vu-ink);
     background: #f3efff;
     font-family: "Segoe UI", Arial, sans-serif;
+}
+
+body > main {
+    flex: 1 0 auto;
 }
 
 .vu-navbar {
@@ -118,6 +124,7 @@ body {
 }
 
 .vu-footer {
+    flex-shrink: 0;
     padding: 1.5rem 0;
     color: #d6c7f7;
     background: var(--vu-deep);
@@ -209,6 +216,7 @@ body {
 
 .vu-admin-shell {
     min-height: calc(100vh - 130px);
+    padding-bottom: 2rem;
     background: #f3efff;
 }
 
@@ -302,7 +310,6 @@ body {
 }
 
 .vu-panel {
-    height: 100%;
     padding: 1.5rem;
 }
 

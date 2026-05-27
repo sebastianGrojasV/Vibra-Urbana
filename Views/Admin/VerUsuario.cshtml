@@ -1,0 +1,68 @@
+@model VibraUrbana.ViewModels.UsuarioDetalleViewModel
+
+@{
+    ViewData["Title"] = "Detalle de Usuario";
+}
+
+<section class="vu-admin-shell">
+    <div class="container-fluid">
+        <div class="row g-0">
+            <aside class="col-lg-3 col-xl-2 vu-admin-sidebar">
+                <div class="vu-sidebar-brand">Vibra Urbana</div>
+                <nav class="vu-sidebar-nav">
+                    <a asp-controller="Admin" asp-action="Index">Panel inicial</a>
+                    <a class="active" asp-controller="Admin" asp-action="Usuarios">Usuarios</a>
+                    <a asp-controller="Cliente" asp-action="Index">Clientes</a>
+                    <a asp-controller="Producto" asp-action="Index">Productos</a>
+                    <a asp-controller="Inventario" asp-action="Index">Inventario</a>
+                    <a asp-controller="Venta" asp-action="Index">Ventas</a>
+                    <a asp-controller="Factura" asp-action="Index">Facturacion</a>
+                    <a asp-controller="Reporte" asp-action="Index">Reportes</a>
+                    <a asp-controller="Pedido" asp-action="Index">Pedidos</a>
+                </nav>
+            </aside>
+
+            <div class="col-lg-9 col-xl-10 vu-admin-content">
+                <div class="vu-admin-header">
+                    <div>
+                        <p class="vu-eyebrow">Administracion</p>
+                        <h1>Detalle de usuario</h1>
+                        <p>Informacion registrada del usuario interno.</p>
+                    </div>
+                    <a class="btn btn-outline-primary" asp-controller="Admin" asp-action="Usuarios">Volver al listado</a>
+                </div>
+
+                <div class="vu-panel">
+                    <dl class="row mb-0">
+                        <dt class="col-md-3">Nombre</dt>
+                        <dd class="col-md-9">@Model.NombreCompleto</dd>
+
+                        <dt class="col-md-3">Cedula</dt>
+                        <dd class="col-md-9">@Model.Cedula</dd>
+
+                        <dt class="col-md-3">Correo</dt>
+                        <dd class="col-md-9">@Model.Correo</dd>
+
+                        <dt class="col-md-3">Rol</dt>
+                        <dd class="col-md-9">@Model.Rol</dd>
+
+                        <dt class="col-md-3">Estado</dt>
+                        <dd class="col-md-9">
+                            @if (Model.Activo)
+                            {
+                                <span class="badge bg-success">Activo</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary">Inactivo</span>
+                            }
+                        </dd>
+
+                        <dt class="col-md-3">Fecha de creacion</dt>
+                        <dd class="col-md-9">@Model.FechaCreacion.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
