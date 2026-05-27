@@ -32,11 +32,11 @@
 
                 <div class="row g-3 mb-4">
                     <div class="col-md-6 col-xl-3">
-                        <div class="vu-dashboard-card">
+                        <a class="vu-dashboard-card vu-module-link" asp-controller="Admin" asp-action="Usuarios">
                             <span>Usuarios</span>
                             <strong>Registro</strong>
-                            <p>Alta de empleados autorizados.</p>
-                        </div>
+                            <p>Consulta y alta de empleados.</p>
+                        </a>
                     </div>
                     <div class="col-md-6 col-xl-3">
                         <div class="vu-dashboard-card">
@@ -72,6 +72,7 @@
                             </div>
                             <div class="vu-module-grid">
                                 <a asp-controller="Admin" asp-action="Usuarios">Usuarios</a>
+                                <a asp-controller="Admin" asp-action="CrearUsuario">Registrar usuario</a>
                                 <a asp-controller="Cliente" asp-action="Index">Clientes</a>
                                 <a asp-controller="Producto" asp-action="Index">Productos</a>
                                 <a asp-controller="Inventario" asp-action="Index">Inventario</a>

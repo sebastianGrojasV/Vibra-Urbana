@@ -24,12 +24,31 @@ public class AdminController : Controller
     [HttpGet]
     public async Task<IActionResult> Usuarios()
     {
+        return View(await _usuarioRegistrationService.GetUsuariosAsync());
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> VerUsuario(int id)
+    {
+        var usuario = await _usuarioRegistrationService.GetUsuarioDetalleAsync(id);
+
+        if (usuario is null)
+        {
+            return NotFound();
+        }
+
+        return View(usuario);
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> CrearUsuario()
+    {
         return View(await BuildCrearUsuarioViewModelAsync());
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Usuarios(CrearUsuarioViewModel model)
+    public async Task<IActionResult> CrearUsuario(CrearUsuarioViewModel model)
     {
         if (!ModelState.IsValid)
         {

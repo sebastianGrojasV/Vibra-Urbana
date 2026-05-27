@@ -25,6 +25,43 @@ public class UsuarioRegistrationService : IUsuarioRegistrationService
             .ToListAsync();
     }
 
+    public async Task<IReadOnlyList<UsuarioListadoItemViewModel>> GetUsuariosAsync()
+    {
+        return await _context.Usuarios
+            .AsNoTracking()
+            .Include(usuario => usuario.Rol)
+            .OrderBy(usuario => usuario.NombreCompleto)
+            .Select(usuario => new UsuarioListadoItemViewModel
+            {
+                Id = usuario.Id,
+                Cedula = usuario.Cedula,
+                NombreCompleto = usuario.NombreCompleto,
+                Correo = usuario.Correo,
+                Rol = usuario.Rol.Nombre,
+                Activo = usuario.Activo
+            })
+            .ToListAsync();
+    }
+
+    public async Task<UsuarioDetalleViewModel?> GetUsuarioDetalleAsync(int id)
+    {
+        return await _context.Usuarios
+            .AsNoTracking()
+            .Include(usuario => usuario.Rol)
+            .Where(usuario => usuario.Id == id)
+            .Select(usuario => new UsuarioDetalleViewModel
+            {
+                Id = usuario.Id,
+                Cedula = usuario.Cedula,
+                NombreCompleto = usuario.NombreCompleto,
+                Correo = usuario.Correo,
+                Rol = usuario.Rol.Nombre,
+                Activo = usuario.Activo,
+                FechaCreacion = usuario.FechaCreacion
+            })
+            .SingleOrDefaultAsync();
+    }
+
     public async Task<RegistroUsuarioResult> CreateAsync(CrearUsuarioViewModel model)
     {
         var cedula = model.Cedula.Trim();
