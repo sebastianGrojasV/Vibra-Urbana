@@ -70,6 +70,49 @@ public class AdminController : Controller
         return View(model);
     }
 
+    [HttpGet]
+    public async Task<IActionResult> ModificarUsuario(int id)
+    {
+        var model = await _usuarioRegistrationService.GetUsuarioParaEditarAsync(id);
+
+        if (model is null)
+        {
+            return NotFound();
+        }
+
+        model.Roles = await BuildRoleSelectListAsync(model.RolId);
+        return View(model);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> ModificarUsuario(EditarUsuarioViewModel model)
+    {
+        if (!ModelState.IsValid)
+        {
+            ModelState.AddModelError(string.Empty, "Completa los campos obligatorios para actualizar el usuario.");
+            model.Roles = await BuildRoleSelectListAsync(model.RolId);
+            return View(model);
+        }
+
+        var result = await _usuarioRegistrationService.UpdateAsync(model);
+
+        if (result == ActualizarUsuarioResult.Success)
+        {
+            TempData["SuccessMessage"] = "Usuario actualizado correctamente.";
+            return RedirectToAction(nameof(Usuarios));
+        }
+
+        if (result == ActualizarUsuarioResult.NotFound)
+        {
+            return NotFound();
+        }
+
+        AddUpdateError(result);
+        model.Roles = await BuildRoleSelectListAsync(model.RolId);
+        return View(model);
+    }
+
     private async Task<CrearUsuarioViewModel> BuildCrearUsuarioViewModelAsync()
     {
         return new CrearUsuarioViewModel
@@ -98,6 +141,19 @@ public class AdminController : Controller
             RegistroUsuarioResult.DuplicateCorreo => "El correo electronico ya se encuentra registrado.",
             RegistroUsuarioResult.RolNotFound => "El rol seleccionado no esta disponible.",
             _ => "No fue posible registrar el usuario."
+        };
+
+        ModelState.AddModelError(string.Empty, message);
+    }
+
+    private void AddUpdateError(ActualizarUsuarioResult result)
+    {
+        var message = result switch
+        {
+            ActualizarUsuarioResult.DuplicateCedula => "La cedula ya se encuentra registrada por otro usuario.",
+            ActualizarUsuarioResult.DuplicateCorreo => "El correo electronico ya se encuentra registrado por otro usuario.",
+            ActualizarUsuarioResult.RolNotFound => "El rol seleccionado no esta disponible.",
+            _ => "No fue posible actualizar el usuario."
         };
 
         ModelState.AddModelError(string.Empty, message);

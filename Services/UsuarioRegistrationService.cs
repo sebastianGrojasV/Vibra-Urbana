@@ -62,6 +62,69 @@ public class UsuarioRegistrationService : IUsuarioRegistrationService
             .SingleOrDefaultAsync();
     }
 
+    public async Task<EditarUsuarioViewModel?> GetUsuarioParaEditarAsync(int id)
+    {
+        return await _context.Usuarios
+            .AsNoTracking()
+            .Where(usuario => usuario.Id == id)
+            .Select(usuario => new EditarUsuarioViewModel
+            {
+                Id = usuario.Id,
+                Cedula = usuario.Cedula,
+                NombreCompleto = usuario.NombreCompleto,
+                Correo = usuario.Correo,
+                RolId = usuario.RolId,
+                Activo = usuario.Activo
+            })
+            .SingleOrDefaultAsync();
+    }
+
+    public async Task<ActualizarUsuarioResult> UpdateAsync(EditarUsuarioViewModel model)
+    {
+        var usuario = await _context.Usuarios.SingleOrDefaultAsync(existing => existing.Id == model.Id);
+
+        if (usuario is null)
+        {
+            return ActualizarUsuarioResult.NotFound;
+        }
+
+        var cedula = model.Cedula.Trim();
+        var correo = model.Correo.Trim().ToLowerInvariant();
+
+        var rolExists = await _context.Roles.AnyAsync(rol => rol.Id == model.RolId && rol.Activo);
+
+        if (!rolExists)
+        {
+            return ActualizarUsuarioResult.RolNotFound;
+        }
+
+        var cedulaExists = await _context.Usuarios.AnyAsync(existing =>
+            existing.Id != model.Id && existing.Cedula == cedula);
+
+        if (cedulaExists)
+        {
+            return ActualizarUsuarioResult.DuplicateCedula;
+        }
+
+        var correoExists = await _context.Usuarios.AnyAsync(existing =>
+            existing.Id != model.Id && existing.Correo.ToLower() == correo);
+
+        if (correoExists)
+        {
+            return ActualizarUsuarioResult.DuplicateCorreo;
+        }
+
+        usuario.Cedula = cedula;
+        usuario.NombreCompleto = model.NombreCompleto.Trim();
+        usuario.Correo = correo;
+        usuario.RolId = model.RolId;
+        usuario.Activo = model.Activo;
+
+        await _context.SaveChangesAsync();
+
+        return ActualizarUsuarioResult.Success;
+    }
+
     public async Task<RegistroUsuarioResult> CreateAsync(CrearUsuarioViewModel model)
     {
         var cedula = model.Cedula.Trim();

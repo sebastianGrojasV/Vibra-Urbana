@@ -1,0 +1,109 @@
+@model VibraUrbana.ViewModels.EditarUsuarioViewModel
+
+@{
+    ViewData["Title"] = "Modificar Usuario";
+}
+
+<section class="vu-admin-shell">
+    <div class="container-fluid">
+        <div class="row g-0">
+            <aside class="col-lg-3 col-xl-2 vu-admin-sidebar">
+                <div class="vu-sidebar-brand">Vibra Urbana</div>
+                <nav class="vu-sidebar-nav">
+                    <a asp-controller="Admin" asp-action="Index">Panel inicial</a>
+                    <a class="active" asp-controller="Admin" asp-action="Usuarios">Usuarios</a>
+                    <a asp-controller="Cliente" asp-action="Index">Clientes</a>
+                    <a asp-controller="Producto" asp-action="Index">Productos</a>
+                    <a asp-controller="Inventario" asp-action="Index">Inventario</a>
+                    <a asp-controller="Venta" asp-action="Index">Ventas</a>
+                    <a asp-controller="Factura" asp-action="Index">Facturacion</a>
+                    <a asp-controller="Reporte" asp-action="Index">Reportes</a>
+                    <a asp-controller="Pedido" asp-action="Index">Pedidos</a>
+                </nav>
+            </aside>
+
+            <div class="col-lg-9 col-xl-10 vu-admin-content">
+                <div class="vu-admin-header">
+                    <div>
+                        <p class="vu-eyebrow">Administracion</p>
+                        <h1>Modificar usuario</h1>
+                        <p>Actualiza datos generales y control de acceso del usuario.</p>
+                    </div>
+                    <a class="btn btn-outline-primary" asp-controller="Admin" asp-action="Usuarios">Volver al listado</a>
+                </div>
+
+                <div class="row g-4">
+                    <div class="col-xl-8">
+                        <div class="vu-panel">
+                            @if (ViewData.ModelState[string.Empty]?.Errors.Count > 0)
+                            {
+                                <div class="alert alert-danger" role="alert">
+                                    @foreach (var error in ViewData.ModelState[string.Empty]!.Errors)
+                                    {
+                                        <div>@error.ErrorMessage</div>
+                                    }
+                                </div>
+                            }
+
+                            <form asp-controller="Admin" asp-action="ModificarUsuario" method="post" novalidate>
+                                @Html.AntiForgeryToken()
+                                <input asp-for="Id" type="hidden" />
+
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label asp-for="Cedula" class="form-label"></label>
+                                        <input asp-for="Cedula" class="form-control" autocomplete="off" />
+                                        <span asp-validation-for="Cedula" class="text-danger small"></span>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label asp-for="NombreCompleto" class="form-label"></label>
+                                        <input asp-for="NombreCompleto" class="form-control" autocomplete="name" />
+                                        <span asp-validation-for="NombreCompleto" class="text-danger small"></span>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label asp-for="Correo" class="form-label"></label>
+                                        <input asp-for="Correo" class="form-control" autocomplete="email" />
+                                        <span asp-validation-for="Correo" class="text-danger small"></span>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label asp-for="RolId" class="form-label"></label>
+                                        <select asp-for="RolId" asp-items="Model.Roles" class="form-select">
+                                            <option value="">Selecciona un rol</option>
+                                        </select>
+                                        <span asp-validation-for="RolId" class="text-danger small"></span>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-check mt-md-4 pt-md-2">
+                                            <input asp-for="Activo" class="form-check-input" />
+                                            <label asp-for="Activo" class="form-check-label"></label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="d-flex flex-wrap gap-2 mt-4">
+                                    <button class="btn btn-primary" type="submit">Guardar</button>
+                                    <a class="btn btn-outline-primary" asp-controller="Admin" asp-action="VerUsuario" asp-route-id="@Model.Id">Cancelar</a>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div class="col-xl-4">
+                        <div class="vu-panel">
+                            <h2>Seguridad</h2>
+                            <ul class="vu-status-list">
+                                <li><span></span> No se modifica la contrasena en este formulario</li>
+                                <li><span></span> Cedula y correo siguen siendo unicos</li>
+                                <li><span></span> El estado controla el acceso al sistema</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

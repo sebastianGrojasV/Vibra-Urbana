@@ -29,7 +29,10 @@
                         <h1>Detalle de usuario</h1>
                         <p>Informacion registrada del usuario interno.</p>
                     </div>
-                    <a class="btn btn-outline-primary" asp-controller="Admin" asp-action="Usuarios">Volver al listado</a>
+                    <div class="d-flex flex-wrap gap-2">
+                        <a class="btn btn-primary" asp-controller="Admin" asp-action="ModificarUsuario" asp-route-id="@Model.Id">Modificar</a>
+                        <a class="btn btn-outline-primary" asp-controller="Admin" asp-action="Usuarios">Volver al listado</a>
+                    </div>
                 </div>
 
                 <div class="vu-panel">

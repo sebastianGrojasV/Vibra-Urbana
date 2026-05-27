@@ -12,4 +12,8 @@ public interface IUsuarioRegistrationService
     Task<IReadOnlyList<UsuarioListadoItemViewModel>> GetUsuariosAsync();
 
     Task<UsuarioDetalleViewModel?> GetUsuarioDetalleAsync(int id);
+
+    Task<EditarUsuarioViewModel?> GetUsuarioParaEditarAsync(int id);
+
+    Task<ActualizarUsuarioResult> UpdateAsync(EditarUsuarioViewModel model);
 }
