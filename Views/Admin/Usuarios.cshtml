@@ -79,6 +79,9 @@
                                             <td class="text-end">
                                                 <a class="btn btn-sm btn-outline-primary" asp-controller="Admin" asp-action="VerUsuario" asp-route-id="@usuario.Id">Ver</a>
                                                 <a class="btn btn-sm btn-primary" asp-controller="Admin" asp-action="ModificarUsuario" asp-route-id="@usuario.Id">Modificar</a>
+                                                <a class="btn btn-sm @(usuario.Activo ? "btn-outline-danger" : "btn-outline-success")" asp-controller="Admin" asp-action="CambiarEstadoUsuario" asp-route-id="@usuario.Id">
+                                                    @(usuario.Activo ? "Desactivar" : "Activar")
+                                                </a>
                                             </td>
                                         </tr>
                                     }

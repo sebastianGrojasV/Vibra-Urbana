@@ -125,6 +125,21 @@ public class UsuarioRegistrationService : IUsuarioRegistrationService
         return ActualizarUsuarioResult.Success;
     }
 
+    public async Task<CambiarEstadoUsuarioResult> ChangeStatusAsync(int id, bool active)
+    {
+        var usuario = await _context.Usuarios.SingleOrDefaultAsync(existing => existing.Id == id);
+
+        if (usuario is null)
+        {
+            return CambiarEstadoUsuarioResult.NotFound;
+        }
+
+        usuario.Activo = active;
+        await _context.SaveChangesAsync();
+
+        return CambiarEstadoUsuarioResult.Success;
+    }
+
     public async Task<RegistroUsuarioResult> CreateAsync(CrearUsuarioViewModel model)
     {
         var cedula = model.Cedula.Trim();

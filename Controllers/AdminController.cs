@@ -113,6 +113,37 @@ public class AdminController : Controller
         return View(model);
     }
 
+    [HttpGet]
+    public async Task<IActionResult> CambiarEstadoUsuario(int id)
+    {
+        var usuario = await _usuarioRegistrationService.GetUsuarioDetalleAsync(id);
+
+        if (usuario is null)
+        {
+            return NotFound();
+        }
+
+        return View(usuario);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> ConfirmarCambiarEstadoUsuario(int id, bool active)
+    {
+        var result = await _usuarioRegistrationService.ChangeStatusAsync(id, active);
+
+        if (result == CambiarEstadoUsuarioResult.NotFound)
+        {
+            return NotFound();
+        }
+
+        TempData["SuccessMessage"] = active
+            ? "Usuario activado correctamente."
+            : "Usuario desactivado correctamente.";
+
+        return RedirectToAction(nameof(Usuarios));
+    }
+
     private async Task<CrearUsuarioViewModel> BuildCrearUsuarioViewModelAsync()
     {
         return new CrearUsuarioViewModel

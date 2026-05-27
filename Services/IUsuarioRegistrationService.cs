@@ -16,4 +16,6 @@ public interface IUsuarioRegistrationService
     Task<EditarUsuarioViewModel?> GetUsuarioParaEditarAsync(int id);
 
     Task<ActualizarUsuarioResult> UpdateAsync(EditarUsuarioViewModel model);
+
+    Task<CambiarEstadoUsuarioResult> ChangeStatusAsync(int id, bool active);
 }
