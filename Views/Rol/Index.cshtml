@@ -1,0 +1,71 @@
+﻿@model IEnumerable<VibraUrbana.Models.Rol>
+
+@{
+    ViewData["Title"] = "Lista de Roles";
+}
+
+<div class="container mt-4">
+    <!-- Encabezado con título y botón alineados -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="mb-0">Lista de Roles</h2>
+        <a asp-action="Create" class="btn btn-lg btn-success d-flex align-items-center gap-2 shadow">
+            <i class="bi bi-person-plus-fill"></i> <!-- 🔹 Icono de Bootstrap -->
+            Crear Rol
+        </a>
+    </div>
+
+    <style>
+        th {
+            color: purple; /* Cambia el color del texto de todas las cabeceras */
+            font-weight: bold;
+        }
+    </style>
+
+
+    <!-- Tabla dentro de un card -->
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <table id="tablaRoles" class="table table-hover table-bordered">
+                <thead class="table-light">
+                    <tr>
+                        <th>Id</th>
+                        <th>Rol</th> <!-- 🔹 Cabecera clara para el nombre -->
+                        <th>Descripción</th> <!-- 🔹 Cabecera clara para la descripción -->
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var rol in Model)
+                    {
+                        <tr>
+                            <td>@rol.Id</td>
+                            <td>@rol.Nombre</td>
+                            <td>@rol.Descripcion</td>
+                            <td>
+                                <a asp-action="Details" asp-route-id="@rol.Id" class="btn btn-sm btn-info">
+                                    <i class="bi bi-eye"></i> Detalles
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+
+        </div>
+    </div>
+</div>
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $('#tablaRoles').DataTable({
+                paging: true,
+                searching: true,
+                ordering: true,
+                responsive: true,
+                language: {
+                    url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json"
+                }
+            });
+        });
+    </script>
+}
