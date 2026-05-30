@@ -17,3 +17,4 @@ secrets.json
 __MACOSX/
 .DS_Store
 Thumbs.db
+*.sln
