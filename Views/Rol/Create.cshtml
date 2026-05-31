@@ -1,0 +1,94 @@
+﻿@model VibraUrbana.Models.Rol
+
+@{
+    ViewData["Title"] = "Registrar Rol";
+}
+
+<section class="vu-admin-shell">
+    <div class="container-fluid">
+        <div class="row g-0">
+            <aside class="col-lg-3 col-xl-2 vu-admin-sidebar">
+                <div class="vu-sidebar-brand">Vibra Urbana</div>
+                <nav class="vu-sidebar-nav">
+                    <a asp-controller="Admin" asp-action="Index">Panel inicial</a>
+                    <a asp-controller="Admin" asp-action="Usuarios">Usuarios</a>
+                    <a class="active" asp-controller="Rol" asp-action="Index">Roles</a>
+                    <a asp-controller="Cliente" asp-action="Index">Clientes</a>
+                    <a asp-controller="Producto" asp-action="Index">Productos</a>
+                    <a asp-controller="Inventario" asp-action="Index">Inventario</a>
+                    <a asp-controller="Venta" asp-action="Index">Ventas</a>
+                    <a asp-controller="Factura" asp-action="Index">Facturación</a>
+                    <a asp-controller="Reporte" asp-action="Index">Reportes</a>
+                    <a asp-controller="Pedido" asp-action="Index">Pedidos</a>
+                </nav>
+            </aside>
+
+            <div class="col-lg-9 col-xl-10 vu-admin-content">
+                <div class="vu-admin-header">
+                    <div>
+                        <p class="vu-eyebrow">Administración</p>
+                        <h1>Registrar Rol</h1>
+                        <p>Crea roles internos para gestionar permisos y usuarios.</p>
+                    </div>
+                    <a class="btn btn-outline-primary" asp-controller="Rol" asp-action="Index">Volver al listado</a>
+                </div>
+
+                <div class="row g-4">
+                    <div class="col-xl-8">
+                        <div class="vu-panel">
+                            @if (ViewData.ModelState[string.Empty]?.Errors.Count > 0)
+                            {
+                                <div class="alert alert-danger" role="alert">
+                                    @foreach (var error in ViewData.ModelState[string.Empty]!.Errors)
+                                    {
+                                        <div>@error.ErrorMessage</div>
+                                    }
+                                </div>
+                            }
+
+                            <form asp-controller="Rol" asp-action="Create" method="post" novalidate>
+                                @Html.AntiForgeryToken()
+
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label asp-for="Nombre" class="form-label"></label>
+                                        <input asp-for="Nombre" class="form-control" autocomplete="off" required />
+                                        <span asp-validation-for="Nombre" class="text-danger small"></span>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label asp-for="Descripcion" class="form-label"></label>
+                                        <input asp-for="Descripcion" class="form-control" autocomplete="off" required />
+                                        <span asp-validation-for="Descripcion" class="text-danger small"></span>
+                                    </div>
+                                </div>
+
+                                <div class="d-flex flex-wrap gap-2 mt-4">
+                                    <button class="btn btn-primary btn-lg" type="submit">
+                                        <i class="bi bi-shield-lock"></i> Guardar Rol
+                                    </button>
+                                    <a class="btn btn-outline-primary" asp-controller="Rol" asp-action="Create">Limpiar</a>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div class="col-xl-4">
+                        <div class="vu-panel">
+                            <h2>Condiciones</h2>
+                            <ul class="vu-status-list">
+                                <li><span></span> El nombre del rol debe ser único</li>
+                                <li><span></span> Todos los campos son obligatorios</li>
+                                <li><span></span> El rol queda activo por defecto</li>
+                                <li><span></span> Si el rol ya existe, se mostrará un mensaje de error</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

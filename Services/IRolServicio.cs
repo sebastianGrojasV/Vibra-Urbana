@@ -11,5 +11,9 @@ namespace VibraUrbana.Services
 
         Task<Rol> ObtenerRolPorIdAsync(int id);
 
+        Task<bool> EliminarRolAsync(int id);
+
+        Task<bool> ActivarRolAsync(int id);
+
     }
 }

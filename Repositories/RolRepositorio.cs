@@ -13,7 +13,24 @@ namespace VibraUrbana.Repositories
             _context = context;
         }
 
+        public async Task<bool> ActivarRolAsync(int id)
+        {
+            var rol = await _context.Roles.FindAsync(id);
 
+            if (rol == null)
+                return false;
+
+            if (rol.Activo)
+                return false; // Ya estaba activo
+
+            rol.Activo = true;
+
+            _context.Roles.Update(rol);
+            await _context.SaveChangesAsync();
+
+            return true;
+
+        }
 
         public Task<bool> ActualizarRolAsync(Rol rol)
         {
@@ -28,9 +45,21 @@ namespace VibraUrbana.Repositories
 
         }
 
-        public Task<bool> EliminarRolAsync(int id)
+        public async Task<bool> EliminarRolAsync(int id)
         {
-            throw new NotImplementedException();
+            var rol = await _context.Roles.FindAsync(id);
+
+            if (rol == null)
+                return false; // No se encontró el rol
+
+            //eliminado logico como inactivo
+            rol.Activo = false;
+
+            _context.Roles.Update(rol);
+            await _context.SaveChangesAsync();
+
+            return true; // Se actualizó correctamente
+
         }
 
         public async Task<List<Rol>> ObtenerRolesAsync()
