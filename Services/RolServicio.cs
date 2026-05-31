@@ -12,6 +12,19 @@ namespace VibraUrbana.Services
             _rolRepositorio = rolRepositorio;
         }
 
+        public async Task<bool> ActivarRolAsync(int id)
+        {
+            var rol = await _rolRepositorio.ObtenerRolPorIdAsync(id);
+            if (rol == null)
+                return false;
+
+            if (rol.Activo)
+                return false; // Ya está activo
+
+            return await _rolRepositorio.ActivarRolAsync(id);
+
+        }
+
         public async Task<bool> AgregarRolAsync(Rol rol)
         {
             var rolesExistentes = await _rolRepositorio.ObtenerRolesAsync();
@@ -20,6 +33,21 @@ namespace VibraUrbana.Services
 
             await _rolRepositorio.AgregarRolAsync(rol);
             return true;
+
+        }
+
+        public async Task<bool> EliminarRolAsync(int id)
+        {
+            //  verificar que el rol exista y esté activo
+            var rol = await _rolRepositorio.ObtenerRolPorIdAsync(id);
+            if (rol == null)
+                return false;
+
+            if (!rol.Activo)
+                return false; // Ya estaba inactivo
+
+            //  marcarlo como inactivo
+            return await _rolRepositorio.EliminarRolAsync(id);
 
         }
 

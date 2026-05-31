@@ -10,6 +10,8 @@ namespace VibraUrbana.Repositories
         Task<bool> ActualizarRolAsync(Rol rol);
         Task<bool> EliminarRolAsync(int id);
 
+        Task<bool> ActivarRolAsync(int id);
+
 
 
     }
