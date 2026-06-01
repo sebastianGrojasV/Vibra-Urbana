@@ -367,6 +367,36 @@ body > main {
     border-radius: 999px;
 }
 
+.vu-permission-option {
+    display: flex;
+    min-height: 5.25rem;
+    gap: .75rem;
+    padding: 1rem;
+    color: var(--vu-ink);
+    background: var(--vu-soft);
+    border: 1px solid var(--vu-line);
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.vu-permission-option input {
+    margin-top: .2rem;
+    flex: 0 0 auto;
+}
+
+.vu-permission-option span {
+    display: grid;
+    gap: .25rem;
+}
+
+.vu-permission-option strong {
+    color: var(--vu-deep);
+}
+
+.vu-permission-option small {
+    color: var(--vu-muted);
+}
+
 @media (max-width: 991.98px) {
     .vu-auth-page {
         background:

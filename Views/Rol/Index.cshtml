@@ -74,14 +74,10 @@
                                                 }
                                             </td>
                                             <td class="text-end">
-                                                <form asp-controller="Rol" asp-action="CambiarEstado" method="post" class="d-inline">
-                                                    @Html.AntiForgeryToken()
-                                                    <input name="id" type="hidden" value="@rol.Id" />
-                                                    <input name="active" type="hidden" value="@(!rol.Activo).ToString().ToLowerInvariant()" />
-                                                    <button class="btn btn-sm @(rol.Activo ? "btn-outline-danger" : "btn-outline-success")" type="submit">
-                                                        @(rol.Activo ? "Desactivar" : "Activar")
-                                                    </button>
-                                                </form>
+                                                <a class="btn btn-sm btn-primary" asp-controller="Rol" asp-action="Edit" asp-route-id="@rol.Id">Editar</a>
+                                                <a class="btn btn-sm @(rol.Activo ? "btn-outline-danger" : "btn-outline-success")" asp-controller="Rol" asp-action="CambiarEstado" asp-route-id="@rol.Id">
+                                                    @(rol.Activo ? "Desactivar" : "Activar")
+                                                </a>
                                             </td>
                                         </tr>
                                     }

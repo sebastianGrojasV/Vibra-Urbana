@@ -1,0 +1,83 @@
+@model VibraUrbana.ViewModels.EditarRolViewModel
+
+@{
+    var activar = !Model.Activo;
+    ViewData["Title"] = activar ? "Activar Rol" : "Desactivar Rol";
+    var accion = activar ? "activar" : "desactivar";
+    var accionTitulo = activar ? "Activar rol" : "Desactivar rol";
+    var mensaje = activar
+        ? "El rol quedará disponible para asignar acceso a usuarios."
+        : "El rol no podrá ser usado para acceso mientras permanezca inactivo.";
+}
+
+<section class="vu-admin-shell">
+    <div class="container-fluid">
+        <div class="row g-0">
+            <aside class="col-lg-3 col-xl-2 vu-admin-sidebar">
+                <div class="vu-sidebar-brand">Vibra Urbana</div>
+                <nav class="vu-sidebar-nav">
+                    <a asp-controller="Admin" asp-action="Index">Panel inicial</a>
+                    <a asp-controller="Admin" asp-action="Usuarios">Usuarios</a>
+                    <a class="active" asp-controller="Rol" asp-action="Index">Roles</a>
+                    <a asp-controller="Cliente" asp-action="Index">Clientes</a>
+                    <a asp-controller="Producto" asp-action="Index">Productos</a>
+                    <a asp-controller="Inventario" asp-action="Index">Inventario</a>
+                    <a asp-controller="Venta" asp-action="Index">Ventas</a>
+                    <a asp-controller="Factura" asp-action="Index">Facturación</a>
+                    <a asp-controller="Reporte" asp-action="Index">Reportes</a>
+                    <a asp-controller="Pedido" asp-action="Index">Pedidos</a>
+                </nav>
+            </aside>
+
+            <div class="col-lg-9 col-xl-10 vu-admin-content">
+                <div class="vu-admin-header">
+                    <div>
+                        <p class="vu-eyebrow">Administración</p>
+                        <h1>@accionTitulo</h1>
+                        <p>Confirma el cambio de estado sin eliminar el historial del rol.</p>
+                    </div>
+                    <a class="btn btn-outline-primary" asp-controller="Rol" asp-action="Index">Volver al listado</a>
+                </div>
+
+                <div class="vu-panel">
+                    <div class="alert @(activar ? "alert-info" : "alert-warning")" role="alert">
+                        @mensaje
+                    </div>
+
+                    <dl class="row">
+                        <dt class="col-md-3">Nombre</dt>
+                        <dd class="col-md-9">@Model.Nombre</dd>
+
+                        <dt class="col-md-3">Descripción</dt>
+                        <dd class="col-md-9">@Model.Descripcion</dd>
+
+                        <dt class="col-md-3">Permisos</dt>
+                        <dd class="col-md-9">@Model.Permisos.Count(permiso => permiso.Seleccionado)</dd>
+
+                        <dt class="col-md-3">Estado actual</dt>
+                        <dd class="col-md-9">
+                            @if (Model.Activo)
+                            {
+                                <span class="badge bg-success">Activo</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary">Inactivo</span>
+                            }
+                        </dd>
+                    </dl>
+
+                    <div class="d-flex flex-wrap gap-2">
+                        <form asp-controller="Rol" asp-action="ConfirmarCambiarEstado" method="post">
+                            @Html.AntiForgeryToken()
+                            <input name="id" type="hidden" value="@Model.Id" />
+                            <input name="active" type="hidden" value="@activar.ToString().ToLowerInvariant()" />
+                            <button class="btn @(activar ? "btn-success" : "btn-danger")" type="submit">Confirmar @accion</button>
+                        </form>
+                        <a class="btn btn-outline-primary" asp-controller="Rol" asp-action="Index">Cancelar</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

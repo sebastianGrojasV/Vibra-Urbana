@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using VibraUrbana.Data;
@@ -20,6 +21,8 @@ builder.Services.AddScoped<IUsuarioAuthenticationService, AuthenticationService>
 builder.Services.AddScoped<IUsuarioRegistrationService, UsuarioRegistrationService>();
 builder.Services.AddScoped<IRolRepositorio, RolRepositorio>();
 builder.Services.AddScoped<IRolServicio, RolServicio>();
+builder.Services.AddScoped<INavigationMenuService, NavigationMenuService>();
+builder.Services.AddScoped<IAuthorizationHandler, PermisoAuthorizationHandler>();
 
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
@@ -29,6 +32,14 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
         options.Cookie.Name = "VibraUrbana.Auth";
         options.SlidingExpiration = true;
     });
+
+builder.Services.AddAuthorization(options =>
+{
+    foreach (var permiso in PermisosSistema.Todos)
+    {
+        options.AddPolicy(permiso, policy => policy.Requirements.Add(new PermisoRequirement(permiso)));
+    }
+});
 
 builder.Services.AddControllersWithViews(options =>
 {
