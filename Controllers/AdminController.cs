@@ -6,7 +6,7 @@ using VibraUrbana.ViewModels;
 
 namespace VibraUrbana.Controllers;
 
-[Authorize(Roles = "Administrador")]
+[Authorize(Policy = PermisosSistema.UsuariosGestionar)]
 public class AdminController : Controller
 {
     private readonly IUsuarioRegistrationService _usuarioRegistrationService;

@@ -1,3 +1,9 @@
+@inject VibraUrbana.Services.INavigationMenuService NavigationMenuService
+
+@{
+    var menuItems = await NavigationMenuService.GetItemsAsync(User);
+}
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -20,21 +26,12 @@
                 </button>
                 <div class="collapse navbar-collapse" id="mainNav">
                     <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-2">
-                        <li class="nav-item">
-                            <a class="nav-link" asp-controller="Home" asp-action="Index">Inicio</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" asp-controller="Admin" asp-action="Index">Admin</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" asp-controller="Producto" asp-action="Index">Productos</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" asp-controller="Inventario" asp-action="Index">Inventario</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-controller="Rol" asp-action="Index">Roles</a>
-                        </li>
+                        @foreach (var item in menuItems)
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="@item.Controller" asp-action="@item.Action">@item.Texto</a>
+                            </li>
+                        }
                         <li class="nav-item">
                             @if (User.Identity?.IsAuthenticated == true)
                             {
