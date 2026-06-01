@@ -4,8 +4,8 @@ using Microsoft.EntityFrameworkCore;
 using VibraUrbana.Data;
 using VibraUrbana.Filters;
 using VibraUrbana.Models;
-using VibraUrbana.Services;
 using VibraUrbana.Repositories;
+using VibraUrbana.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,11 +18,8 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 builder.Services.AddScoped<IPasswordHasher<Usuario>, PasswordHasher<Usuario>>();
 builder.Services.AddScoped<IUsuarioAuthenticationService, AuthenticationService>();
 builder.Services.AddScoped<IUsuarioRegistrationService, UsuarioRegistrationService>();
-
-// ?? Inyección de dependencias para Roles
 builder.Services.AddScoped<IRolRepositorio, RolRepositorio>();
 builder.Services.AddScoped<IRolServicio, RolServicio>();
-
 
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>

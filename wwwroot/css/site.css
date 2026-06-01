@@ -128,7 +128,7 @@ body > main {
     padding: 1.5rem 0;
     color: #d6c7f7;
     background: var(--vu-deep);
-    border-top: 1px solid rgba(255, 255, 255, .08);
+    border-top: 0;
 }
 
 .min-vh-75 {
@@ -216,8 +216,12 @@ body > main {
 
 .vu-admin-shell {
     min-height: calc(100vh - 130px);
-    padding-bottom: 2rem;
     background: #f3efff;
+}
+
+.vu-admin-shell > .container-fluid {
+    padding-right: 0;
+    padding-left: 0;
 }
 
 .vu-admin-sidebar {

@@ -168,9 +168,9 @@ public class AdminController : Controller
     {
         var message = result switch
         {
-            RegistroUsuarioResult.DuplicateCedula => "La cedula ya se encuentra registrada.",
-            RegistroUsuarioResult.DuplicateCorreo => "El correo electronico ya se encuentra registrado.",
-            RegistroUsuarioResult.RolNotFound => "El rol seleccionado no esta disponible.",
+            RegistroUsuarioResult.DuplicateCedula => "La cédula ya se encuentra registrada.",
+            RegistroUsuarioResult.DuplicateCorreo => "El correo electrónico ya se encuentra registrado.",
+            RegistroUsuarioResult.RolNotFound => "El rol seleccionado no está disponible.",
             _ => "No fue posible registrar el usuario."
         };
 
@@ -181,9 +181,9 @@ public class AdminController : Controller
     {
         var message = result switch
         {
-            ActualizarUsuarioResult.DuplicateCedula => "La cedula ya se encuentra registrada por otro usuario.",
-            ActualizarUsuarioResult.DuplicateCorreo => "El correo electronico ya se encuentra registrado por otro usuario.",
-            ActualizarUsuarioResult.RolNotFound => "El rol seleccionado no esta disponible.",
+            ActualizarUsuarioResult.DuplicateCedula => "La cédula ya se encuentra registrada por otro usuario.",
+            ActualizarUsuarioResult.DuplicateCorreo => "El correo electrónico ya se encuentra registrado por otro usuario.",
+            ActualizarUsuarioResult.RolNotFound => "El rol seleccionado no está disponible.",
             _ => "No fue posible actualizar el usuario."
         };
 

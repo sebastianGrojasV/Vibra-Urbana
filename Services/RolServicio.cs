@@ -1,68 +1,72 @@
-﻿using VibraUrbana.Models;
+using VibraUrbana.Models;
 using VibraUrbana.Repositories;
+using VibraUrbana.ViewModels;
 
-namespace VibraUrbana.Services
+namespace VibraUrbana.Services;
+
+public class RolServicio : IRolServicio
 {
-    public class RolServicio : IRolServicio
+    private readonly IRolRepositorio _rolRepositorio;
+
+    public RolServicio(IRolRepositorio rolRepositorio)
     {
+        _rolRepositorio = rolRepositorio;
+    }
 
-        private readonly IRolRepositorio _rolRepositorio;
-        public RolServicio(IRolRepositorio rolRepositorio)
+    public async Task<List<Rol>> ObtenerRolesAsync()
+    {
+        var roles = await _rolRepositorio.ObtenerRolesAsync();
+        return roles.OrderBy(rol => rol.Nombre).ToList();
+    }
+
+    public async Task<Rol?> ObtenerRolPorIdAsync(int id)
+    {
+        return await _rolRepositorio.ObtenerRolPorIdAsync(id);
+    }
+
+    public async Task<bool> AgregarRolAsync(CrearRolViewModel model)
+    {
+        var nombre = model.Nombre.Trim();
+        var rolesExistentes = await _rolRepositorio.ObtenerRolesAsync();
+
+        if (rolesExistentes.Any(rol => rol.Nombre.Equals(nombre, StringComparison.OrdinalIgnoreCase)))
         {
-            _rolRepositorio = rolRepositorio;
+            return false;
         }
 
-        public async Task<bool> ActivarRolAsync(int id)
+        var rol = new Rol
         {
-            var rol = await _rolRepositorio.ObtenerRolPorIdAsync(id);
-            if (rol == null)
-                return false;
+            Nombre = nombre,
+            Descripcion = model.Descripcion.Trim(),
+            Activo = true,
+            FechaCreacion = DateTime.UtcNow
+        };
 
-            if (rol.Activo)
-                return false; // Ya está activo
+        await _rolRepositorio.AgregarRolAsync(rol);
+        return true;
+    }
 
-            return await _rolRepositorio.ActivarRolAsync(id);
+    public async Task<bool> EliminarRolAsync(int id)
+    {
+        var rol = await _rolRepositorio.ObtenerRolPorIdAsync(id);
 
+        if (rol is null || !rol.Activo)
+        {
+            return false;
         }
 
-        public async Task<bool> AgregarRolAsync(Rol rol)
+        return await _rolRepositorio.EliminarRolAsync(id);
+    }
+
+    public async Task<bool> ActivarRolAsync(int id)
+    {
+        var rol = await _rolRepositorio.ObtenerRolPorIdAsync(id);
+
+        if (rol is null || rol.Activo)
         {
-            var rolesExistentes = await _rolRepositorio.ObtenerRolesAsync();
-            if (rolesExistentes.Any(r => r.Nombre == rol.Nombre))
-                return false;
-
-            await _rolRepositorio.AgregarRolAsync(rol);
-            return true;
-
+            return false;
         }
 
-        public async Task<bool> EliminarRolAsync(int id)
-        {
-            //  verificar que el rol exista y esté activo
-            var rol = await _rolRepositorio.ObtenerRolPorIdAsync(id);
-            if (rol == null)
-                return false;
-
-            if (!rol.Activo)
-                return false; // Ya estaba inactivo
-
-            //  marcarlo como inactivo
-            return await _rolRepositorio.EliminarRolAsync(id);
-
-        }
-
-        public async Task<List<Rol>> ObtenerRolesAsync()
-        {
-            var roles = await _rolRepositorio.ObtenerRolesAsync();
-            return roles.ToList();
-
-        }
-
-        public async Task<Rol> ObtenerRolPorIdAsync(int id)
-        {
-            var rol = await _rolRepositorio.ObtenerRolPorIdAsync(id);
-            return rol;
-
-        }
+        return await _rolRepositorio.ActivarRolAsync(id);
     }
 }

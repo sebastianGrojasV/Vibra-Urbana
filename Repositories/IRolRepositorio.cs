@@ -1,18 +1,18 @@
-﻿using VibraUrbana.Models;
+using VibraUrbana.Models;
 
-namespace VibraUrbana.Repositories
+namespace VibraUrbana.Repositories;
+
+public interface IRolRepositorio
 {
-    public interface IRolRepositorio
-    {
-        Task<List<Rol>> ObtenerRolesAsync();
-        Task<Rol> ObtenerRolPorIdAsync(int id);
-        Task<bool> AgregarRolAsync(Rol rol);
-        Task<bool> ActualizarRolAsync(Rol rol);
-        Task<bool> EliminarRolAsync(int id);
+    Task<List<Rol>> ObtenerRolesAsync();
 
-        Task<bool> ActivarRolAsync(int id);
+    Task<Rol?> ObtenerRolPorIdAsync(int id);
 
+    Task<bool> AgregarRolAsync(Rol rol);
 
+    Task<bool> ActualizarRolAsync(Rol rol);
 
-    }
+    Task<bool> EliminarRolAsync(int id);
+
+    Task<bool> ActivarRolAsync(int id);
 }

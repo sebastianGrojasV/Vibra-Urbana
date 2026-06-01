@@ -1,13 +1,12 @@
-﻿@model IEnumerable<VibraUrbana.Models.Rol>
+@model IReadOnlyList<VibraUrbana.ViewModels.RolListadoItemViewModel>
 
 @{
-    ViewData["Title"] = "Lista de Roles";
+    ViewData["Title"] = "Roles";
 }
 
 <section class="vu-admin-shell">
     <div class="container-fluid">
         <div class="row g-0">
-            <!--  Sidebar -->
             <aside class="col-lg-3 col-xl-2 vu-admin-sidebar">
                 <div class="vu-sidebar-brand">Vibra Urbana</div>
                 <nav class="vu-sidebar-nav">
@@ -28,159 +27,70 @@
                 <div class="vu-admin-header">
                     <div>
                         <p class="vu-eyebrow">Administración</p>
-                        <h1>Lista de Roles</h1>
-                        <p>Consulta y administra los roles disponibles en el sistema.</p>
+                        <h1>Roles</h1>
+                        <p>Consulta y crea roles disponibles para asignar a usuarios internos.</p>
                     </div>
-                    <a asp-action="Create" class="btn btn-lg btn-success d-flex align-items-center gap-2 shadow">
-                        <i class="bi bi-person-plus-fill"></i>
-                        Crear Rol
-                    </a>
+                    <a class="btn btn-primary" asp-controller="Rol" asp-action="Create">Crear rol</a>
                 </div>
 
-                <style>
-                    th {
-                        color: purple; /* morado para las cabeceras */
-                        font-weight: bold;
+                <div class="vu-panel">
+                    @if (TempData["SuccessMessage"] is string successMessage)
+                    {
+                        <div class="alert alert-success" role="alert">@successMessage</div>
                     }
-                </style>
 
-                <!--  Toast de confirmación -->
-                @if (TempData["RolCreado"] != null)
-                {
-                    <div class="toast-container position-fixed top-0 end-0 p-3">
-                        <div class="toast align-items-center text-bg-success border-0" role="alert">
-                            <div class="d-flex">
-                                <div class="toast-body">
-                                    @TempData["RolCreado"]
-                                </div>
-                                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
-                            </div>
+                    @if (!Model.Any())
+                    {
+                        <div class="alert alert-info" role="alert">
+                            No existen roles registrados.
                         </div>
-                    </div>
-                }
-
-                <!--  Toast de confirmación -->
-                @if (TempData["RolEliminado"] != null)
-                {
-                    <div class="toast-container position-fixed bottom-0 end-0 p-3">
-                        <div class="toast align-items-center text-bg-success border-0" role="alert">
-                            <div class="d-flex">
-                                <div class="toast-body">
-                                    @TempData["RolEliminado"]
-                                </div>
-                                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
-                            </div>
-                        </div>
-                    </div>
-                }
-
-                <!--  Toast de error -->
-                @if (TempData["RolError"] != null)
-                {
-                    <div class="toast-container position-fixed bottom-0 end-0 p-3">
-                        <div class="toast align-items-center text-bg-danger border-0" role="alert">
-                            <div class="d-flex">
-                                <div class="toast-body">
-                                    @TempData["RolError"]
-                                </div>
-                                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
-                            </div>
-                        </div>
-                    </div>
-                }
-
-                @if (TempData["RolActivado"] != null)
-                {
-                    <div class="toast-container position-fixed bottom-0 end-0 p-3">
-                        <div class="toast align-items-center text-bg-success border-0" role="alert">
-                            <div class="d-flex">
-                                <div class="toast-body">
-                                    @TempData["RolActivado"]
-                                </div>
-                                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
-                            </div>
-                        </div>
-                    </div>
-                }
-
-
-                <!-- Tabla dentro de un card -->
-                <div class="card shadow-sm">
-                    <div class="card-body">
-                        <table id="tablaRoles" class="table table-hover table-bordered">
-                            <thead class="table-light">
-                                <tr>
-                                    <th>Id</th>
-                                    <th>Rol</th>
-                                    <th>Descripción</th>
-                                    <th>Acciones</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach (var rol in Model)
-                                {
+                    }
+                    else
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle">
+                                <thead>
                                     <tr>
-                                        <td>@rol.Id</td>
-                                        <td>@rol.Nombre</td>
-                                        <td>@rol.Descripcion</td>
-                                        <td class="d-flex gap-2">
-                                            <a asp-action="Details" asp-route-id="@rol.Id" class="btn btn-sm btn-info">
-                                                <i class="bi bi-eye"></i> Detalles
-                                            </a>
-
-                                            <!--  Botón Desactivar -->
-                                            @if (rol.Activo)
-                                            {
-                                                <a asp-action="Delete" asp-route-id="@rol.Id" class="btn btn-sm btn-danger">
-                                                    <i class="bi bi-x-circle"></i> Desactivar
-                                                </a>
-                                            }
-                                            else
-                                            {
-                                                <span class="badge bg-secondary">Inactivo</span>
-                                            }
-                                            @if (!rol.Activo)
-                                            {
-                                                <form asp-action="Activar" asp-route-id="@rol.Id" method="post" class="d-inline">
+                                        <th>Nombre</th>
+                                        <th>Descripción</th>
+                                        <th>Estado</th>
+                                        <th class="text-end">Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var rol in Model)
+                                    {
+                                        <tr>
+                                            <td>@rol.Nombre</td>
+                                            <td>@rol.Descripcion</td>
+                                            <td>
+                                                @if (rol.Activo)
+                                                {
+                                                    <span class="badge bg-success">Activo</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-secondary">Inactivo</span>
+                                                }
+                                            </td>
+                                            <td class="text-end">
+                                                <form asp-controller="Rol" asp-action="CambiarEstado" method="post" class="d-inline">
                                                     @Html.AntiForgeryToken()
-                                                    <button type="submit" class="btn btn-sm btn-success">
-                                                        <i class="bi bi-check-circle"></i> Activar
+                                                    <input name="id" type="hidden" value="@rol.Id" />
+                                                    <input name="active" type="hidden" value="@(!rol.Activo).ToString().ToLowerInvariant()" />
+                                                    <button class="btn btn-sm @(rol.Activo ? "btn-outline-danger" : "btn-outline-success")" type="submit">
+                                                        @(rol.Activo ? "Desactivar" : "Activar")
                                                     </button>
                                                 </form>
-                                            }
-
-                                        </td>
-                                    </tr>
-                                }
-                            </tbody>
-                        </table>
-                    </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
                 </div>
             </div>
         </div>
     </div>
 </section>
-
-@section Scripts {
-    <script>
-        $(document).ready(function () {
-            $('#tablaRoles').DataTable({
-                paging: true,
-                searching: true,
-                ordering: true,
-                responsive: true,
-                language: {
-                    url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json"
-                }
-            });
-
-            // 🔹 Inicializar Toast automáticamente
-            var toastElList = [].slice.call(document.querySelectorAll('.toast'))
-            toastElList.map(function (toastEl) {
-                var toast = new bootstrap.Toast(toastEl, { delay: 3000, autohide: true })
-                toast.show()
-
-            });
-        });
-    </script>
-}
