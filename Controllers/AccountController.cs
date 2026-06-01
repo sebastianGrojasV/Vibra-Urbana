@@ -36,7 +36,7 @@ public class AccountController : Controller
     {
         if (!ModelState.IsValid)
         {
-            ModelState.AddModelError(string.Empty, "Completa los campos obligatorios para iniciar sesion.");
+            ModelState.AddModelError(string.Empty, "Completa los campos obligatorios para iniciar sesión.");
             return View(model);
         }
 
@@ -50,7 +50,7 @@ public class AccountController : Controller
 
         if (result.Result == LoginResult.InvalidCredentials || result.Usuario is null)
         {
-            ModelState.AddModelError(string.Empty, "Correo o contrasena incorrectos.");
+            ModelState.AddModelError(string.Empty, "Correo o contraseña incorrectos.");
             return View(model);
         }
 

@@ -10,11 +10,12 @@
                 <nav class="vu-sidebar-nav">
                     <a class="active" asp-controller="Admin" asp-action="Index">Panel inicial</a>
                     <a asp-controller="Admin" asp-action="Usuarios">Usuarios</a>
+                    <a asp-controller="Rol" asp-action="Index">Roles</a>
                     <a asp-controller="Cliente" asp-action="Index">Clientes</a>
                     <a asp-controller="Producto" asp-action="Index">Productos</a>
                     <a asp-controller="Inventario" asp-action="Index">Inventario</a>
                     <a asp-controller="Venta" asp-action="Index">Ventas</a>
-                    <a asp-controller="Factura" asp-action="Index">Facturacion</a>
+                    <a asp-controller="Factura" asp-action="Index">Facturación</a>
                     <a asp-controller="Reporte" asp-action="Index">Reportes</a>
                     <a asp-controller="Pedido" asp-action="Index">Pedidos</a>
                 </nav>
@@ -23,9 +24,9 @@
             <div class="col-lg-9 col-xl-10 vu-admin-content">
                 <div class="vu-admin-header">
                     <div>
-                        <p class="vu-eyebrow">Administracion</p>
+                        <p class="vu-eyebrow">Administración</p>
                         <h1>Panel inicial</h1>
-                        <p>Vista base para organizar los modulos comerciales de Vibra Urbana.</p>
+                        <p>Vista base para organizar los módulos comerciales de Vibra Urbana.</p>
                     </div>
                     <a class="btn btn-outline-primary" asp-controller="Account" asp-action="Login">Cerrar vista</a>
                 </div>
@@ -39,9 +40,16 @@
                         </a>
                     </div>
                     <div class="col-md-6 col-xl-3">
+                        <a class="vu-dashboard-card vu-module-link" asp-controller="Rol" asp-action="Index">
+                            <span>Roles</span>
+                            <strong>Accesos</strong>
+                            <p>Gestión de perfiles internos.</p>
+                        </a>
+                    </div>
+                    <div class="col-md-6 col-xl-3">
                         <div class="vu-dashboard-card">
                             <span>Productos</span>
-                            <strong>Catalogo</strong>
+                            <strong>Catálogo</strong>
                             <p>Estructura preparada.</p>
                         </div>
                     </div>
@@ -49,13 +57,13 @@
                         <div class="vu-dashboard-card">
                             <span>Inventario</span>
                             <strong>Control</strong>
-                            <p>Modulo pendiente.</p>
+                            <p>Módulo pendiente.</p>
                         </div>
                     </div>
                     <div class="col-md-6 col-xl-3">
                         <div class="vu-dashboard-card">
                             <span>Ventas</span>
-                            <strong>Operacion</strong>
+                            <strong>Operación</strong>
                             <p>Flujo pendiente.</p>
                         </div>
                     </div>
@@ -66,18 +74,19 @@
                         <div class="vu-panel">
                             <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
                                 <div>
-                                    <h2>Modulos principales</h2>
-                                    <p>Accesos iniciales para validar la navegacion MVC.</p>
+                                    <h2>Módulos principales</h2>
+                                    <p>Accesos iniciales para validar la navegación MVC.</p>
                                 </div>
                             </div>
                             <div class="vu-module-grid">
                                 <a asp-controller="Admin" asp-action="Usuarios">Usuarios</a>
+                                <a asp-controller="Rol" asp-action="Index">Roles</a>
                                 <a asp-controller="Admin" asp-action="CrearUsuario">Registrar usuario</a>
                                 <a asp-controller="Cliente" asp-action="Index">Clientes</a>
                                 <a asp-controller="Producto" asp-action="Index">Productos</a>
                                 <a asp-controller="Inventario" asp-action="Index">Inventario</a>
                                 <a asp-controller="Venta" asp-action="Index">Ventas</a>
-                                <a asp-controller="Factura" asp-action="Index">Facturacion</a>
+                                <a asp-controller="Factura" asp-action="Index">Facturación</a>
                                 <a asp-controller="Reporte" asp-action="Index">Reportes</a>
                             </div>
                         </div>

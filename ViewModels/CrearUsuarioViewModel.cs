@@ -5,9 +5,9 @@ namespace VibraUrbana.ViewModels;
 
 public class CrearUsuarioViewModel
 {
-    [Required(ErrorMessage = "La cedula es obligatoria.")]
-    [StringLength(20, ErrorMessage = "La cedula no puede superar 20 caracteres.")]
-    [Display(Name = "Cedula")]
+    [Required(ErrorMessage = "La cédula es obligatoria.")]
+    [StringLength(20, ErrorMessage = "La cédula no puede superar 20 caracteres.")]
+    [Display(Name = "Cédula")]
     public string Cedula { get; set; } = string.Empty;
 
     [Required(ErrorMessage = "El nombre completo es obligatorio.")]
@@ -15,20 +15,20 @@ public class CrearUsuarioViewModel
     [Display(Name = "Nombre completo")]
     public string NombreCompleto { get; set; } = string.Empty;
 
-    [Required(ErrorMessage = "El correo electronico es obligatorio.")]
-    [EmailAddress(ErrorMessage = "Ingresa un correo electronico valido.")]
-    [StringLength(150, ErrorMessage = "El correo electronico no puede superar 150 caracteres.")]
-    [Display(Name = "Correo electronico")]
+    [Required(ErrorMessage = "El correo electrónico es obligatorio.")]
+    [EmailAddress(ErrorMessage = "Ingresa un correo electrónico válido.")]
+    [StringLength(150, ErrorMessage = "El correo electrónico no puede superar 150 caracteres.")]
+    [Display(Name = "Correo electrónico")]
     public string Correo { get; set; } = string.Empty;
 
-    [Required(ErrorMessage = "La contrasena inicial es obligatoria.")]
-    [StringLength(100, MinimumLength = 8, ErrorMessage = "La contrasena debe tener al menos 8 caracteres.")]
+    [Required(ErrorMessage = "La contraseña inicial es obligatoria.")]
+    [StringLength(100, MinimumLength = 8, ErrorMessage = "La contraseña debe tener al menos 8 caracteres.")]
     [DataType(DataType.Password)]
-    [Display(Name = "Contrasena inicial")]
+    [Display(Name = "Contraseña inicial")]
     public string Password { get; set; } = string.Empty;
 
     [Required(ErrorMessage = "El rol es obligatorio.")]
-    [Range(1, int.MaxValue, ErrorMessage = "Selecciona un rol valido.")]
+    [Range(1, int.MaxValue, ErrorMessage = "Selecciona un rol válido.")]
     [Display(Name = "Rol")]
     public int RolId { get; set; }
 
