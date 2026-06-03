@@ -32,9 +32,22 @@
                     </div>
                     <div class="d-flex flex-wrap gap-2">
                         <a class="btn btn-primary" asp-controller="Admin" asp-action="ModificarUsuario" asp-route-id="@Model.Id">Modificar</a>
-                        <a class="btn @(Model.Activo ? "btn-outline-danger" : "btn-outline-success")" asp-controller="Admin" asp-action="CambiarEstadoUsuario" asp-route-id="@Model.Id">
-                            @(Model.Activo ? "Desactivar" : "Activar")
-                        </a>
+                        <a class="btn btn-outline-primary" asp-controller="Admin" asp-action="RestablecerPasswordUsuario" asp-route-id="@Model.Id">Restablecer contraseña</a>
+                        <form asp-controller="Admin"
+                              asp-action="ConfirmarCambiarEstadoUsuario"
+                              method="post"
+                              class="d-inline"
+                              data-vu-confirm
+                              data-vu-confirm-title="@(Model.Activo ? "Desactivar usuario" : "Activar usuario")"
+                              data-vu-confirm-message="@(Model.Activo ? $"¿Deseas desactivar a {Model.NombreCompleto}?" : $"¿Deseas activar a {Model.NombreCompleto}?")"
+                              data-vu-confirm-action="@(Model.Activo ? "Desactivar" : "Activar")">
+                            @Html.AntiForgeryToken()
+                            <input name="id" type="hidden" value="@Model.Id" />
+                            <input name="active" type="hidden" value="@(!Model.Activo).ToString().ToLowerInvariant()" />
+                            <button class="btn @(Model.Activo ? "btn-outline-danger" : "btn-outline-success")" type="submit">
+                                @(Model.Activo ? "Desactivar" : "Activar")
+                            </button>
+                        </form>
                         <a class="btn btn-outline-primary" asp-controller="Admin" asp-action="Usuarios">Volver al listado</a>
                     </div>
                 </div>
