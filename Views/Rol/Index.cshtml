@@ -48,13 +48,13 @@
                     else
                     {
                         <div class="table-responsive">
-                            <table class="table table-hover align-middle">
+                            <table class="table table-hover align-middle vu-data-table">
                                 <thead>
                                     <tr>
                                         <th>Nombre</th>
                                         <th>Descripción</th>
                                         <th>Estado</th>
-                                        <th class="text-end">Acciones</th>
+                                        <th class="text-end vu-actions-column">Acciones</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -74,10 +74,33 @@
                                                 }
                                             </td>
                                             <td class="text-end">
-                                                <a class="btn btn-sm btn-primary" asp-controller="Rol" asp-action="Edit" asp-route-id="@rol.Id">Editar</a>
-                                                <a class="btn btn-sm @(rol.Activo ? "btn-outline-danger" : "btn-outline-success")" asp-controller="Rol" asp-action="CambiarEstado" asp-route-id="@rol.Id">
-                                                    @(rol.Activo ? "Desactivar" : "Activar")
-                                                </a>
+                                                <div class="vu-actions">
+                                                    <a class="btn btn-sm vu-icon-btn vu-icon-edit" asp-controller="Rol" asp-action="Edit" asp-route-id="@rol.Id" title="Editar" aria-label="Editar rol">
+                                                        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h9"></path><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5Z"></path></svg>
+                                                    </a>
+                                                    <form asp-controller="Rol"
+                                                          asp-action="ConfirmarCambiarEstado"
+                                                          method="post"
+                                                          class="d-inline"
+                                                          data-vu-confirm
+                                                          data-vu-confirm-title="@(rol.Activo ? "Desactivar rol" : "Activar rol")"
+                                                          data-vu-confirm-message="@(rol.Activo ? $"¿Deseas desactivar el rol {rol.Nombre}?" : $"¿Deseas activar el rol {rol.Nombre}?")"
+                                                          data-vu-confirm-action="@(rol.Activo ? "Desactivar" : "Activar")">
+                                                        @Html.AntiForgeryToken()
+                                                        <input name="id" type="hidden" value="@rol.Id" />
+                                                        <input name="active" type="hidden" value="@(!rol.Activo).ToString().ToLowerInvariant()" />
+                                                        <button class="btn btn-sm vu-icon-btn @(rol.Activo ? "vu-icon-disable" : "vu-icon-enable")" type="submit" title="@(rol.Activo ? "Desactivar" : "Activar")" aria-label="@(rol.Activo ? "Desactivar rol" : "Activar rol")">
+                                                            @if (rol.Activo)
+                                                            {
+                                                                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18.4 6.6a9 9 0 1 1-12.8 0"></path><path d="M12 2v10"></path></svg>
+                                                            }
+                                                            else
+                                                            {
+                                                                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"></path></svg>
+                                                            }
+                                                        </button>
+                                                    </form>
+                                                </div>
                                             </td>
                                         </tr>
                                     }

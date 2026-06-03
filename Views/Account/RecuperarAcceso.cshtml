@@ -1,0 +1,63 @@
+@model VibraUrbana.ViewModels.RecuperarAccesoViewModel
+
+@{
+    ViewData["Title"] = "Recuperar Acceso";
+}
+
+<section class="vu-auth-page">
+    <div class="container">
+        <div class="row min-vh-75 align-items-center justify-content-center g-4">
+            <div class="col-lg-6">
+                <div class="vu-auth-copy">
+                    <p class="vu-eyebrow">Vibra Urbana</p>
+                    <h1>Recupera el acceso a tu cuenta.</h1>
+                    <p>
+                        Ingresa tu correo para iniciar el proceso. En esta versión académica, un administrador restablecerá la contraseña.
+                    </p>
+                </div>
+            </div>
+
+            <div class="col-md-8 col-lg-5">
+                <div class="vu-auth-card">
+                    <div class="text-center mb-4">
+                        <div class="vu-brand-mark">VU</div>
+                        <h2>Recuperar acceso</h2>
+                        <p>Usa el correo registrado en el sistema.</p>
+                    </div>
+
+                    @if (TempData["RecoveryMessage"] is string recoveryMessage)
+                    {
+                        <div class="alert alert-info" role="alert">@recoveryMessage</div>
+                    }
+
+                    <form asp-controller="Account" asp-action="RecuperarAcceso" method="post" novalidate>
+                        @Html.AntiForgeryToken()
+
+                        @if (ViewData.ModelState[string.Empty]?.Errors.Count > 0)
+                        {
+                            <div class="alert alert-danger" role="alert">
+                                @foreach (var error in ViewData.ModelState[string.Empty]!.Errors)
+                                {
+                                    <div>@error.ErrorMessage</div>
+                                }
+                            </div>
+                        }
+
+                        <div class="mb-4">
+                            <label asp-for="Correo" class="form-label"></label>
+                            <input asp-for="Correo" class="form-control form-control-lg" autocomplete="email" placeholder="usuario@vibraurbana.com" />
+                            <span asp-validation-for="Correo" class="text-danger small"></span>
+                        </div>
+
+                        <button class="btn btn-primary btn-lg w-100" type="submit">Solicitar recuperación</button>
+                        <a class="btn btn-outline-primary btn-lg w-100 mt-2" asp-controller="Account" asp-action="Login">Volver al login</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

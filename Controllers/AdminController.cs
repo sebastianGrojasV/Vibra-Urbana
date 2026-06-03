@@ -114,6 +114,41 @@ public class AdminController : Controller
     }
 
     [HttpGet]
+    public async Task<IActionResult> RestablecerPasswordUsuario(int id)
+    {
+        var model = await _usuarioRegistrationService.GetUsuarioParaRestablecerPasswordAsync(id);
+
+        if (model is null)
+        {
+            return NotFound();
+        }
+
+        return View(model);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> RestablecerPasswordUsuario(RestablecerPasswordUsuarioViewModel model)
+    {
+        if (!ModelState.IsValid)
+        {
+            ModelState.AddModelError(string.Empty, "Completa los campos obligatorios para restablecer la contraseña.");
+            await RepoblarUsuarioParaRestablecerAsync(model);
+            return View(model);
+        }
+
+        var result = await _usuarioRegistrationService.ResetPasswordAsync(model);
+
+        if (result == RestablecerPasswordUsuarioResult.NotFound)
+        {
+            return NotFound();
+        }
+
+        TempData["SuccessMessage"] = "Contraseña restablecida correctamente.";
+        return RedirectToAction(nameof(VerUsuario), new { id = model.Id });
+    }
+
+    [HttpGet]
     public async Task<IActionResult> CambiarEstadoUsuario(int id)
     {
         var usuario = await _usuarioRegistrationService.GetUsuarioDetalleAsync(id);
@@ -188,5 +223,18 @@ public class AdminController : Controller
         };
 
         ModelState.AddModelError(string.Empty, message);
+    }
+
+    private async Task RepoblarUsuarioParaRestablecerAsync(RestablecerPasswordUsuarioViewModel model)
+    {
+        var persistedModel = await _usuarioRegistrationService.GetUsuarioParaRestablecerPasswordAsync(model.Id);
+
+        if (persistedModel is null)
+        {
+            return;
+        }
+
+        model.NombreCompleto = persistedModel.NombreCompleto;
+        model.Correo = persistedModel.Correo;
     }
 }
