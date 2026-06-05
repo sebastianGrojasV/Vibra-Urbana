@@ -33,13 +33,20 @@ public class ProductoController : Controller
     {
         if (!ModelState.IsValid)
         {
-            model.Categorias = (await _productoServicio.PrepararCrearAsync()).Categorias;
-            return View(model);
+            ModelState.AddModelError(string.Empty, "Revisa los campos marcados antes de guardar el producto.");
+            return View(await RepoblarCategoriasParaCrearAsync(model));
         }
 
-        await _productoServicio.CrearAsync(model);
-        TempData["SuccessMessage"] = "Producto registrado correctamente.";
-        return RedirectToAction(nameof(Index));
+        var result = await _productoServicio.CrearAsync(model);
+
+        if (result == ProductoOperacionResult.Success)
+        {
+            TempData["SuccessMessage"] = "Producto registrado correctamente.";
+            return RedirectToAction(nameof(Index));
+        }
+
+        AddProductError(result);
+        return View(await RepoblarCategoriasParaCrearAsync(model));
     }
 
     [HttpGet]
@@ -61,19 +68,51 @@ public class ProductoController : Controller
     {
         if (!ModelState.IsValid)
         {
-            var persistedModel = await _productoServicio.ObtenerProductoParaEditarAsync(model.Id);
-            model.Categorias = persistedModel?.Categorias ?? Enumerable.Empty<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem>();
-            return View(model);
+            ModelState.AddModelError(string.Empty, "Revisa los campos marcados antes de actualizar el producto.");
+            return View(await RepoblarCategoriasParaEditarAsync(model));
         }
 
-        var actualizado = await _productoServicio.ActualizarAsync(model);
+        var result = await _productoServicio.ActualizarAsync(model);
 
-        if (!actualizado)
+        if (result == ProductoOperacionResult.Success)
+        {
+            TempData["SuccessMessage"] = "Producto actualizado correctamente.";
+            return RedirectToAction(nameof(Index));
+        }
+
+        if (result == ProductoOperacionResult.NotFound)
         {
             return NotFound();
         }
 
-        TempData["SuccessMessage"] = "Producto actualizado correctamente.";
-        return RedirectToAction(nameof(Index));
+        AddProductError(result);
+        return View(await RepoblarCategoriasParaEditarAsync(model));
+    }
+
+    private async Task<ProductoFormViewModel> RepoblarCategoriasParaCrearAsync(ProductoFormViewModel model)
+    {
+        model.Categorias = (await _productoServicio.PrepararCrearAsync()).Categorias;
+        return model;
+    }
+
+    private async Task<ProductoFormViewModel> RepoblarCategoriasParaEditarAsync(ProductoFormViewModel model)
+    {
+        var persistedModel = await _productoServicio.ObtenerProductoParaEditarAsync(model.Id);
+        model.Categorias = persistedModel?.Categorias ?? Enumerable.Empty<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem>();
+        return model;
+    }
+
+    private void AddProductError(ProductoOperacionResult result)
+    {
+        var message = result switch
+        {
+            ProductoOperacionResult.CategoriaNotFound => "La categoría seleccionada no está disponible.",
+            ProductoOperacionResult.InvalidPrice => "El precio en colones debe ser mayor o igual a ₡0.",
+            ProductoOperacionResult.InvalidInventoryQuantity => "La cantidad disponible debe ser mayor o igual a cero.",
+            ProductoOperacionResult.InvalidMinimumStock => "El stock mínimo debe ser mayor o igual a cero.",
+            _ => "No fue posible guardar el producto."
+        };
+
+        ModelState.AddModelError(string.Empty, message);
     }
 }

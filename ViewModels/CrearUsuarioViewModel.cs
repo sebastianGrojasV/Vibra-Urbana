@@ -6,16 +6,18 @@ namespace VibraUrbana.ViewModels;
 public class CrearUsuarioViewModel
 {
     [Required(ErrorMessage = "La cédula es obligatoria.")]
-    [StringLength(20, ErrorMessage = "La cédula no puede superar 20 caracteres.")]
+    [RegularExpression(@"^\d{9}$", ErrorMessage = "La cédula debe contener solo números y tener 9 dígitos.")]
     [Display(Name = "Cédula")]
     public string Cedula { get; set; } = string.Empty;
 
     [Required(ErrorMessage = "El nombre completo es obligatorio.")]
+    [RegularExpression(@".*\S.*", ErrorMessage = "El nombre completo no puede estar vacío.")]
     [StringLength(150, ErrorMessage = "El nombre completo no puede superar 150 caracteres.")]
     [Display(Name = "Nombre completo")]
     public string NombreCompleto { get; set; } = string.Empty;
 
     [Required(ErrorMessage = "El correo electrónico es obligatorio.")]
+    [RegularExpression(@".*\S.*", ErrorMessage = "El correo electrónico no puede estar vacío.")]
     [EmailAddress(ErrorMessage = "Ingresa un correo electrónico válido.")]
     [StringLength(150, ErrorMessage = "El correo electrónico no puede superar 150 caracteres.")]
     [Display(Name = "Correo electrónico")]

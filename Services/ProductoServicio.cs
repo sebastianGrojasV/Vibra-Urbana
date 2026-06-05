@@ -88,13 +88,20 @@ public class ProductoServicio : IProductoServicio
         return model;
     }
 
-    public async Task CrearAsync(ProductoFormViewModel model)
+    public async Task<ProductoOperacionResult> CrearAsync(ProductoFormViewModel model)
     {
+        var validationResult = await ValidarProductoAsync(model);
+
+        if (validationResult != ProductoOperacionResult.Success)
+        {
+            return validationResult;
+        }
+
         var producto = new Producto
         {
             Nombre = model.Nombre.Trim(),
             Descripcion = model.Descripcion.Trim(),
-            Precio = model.Precio,
+            Precio = model.Precio!.Value,
             Talla = model.Talla.Trim(),
             Color = model.Color.Trim(),
             ImagenUrl = model.ImagenUrl.Trim(),
@@ -109,28 +116,37 @@ public class ProductoServicio : IProductoServicio
         _context.Inventario.Add(new Inventario
         {
             ProductoId = producto.Id,
-            CantidadDisponible = model.CantidadDisponible,
-            StockMinimo = model.StockMinimo,
+            CantidadDisponible = model.CantidadDisponible!.Value,
+            StockMinimo = model.StockMinimo!.Value,
             FechaActualizacion = DateTime.UtcNow
         });
 
         await _context.SaveChangesAsync();
+
+        return ProductoOperacionResult.Success;
     }
 
-    public async Task<bool> ActualizarAsync(ProductoFormViewModel model)
+    public async Task<ProductoOperacionResult> ActualizarAsync(ProductoFormViewModel model)
     {
+        var validationResult = await ValidarProductoAsync(model);
+
+        if (validationResult != ProductoOperacionResult.Success)
+        {
+            return validationResult;
+        }
+
         var producto = await _context.Productos
             .Include(item => item.Inventario)
             .SingleOrDefaultAsync(item => item.Id == model.Id);
 
         if (producto is null)
         {
-            return false;
+            return ProductoOperacionResult.NotFound;
         }
 
         producto.Nombre = model.Nombre.Trim();
         producto.Descripcion = model.Descripcion.Trim();
-        producto.Precio = model.Precio;
+        producto.Precio = model.Precio!.Value;
         producto.Talla = model.Talla.Trim();
         producto.Color = model.Color.Trim();
         producto.ImagenUrl = model.ImagenUrl.Trim();
@@ -142,20 +158,20 @@ public class ProductoServicio : IProductoServicio
             producto.Inventario = new Inventario
             {
                 ProductoId = producto.Id,
-                CantidadDisponible = model.CantidadDisponible,
-                StockMinimo = model.StockMinimo,
+                CantidadDisponible = model.CantidadDisponible!.Value,
+                StockMinimo = model.StockMinimo!.Value,
                 FechaActualizacion = DateTime.UtcNow
             };
         }
         else
         {
-            producto.Inventario.CantidadDisponible = model.CantidadDisponible;
-            producto.Inventario.StockMinimo = model.StockMinimo;
+            producto.Inventario.CantidadDisponible = model.CantidadDisponible!.Value;
+            producto.Inventario.StockMinimo = model.StockMinimo!.Value;
             producto.Inventario.FechaActualizacion = DateTime.UtcNow;
         }
 
         await _context.SaveChangesAsync();
-        return true;
+        return ProductoOperacionResult.Success;
     }
 
     public async Task<InventarioIndexViewModel> ObtenerInventarioAsync(int? categoriaId, string? talla, string? color, bool? activo)
@@ -269,5 +285,30 @@ public class ProductoServicio : IProductoServicio
                 Selected = selected == color
             })
             .ToListAsync();
+    }
+
+    private async Task<ProductoOperacionResult> ValidarProductoAsync(ProductoFormViewModel model)
+    {
+        if (!model.Precio.HasValue || model.Precio.Value < 0)
+        {
+            return ProductoOperacionResult.InvalidPrice;
+        }
+
+        if (!model.CantidadDisponible.HasValue || model.CantidadDisponible.Value < 0)
+        {
+            return ProductoOperacionResult.InvalidInventoryQuantity;
+        }
+
+        if (!model.StockMinimo.HasValue || model.StockMinimo.Value < 0)
+        {
+            return ProductoOperacionResult.InvalidMinimumStock;
+        }
+
+        var categoriaExiste = await _context.Categorias.AnyAsync(categoria =>
+            categoria.Id == model.CategoriaId && categoria.Activo);
+
+        return categoriaExiste
+            ? ProductoOperacionResult.Success
+            : ProductoOperacionResult.CategoriaNotFound;
     }
 }

@@ -36,18 +36,9 @@
                 <div class="row g-4">
                     <div class="col-xl-8">
                         <div class="vu-panel">
-                            @if (ViewData.ModelState[string.Empty]?.Errors.Count > 0)
-                            {
-                                <div class="alert alert-danger" role="alert">
-                                    @foreach (var error in ViewData.ModelState[string.Empty]!.Errors)
-                                    {
-                                        <div>@error.ErrorMessage</div>
-                                    }
-                                </div>
-                            }
-
                             <form asp-controller="Cliente" asp-action="Crear" method="post" novalidate>
                                 @Html.AntiForgeryToken()
+                                <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
 
                                 <div class="row g-3">
                                     <div class="col-md-6">
