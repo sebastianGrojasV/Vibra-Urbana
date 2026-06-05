@@ -17,6 +17,7 @@
             <form asp-controller="Producto" asp-action="@actionName" method="post" novalidate>
                 @Html.AntiForgeryToken()
                 <input asp-for="Id" type="hidden" />
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
 
                 <div class="row g-3">
                     <div class="col-md-8">
@@ -26,7 +27,10 @@
                     </div>
                     <div class="col-md-4">
                         <label asp-for="Precio" class="form-label"></label>
-                        <input asp-for="Precio" class="form-control" type="number" step="0.01" min="0" />
+                        <div class="input-group">
+                            <span class="input-group-text">₡</span>
+                            <input asp-for="Precio" class="form-control" type="number" step="1" min="0" inputmode="numeric" />
+                        </div>
                         <span asp-validation-for="Precio" class="text-danger small"></span>
                     </div>
                     <div class="col-md-4">
@@ -48,12 +52,12 @@
                     </div>
                     <div class="col-md-6">
                         <label asp-for="CantidadDisponible" class="form-label"></label>
-                        <input asp-for="CantidadDisponible" class="form-control" type="number" min="0" />
+                        <input asp-for="CantidadDisponible" class="form-control" type="number" min="0" step="1" inputmode="numeric" />
                         <span asp-validation-for="CantidadDisponible" class="text-danger small"></span>
                     </div>
                     <div class="col-md-6">
                         <label asp-for="StockMinimo" class="form-label"></label>
-                        <input asp-for="StockMinimo" class="form-control" type="number" min="0" />
+                        <input asp-for="StockMinimo" class="form-control" type="number" min="0" step="1" inputmode="numeric" />
                         <span asp-validation-for="StockMinimo" class="text-danger small"></span>
                     </div>
                     <div class="col-12">

@@ -117,7 +117,7 @@
                                                 </div>
                                             </td>
                                             <td>@producto.Categoria</td>
-                                            <td>@producto.Precio.ToString("C")</td>
+                                            <td>@producto.Precio.ToString("C0")</td>
                                             <td>@(string.IsNullOrWhiteSpace(producto.Talla) ? "Sin talla" : producto.Talla)</td>
                                             <td>@(string.IsNullOrWhiteSpace(producto.Color) ? "Sin color" : producto.Color)</td>
                                             <td>

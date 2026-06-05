@@ -137,8 +137,10 @@ public class ClienteServicio : IClienteServicio
 
     private async Task<bool> ExisteIdentificacionAsync(string identificacion, int? excludedId = null)
     {
+        var normalizedIdentificacion = identificacion.Trim().ToLowerInvariant();
+
         return await _dbContext.Clientes.AnyAsync(cliente =>
-            cliente.Identificacion == identificacion &&
+            cliente.Identificacion.ToLower() == normalizedIdentificacion &&
             (!excludedId.HasValue || cliente.Id != excludedId.Value));
     }
 }

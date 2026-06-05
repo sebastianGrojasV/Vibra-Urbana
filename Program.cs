@@ -1,6 +1,8 @@
+using System.Globalization;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
 using VibraUrbana.Data;
 using VibraUrbana.Filters;
@@ -9,6 +11,10 @@ using VibraUrbana.Repositories;
 using VibraUrbana.Services;
 
 var builder = WebApplication.CreateBuilder(args);
+
+var costaRicaCulture = new CultureInfo("es-CR");
+CultureInfo.DefaultThreadCurrentCulture = costaRicaCulture;
+CultureInfo.DefaultThreadCurrentUICulture = costaRicaCulture;
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
     ?? throw new InvalidOperationException("DefaultConnection is not configured.");
@@ -49,6 +55,13 @@ builder.Services.AddControllersWithViews(options =>
 });
 
 var app = builder.Build();
+
+app.UseRequestLocalization(new RequestLocalizationOptions
+{
+    DefaultRequestCulture = new RequestCulture(costaRicaCulture),
+    SupportedCultures = [costaRicaCulture],
+    SupportedUICultures = [costaRicaCulture]
+});
 
 if (!app.Environment.IsDevelopment())
 {

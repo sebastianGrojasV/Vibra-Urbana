@@ -1734,6 +1734,10 @@ body,
     border-color: #ffc2b8;
 }
 
+.validation-summary-valid {
+    display: none;
+}
+
 .vu-permission-option {
     background: #ffffff;
     border-color: #dfe9f0;
