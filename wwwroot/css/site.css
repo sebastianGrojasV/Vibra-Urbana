@@ -1818,6 +1818,15 @@ body,
     gap: .75rem;
 }
 
+.alert-success {
+    transition: opacity .24s ease, transform .24s ease;
+}
+
+.alert-success.vu-alert-dismissing {
+    opacity: 0;
+    transform: translateY(-.35rem);
+}
+
 @media (max-width: 575.98px) {
     .vu-module-placeholder-page {
         padding: 2rem 0;

@@ -21,6 +21,7 @@ builder.Services.AddScoped<IUsuarioAuthenticationService, AuthenticationService>
 builder.Services.AddScoped<IUsuarioRegistrationService, UsuarioRegistrationService>();
 builder.Services.AddScoped<IRolRepositorio, RolRepositorio>();
 builder.Services.AddScoped<IRolServicio, RolServicio>();
+builder.Services.AddScoped<IClienteServicio, ClienteServicio>();
 builder.Services.AddScoped<INavigationMenuService, NavigationMenuService>();
 builder.Services.AddScoped<IAuthorizationHandler, PermisoAuthorizationHandler>();
 

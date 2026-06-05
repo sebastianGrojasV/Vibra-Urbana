@@ -3,6 +3,7 @@ window.addEventListener("DOMContentLoaded", () => {
     enhanceSidebar();
     enhanceModulePlaceholders();
     setupInlineConfirmations();
+    setupAutoDismissAlerts();
 
     if (!window.jQuery || !jQuery.fn.DataTable) {
         return;
@@ -132,6 +133,15 @@ function setupInlineConfirmations() {
         pendingForm = null;
         frame.classList.remove("is-visible");
         frame.hidden = true;
+    });
+}
+
+function setupAutoDismissAlerts() {
+    document.querySelectorAll(".alert-success").forEach((alert) => {
+        window.setTimeout(() => {
+            alert.classList.add("vu-alert-dismissing");
+            window.setTimeout(() => alert.remove(), 260);
+        }, 3000);
     });
 }
 
