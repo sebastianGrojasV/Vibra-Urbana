@@ -1,0 +1,113 @@
+@model VibraUrbana.ViewModels.EditarClienteViewModel
+
+@{
+    ViewData["Title"] = "Editar Cliente";
+}
+
+<section class="vu-admin-shell">
+    <div class="container-fluid">
+        <div class="row g-0">
+            <aside class="col-lg-3 col-xl-2 vu-admin-sidebar">
+                <div class="vu-sidebar-brand">Vibra Urbana</div>
+                <nav class="vu-sidebar-nav">
+                    <a asp-controller="Admin" asp-action="Index">Panel inicial</a>
+                    <a asp-controller="Admin" asp-action="Usuarios">Usuarios</a>
+                    <a asp-controller="Rol" asp-action="Index">Roles</a>
+                    <a class="active" asp-controller="Cliente" asp-action="Index">Clientes</a>
+                    <a asp-controller="Producto" asp-action="Index">Productos</a>
+                    <a asp-controller="Inventario" asp-action="Index">Inventario</a>
+                    <a asp-controller="Venta" asp-action="Index">Ventas</a>
+                    <a asp-controller="Factura" asp-action="Index">Facturación</a>
+                    <a asp-controller="Reporte" asp-action="Index">Reportes</a>
+                    <a asp-controller="Pedido" asp-action="Index">Pedidos</a>
+                </nav>
+            </aside>
+
+            <div class="col-lg-9 col-xl-10 vu-admin-content">
+                <div class="vu-admin-header">
+                    <div>
+                        <p class="vu-eyebrow">Gestión comercial</p>
+                        <h1>Editar cliente</h1>
+                        <p>Actualiza datos generales y controla el estado activo del cliente.</p>
+                    </div>
+                    <a class="btn btn-outline-primary" asp-controller="Cliente" asp-action="Index">Volver al listado</a>
+                </div>
+
+                <div class="row g-4">
+                    <div class="col-xl-8">
+                        <div class="vu-panel">
+                            @if (ViewData.ModelState[string.Empty]?.Errors.Count > 0)
+                            {
+                                <div class="alert alert-danger" role="alert">
+                                    @foreach (var error in ViewData.ModelState[string.Empty]!.Errors)
+                                    {
+                                        <div>@error.ErrorMessage</div>
+                                    }
+                                </div>
+                            }
+
+                            <form asp-controller="Cliente" asp-action="Editar" method="post" novalidate>
+                                @Html.AntiForgeryToken()
+                                <input asp-for="Id" type="hidden" />
+
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label asp-for="Identificacion" class="form-label"></label>
+                                        <input asp-for="Identificacion" class="form-control" autocomplete="off" />
+                                        <span asp-validation-for="Identificacion" class="text-danger small"></span>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label asp-for="NombreCompleto" class="form-label"></label>
+                                        <input asp-for="NombreCompleto" class="form-control" autocomplete="name" />
+                                        <span asp-validation-for="NombreCompleto" class="text-danger small"></span>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label asp-for="Telefono" class="form-label"></label>
+                                        <input asp-for="Telefono" class="form-control" autocomplete="tel" />
+                                        <span asp-validation-for="Telefono" class="text-danger small"></span>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label asp-for="Correo" class="form-label"></label>
+                                        <input asp-for="Correo" class="form-control" autocomplete="email" />
+                                        <span asp-validation-for="Correo" class="text-danger small"></span>
+                                    </div>
+                                    <div class="col-12">
+                                        <label asp-for="Direccion" class="form-label"></label>
+                                        <textarea asp-for="Direccion" class="form-control" rows="3"></textarea>
+                                        <span asp-validation-for="Direccion" class="text-danger small"></span>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-check mt-md-4 pt-md-2">
+                                            <input asp-for="Activo" class="form-check-input" />
+                                            <label asp-for="Activo" class="form-check-label"></label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="d-flex flex-wrap gap-2 mt-4">
+                                    <button class="btn btn-primary" type="submit">Guardar</button>
+                                    <a class="btn btn-outline-primary" asp-controller="Cliente" asp-action="Index">Cancelar</a>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div class="col-xl-4">
+                        <div class="vu-panel">
+                            <h2>Control del registro</h2>
+                            <ul class="vu-status-list">
+                                <li><span></span> La identificación no puede repetirse</li>
+                                <li><span></span> El estado inactivo conserva el historial</li>
+                                <li><span></span> Los cambios quedan disponibles para próximos módulos</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

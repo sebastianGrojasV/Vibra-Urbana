@@ -88,7 +88,7 @@
                                                           data-vu-confirm-action="@(rol.Activo ? "Desactivar" : "Activar")">
                                                         @Html.AntiForgeryToken()
                                                         <input name="id" type="hidden" value="@rol.Id" />
-                                                        <input name="active" type="hidden" value="@(!rol.Activo).ToString().ToLowerInvariant()" />
+                                                        <input name="active" type="hidden" value="@(rol.Activo ? "false" : "true")" />
                                                         <button class="btn btn-sm vu-icon-btn @(rol.Activo ? "vu-icon-disable" : "vu-icon-enable")" type="submit" title="@(rol.Activo ? "Desactivar" : "Activar")" aria-label="@(rol.Activo ? "Desactivar rol" : "Activar rol")">
                                                             @if (rol.Activo)
                                                             {

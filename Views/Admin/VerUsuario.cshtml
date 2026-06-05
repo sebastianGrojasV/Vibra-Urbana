@@ -43,7 +43,7 @@
                               data-vu-confirm-action="@(Model.Activo ? "Desactivar" : "Activar")">
                             @Html.AntiForgeryToken()
                             <input name="id" type="hidden" value="@Model.Id" />
-                            <input name="active" type="hidden" value="@(!Model.Activo).ToString().ToLowerInvariant()" />
+                            <input name="active" type="hidden" value="@(Model.Activo ? "false" : "true")" />
                             <button class="btn @(Model.Activo ? "btn-outline-danger" : "btn-outline-success")" type="submit">
                                 @(Model.Activo ? "Desactivar" : "Activar")
                             </button>
