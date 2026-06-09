@@ -1,13 +1,20 @@
+using System.Globalization;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
 using VibraUrbana.Data;
 using VibraUrbana.Filters;
 using VibraUrbana.Models;
-using VibraUrbana.Services;
 using VibraUrbana.Repositories;
+using VibraUrbana.Services;
 
 var builder = WebApplication.CreateBuilder(args);
+
+var costaRicaCulture = new CultureInfo("es-CR");
+CultureInfo.DefaultThreadCurrentCulture = costaRicaCulture;
+CultureInfo.DefaultThreadCurrentUICulture = costaRicaCulture;
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
     ?? throw new InvalidOperationException("DefaultConnection is not configured.");
@@ -18,11 +25,12 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 builder.Services.AddScoped<IPasswordHasher<Usuario>, PasswordHasher<Usuario>>();
 builder.Services.AddScoped<IUsuarioAuthenticationService, AuthenticationService>();
 builder.Services.AddScoped<IUsuarioRegistrationService, UsuarioRegistrationService>();
-
-// ?? Inyección de dependencias para Roles
 builder.Services.AddScoped<IRolRepositorio, RolRepositorio>();
 builder.Services.AddScoped<IRolServicio, RolServicio>();
-
+builder.Services.AddScoped<IClienteServicio, ClienteServicio>();
+builder.Services.AddScoped<IProductoServicio, ProductoServicio>();
+builder.Services.AddScoped<INavigationMenuService, NavigationMenuService>();
+builder.Services.AddScoped<IAuthorizationHandler, PermisoAuthorizationHandler>();
 
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
@@ -33,12 +41,27 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
         options.SlidingExpiration = true;
     });
 
+builder.Services.AddAuthorization(options =>
+{
+    foreach (var permiso in PermisosSistema.Todos)
+    {
+        options.AddPolicy(permiso, policy => policy.Requirements.Add(new PermisoRequirement(permiso)));
+    }
+});
+
 builder.Services.AddControllersWithViews(options =>
 {
     options.Filters.Add<NoCacheForAuthenticatedUsersFilter>();
 });
 
 var app = builder.Build();
+
+app.UseRequestLocalization(new RequestLocalizationOptions
+{
+    DefaultRequestCulture = new RequestCulture(costaRicaCulture),
+    SupportedCultures = [costaRicaCulture],
+    SupportedUICultures = [costaRicaCulture]
+});
 
 if (!app.Environment.IsDevelopment())
 {

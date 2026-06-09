@@ -7,24 +7,26 @@ public class EditarUsuarioViewModel
 {
     public int Id { get; set; }
 
-    [Required(ErrorMessage = "La cedula es obligatoria.")]
-    [StringLength(20, ErrorMessage = "La cedula no puede superar 20 caracteres.")]
-    [Display(Name = "Cedula")]
+    [Required(ErrorMessage = "La cédula es obligatoria.")]
+    [RegularExpression(@"^\d{9}$", ErrorMessage = "La cédula debe contener solo números y tener 9 dígitos.")]
+    [Display(Name = "Cédula")]
     public string Cedula { get; set; } = string.Empty;
 
     [Required(ErrorMessage = "El nombre completo es obligatorio.")]
+    [RegularExpression(@".*\S.*", ErrorMessage = "El nombre completo no puede estar vacío.")]
     [StringLength(150, ErrorMessage = "El nombre completo no puede superar 150 caracteres.")]
     [Display(Name = "Nombre completo")]
     public string NombreCompleto { get; set; } = string.Empty;
 
-    [Required(ErrorMessage = "El correo electronico es obligatorio.")]
-    [EmailAddress(ErrorMessage = "Ingresa un correo electronico valido.")]
-    [StringLength(150, ErrorMessage = "El correo electronico no puede superar 150 caracteres.")]
-    [Display(Name = "Correo electronico")]
+    [Required(ErrorMessage = "El correo electrónico es obligatorio.")]
+    [RegularExpression(@".*\S.*", ErrorMessage = "El correo electrónico no puede estar vacío.")]
+    [EmailAddress(ErrorMessage = "Ingresa un correo electrónico válido.")]
+    [StringLength(150, ErrorMessage = "El correo electrónico no puede superar 150 caracteres.")]
+    [Display(Name = "Correo electrónico")]
     public string Correo { get; set; } = string.Empty;
 
     [Required(ErrorMessage = "El rol es obligatorio.")]
-    [Range(1, int.MaxValue, ErrorMessage = "Selecciona un rol valido.")]
+    [Range(1, int.MaxValue, ErrorMessage = "Selecciona un rol válido.")]
     [Display(Name = "Rol")]
     public int RolId { get; set; }
 

@@ -79,6 +79,27 @@ public class UsuarioRegistrationService : IUsuarioRegistrationService
             .SingleOrDefaultAsync();
     }
 
+    public async Task<bool> ExistsByEmailAsync(string correo)
+    {
+        var normalizedEmail = correo.Trim().ToLowerInvariant();
+
+        return await _context.Usuarios.AnyAsync(usuario => usuario.Correo.ToLower() == normalizedEmail);
+    }
+
+    public async Task<RestablecerPasswordUsuarioViewModel?> GetUsuarioParaRestablecerPasswordAsync(int id)
+    {
+        return await _context.Usuarios
+            .AsNoTracking()
+            .Where(usuario => usuario.Id == id)
+            .Select(usuario => new RestablecerPasswordUsuarioViewModel
+            {
+                Id = usuario.Id,
+                NombreCompleto = usuario.NombreCompleto,
+                Correo = usuario.Correo
+            })
+            .SingleOrDefaultAsync();
+    }
+
     public async Task<ActualizarUsuarioResult> UpdateAsync(EditarUsuarioViewModel model)
     {
         var usuario = await _context.Usuarios.SingleOrDefaultAsync(existing => existing.Id == model.Id);
@@ -123,6 +144,21 @@ public class UsuarioRegistrationService : IUsuarioRegistrationService
         await _context.SaveChangesAsync();
 
         return ActualizarUsuarioResult.Success;
+    }
+
+    public async Task<RestablecerPasswordUsuarioResult> ResetPasswordAsync(RestablecerPasswordUsuarioViewModel model)
+    {
+        var usuario = await _context.Usuarios.SingleOrDefaultAsync(existing => existing.Id == model.Id);
+
+        if (usuario is null)
+        {
+            return RestablecerPasswordUsuarioResult.NotFound;
+        }
+
+        usuario.PasswordHash = _passwordHasher.HashPassword(usuario, model.NuevaPassword);
+        await _context.SaveChangesAsync();
+
+        return RestablecerPasswordUsuarioResult.Success;
     }
 
     public async Task<CambiarEstadoUsuarioResult> ChangeStatusAsync(int id, bool active)

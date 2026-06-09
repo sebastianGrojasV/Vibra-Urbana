@@ -6,7 +6,7 @@ using VibraUrbana.ViewModels;
 
 namespace VibraUrbana.Controllers;
 
-[Authorize(Roles = "Administrador")]
+[Authorize(Policy = PermisosSistema.UsuariosGestionar)]
 public class AdminController : Controller
 {
     private readonly IUsuarioRegistrationService _usuarioRegistrationService;
@@ -114,6 +114,41 @@ public class AdminController : Controller
     }
 
     [HttpGet]
+    public async Task<IActionResult> RestablecerPasswordUsuario(int id)
+    {
+        var model = await _usuarioRegistrationService.GetUsuarioParaRestablecerPasswordAsync(id);
+
+        if (model is null)
+        {
+            return NotFound();
+        }
+
+        return View(model);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> RestablecerPasswordUsuario(RestablecerPasswordUsuarioViewModel model)
+    {
+        if (!ModelState.IsValid)
+        {
+            ModelState.AddModelError(string.Empty, "Completa los campos obligatorios para restablecer la contraseña.");
+            await RepoblarUsuarioParaRestablecerAsync(model);
+            return View(model);
+        }
+
+        var result = await _usuarioRegistrationService.ResetPasswordAsync(model);
+
+        if (result == RestablecerPasswordUsuarioResult.NotFound)
+        {
+            return NotFound();
+        }
+
+        TempData["SuccessMessage"] = "Contraseña restablecida correctamente.";
+        return RedirectToAction(nameof(VerUsuario), new { id = model.Id });
+    }
+
+    [HttpGet]
     public async Task<IActionResult> CambiarEstadoUsuario(int id)
     {
         var usuario = await _usuarioRegistrationService.GetUsuarioDetalleAsync(id);
@@ -168,9 +203,9 @@ public class AdminController : Controller
     {
         var message = result switch
         {
-            RegistroUsuarioResult.DuplicateCedula => "La cedula ya se encuentra registrada.",
-            RegistroUsuarioResult.DuplicateCorreo => "El correo electronico ya se encuentra registrado.",
-            RegistroUsuarioResult.RolNotFound => "El rol seleccionado no esta disponible.",
+            RegistroUsuarioResult.DuplicateCedula => "La cédula ya se encuentra registrada.",
+            RegistroUsuarioResult.DuplicateCorreo => "El correo electrónico ya se encuentra registrado.",
+            RegistroUsuarioResult.RolNotFound => "El rol seleccionado no está disponible.",
             _ => "No fue posible registrar el usuario."
         };
 
@@ -181,12 +216,25 @@ public class AdminController : Controller
     {
         var message = result switch
         {
-            ActualizarUsuarioResult.DuplicateCedula => "La cedula ya se encuentra registrada por otro usuario.",
-            ActualizarUsuarioResult.DuplicateCorreo => "El correo electronico ya se encuentra registrado por otro usuario.",
-            ActualizarUsuarioResult.RolNotFound => "El rol seleccionado no esta disponible.",
+            ActualizarUsuarioResult.DuplicateCedula => "La cédula ya se encuentra registrada por otro usuario.",
+            ActualizarUsuarioResult.DuplicateCorreo => "El correo electrónico ya se encuentra registrado por otro usuario.",
+            ActualizarUsuarioResult.RolNotFound => "El rol seleccionado no está disponible.",
             _ => "No fue posible actualizar el usuario."
         };
 
         ModelState.AddModelError(string.Empty, message);
+    }
+
+    private async Task RepoblarUsuarioParaRestablecerAsync(RestablecerPasswordUsuarioViewModel model)
+    {
+        var persistedModel = await _usuarioRegistrationService.GetUsuarioParaRestablecerPasswordAsync(model.Id);
+
+        if (persistedModel is null)
+        {
+            return;
+        }
+
+        model.NombreCompleto = persistedModel.NombreCompleto;
+        model.Correo = persistedModel.Correo;
     }
 }

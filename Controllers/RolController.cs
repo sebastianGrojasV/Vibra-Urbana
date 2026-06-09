@@ -1,10 +1,11 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Diagnostics;
-using VibraUrbana.Models;
 using VibraUrbana.Services;
+using VibraUrbana.ViewModels;
 
 namespace VibraUrbana.Controllers;
 
+[Authorize(Policy = PermisosSistema.RolesGestionar)]
 public class RolController : Controller
 {
     private readonly IRolServicio _rolServicio;
@@ -14,108 +15,161 @@ public class RolController : Controller
         _rolServicio = rolServicio;
     }
 
-    // GET: Rol
+    [HttpGet]
     public async Task<IActionResult> Index()
     {
         var roles = await _rolServicio.ObtenerRolesAsync();
-        return View(roles); // Vista Index.cshtml con la lista de roles
-    }
-
-    // GET: Rol/Details/5
-    public async Task<IActionResult> Details(int id)
-    {
-        var rol = await _rolServicio.ObtenerRolPorIdAsync(id);
-        if (rol == null)
-            return NotFound();
-
-        return View(rol); // Vista Details.cshtml
-    }
-
-    // GET: Rol/Create
-    public IActionResult Create()
-    {
-        return View(); // Vista Create.cshtml con formulario
-    }
-
-    // POST: Rol/Create
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create(Rol rol)
-    {
-        if (ModelState.IsValid)
+        var model = roles.Select(rol => new RolListadoItemViewModel
         {
-            var creado = await _rolServicio.AgregarRolAsync(rol);
-            if (creado)
-            {
-                // Guardamos mensaje de confirmación en TempData
-                TempData["RolCreado"] = " El rol se creó exitosamente";
-                return RedirectToAction(nameof(Index));
-            }
+            Id = rol.Id,
+            Nombre = rol.Nombre,
+            Descripcion = rol.Descripcion,
+            Activo = rol.Activo
+        }).ToList();
 
-            // Si ya existe, mostramos error en la vista
-            ModelState.AddModelError(string.Empty, "Ya existe un rol con ese nombre");
-        }
-        return View(rol);
+        return View(model);
     }
-
-
-
 
     [HttpGet]
-    public async Task<IActionResult> Delete(int id)
+    public IActionResult Create()
     {
-        var rol = await _rolServicio.ObtenerRolPorIdAsync(id);
-        if (rol == null)
-            return NotFound();
-
-        return View(rol); // Vista Delete.cshtml con los datos del rol
+        return View(new CrearRolViewModel());
     }
-
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> DeleteConfirmed(int id)
+    public async Task<IActionResult> Create(CrearRolViewModel model)
     {
-        var eliminado = await _rolServicio.EliminarRolAsync(id);
-
-        if (eliminado)
+        if (!ModelState.IsValid)
         {
-            // Mensaje de confirmación para el Index
-            TempData["RolEliminado"] = " El rol fue desactivado correctamente";
+            ModelState.AddModelError(string.Empty, "Completa los campos obligatorios para registrar el rol.");
+            return View(model);
+        }
+
+        var creado = await _rolServicio.AgregarRolAsync(model);
+
+        if (!creado)
+        {
+            ModelState.AddModelError(string.Empty, "Ya existe un rol con ese nombre.");
+            return View(model);
+        }
+
+        TempData["SuccessMessage"] = "Rol registrado correctamente.";
+        return RedirectToAction(nameof(Index));
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> Edit(int id)
+    {
+        var model = await _rolServicio.ObtenerRolParaEditarAsync(id);
+
+        if (model is null)
+        {
+            return NotFound();
+        }
+
+        return View(model);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Edit(EditarRolViewModel model)
+    {
+        if (!model.PermisosSeleccionados.Any())
+        {
+            ModelState.AddModelError(string.Empty, "Selecciona al menos un permiso para el rol.");
+        }
+
+        if (!ModelState.IsValid)
+        {
+            ModelState.AddModelError(string.Empty, "Completa los campos obligatorios para actualizar el rol.");
+            await RepoblarPermisosAsync(model);
+            return View(model);
+        }
+
+        var result = await _rolServicio.ActualizarRolAsync(model);
+
+        if (result == ActualizarRolResult.Success)
+        {
+            TempData["SuccessMessage"] = "Rol actualizado correctamente.";
             return RedirectToAction(nameof(Index));
         }
 
-        // Si no se pudo eliminar (no existe o ya estaba inactivo)
-        TempData["RolError"] = " No se pudo desactivar el rol";
-        return RedirectToAction(nameof(Index));
+        if (result == ActualizarRolResult.NotFound)
+        {
+            return NotFound();
+        }
+
+        AddUpdateError(result);
+        await RepoblarPermisosAsync(model);
+        return View(model);
     }
 
+    [HttpGet]
+    public async Task<IActionResult> CambiarEstado(int id)
+    {
+        var model = await _rolServicio.ObtenerRolParaEditarAsync(id);
+
+        if (model is null)
+        {
+            return NotFound();
+        }
+
+        return View(model);
+    }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Activar(int id)
+    public async Task<IActionResult> ConfirmarCambiarEstado(int id, bool active)
     {
-        var activado = await _rolServicio.ActivarRolAsync(id);
+        var result = await _rolServicio.CambiarEstadoAsync(id, active);
 
-        if (activado)
+        if (result == CambiarEstadoRolResult.NotFound)
         {
-            TempData["RolActivado"] = " El rol fue activado correctamente";
+            return NotFound();
         }
-        else
+
+        if (result == CambiarEstadoRolResult.LastActiveAdministrator)
         {
-            TempData["RolError"] = " No se pudo activar el rol";
+            TempData["SuccessMessage"] = "No se puede dejar el sistema sin al menos un rol Administrador activo.";
+            return RedirectToAction(nameof(Index));
         }
+
+        TempData["SuccessMessage"] = active
+            ? "Rol activado correctamente."
+            : "Rol desactivado correctamente.";
 
         return RedirectToAction(nameof(Index));
     }
 
-
-
-
-
-    [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-    public IActionResult Error()
+    private async Task RepoblarPermisosAsync(EditarRolViewModel model)
     {
-        return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+        var persistedModel = await _rolServicio.ObtenerRolParaEditarAsync(model.Id);
+
+        if (persistedModel is null)
+        {
+            return;
+        }
+
+        var permisosSeleccionados = model.PermisosSeleccionados.ToHashSet();
+        model.Permisos = persistedModel.Permisos.Select(permiso => new PermisoSeleccionViewModel
+        {
+            Id = permiso.Id,
+            Nombre = permiso.Nombre,
+            Descripcion = permiso.Descripcion,
+            Seleccionado = permisosSeleccionados.Contains(permiso.Id)
+        }).ToList();
+    }
+
+    private void AddUpdateError(ActualizarRolResult result)
+    {
+        var message = result switch
+        {
+            ActualizarRolResult.DuplicateName => "Ya existe un rol con ese nombre.",
+            ActualizarRolResult.LastActiveAdministrator => "No se puede dejar el sistema sin al menos un rol Administrador activo.",
+            _ => "No fue posible actualizar el rol."
+        };
+
+        ModelState.AddModelError(string.Empty, message);
     }
 }

@@ -1,11 +1,17 @@
 :root {
-    --vu-ink: #23142f;
-    --vu-muted: #6f637a;
-    --vu-line: #e3d8f0;
-    --vu-soft: #f6f1ff;
-    --vu-accent: #6f42c1;
-    --vu-accent-2: #9c6ade;
-    --vu-deep: #2d0247;
+    --vu-ink: #17110f;
+    --vu-muted: #6d5b53;
+    --vu-line: #f1c6b7;
+    --vu-soft: #fff2ea;
+    --vu-surface: #fffaf6;
+    --vu-accent: #f04a2f;
+    --vu-accent-2: #ff8a45;
+    --vu-header: #17110f;
+    --vu-sidebar: #641f1c;
+    --vu-footer-bg: #30211d;
+    --vu-table: #145a5a;
+    --vu-table-soft: #e7f4f2;
+    --vu-deep: #641f1c;
 }
 
 html {
@@ -128,7 +134,7 @@ body > main {
     padding: 1.5rem 0;
     color: #d6c7f7;
     background: var(--vu-deep);
-    border-top: 1px solid rgba(255, 255, 255, .08);
+    border-top: 0;
 }
 
 .min-vh-75 {
@@ -216,8 +222,12 @@ body > main {
 
 .vu-admin-shell {
     min-height: calc(100vh - 130px);
-    padding-bottom: 2rem;
     background: #f3efff;
+}
+
+.vu-admin-shell > .container-fluid {
+    padding-right: 0;
+    padding-left: 0;
 }
 
 .vu-admin-sidebar {
@@ -363,6 +373,36 @@ body > main {
     border-radius: 999px;
 }
 
+.vu-permission-option {
+    display: flex;
+    min-height: 5.25rem;
+    gap: .75rem;
+    padding: 1rem;
+    color: var(--vu-ink);
+    background: var(--vu-soft);
+    border: 1px solid var(--vu-line);
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.vu-permission-option input {
+    margin-top: .2rem;
+    flex: 0 0 auto;
+}
+
+.vu-permission-option span {
+    display: grid;
+    gap: .25rem;
+}
+
+.vu-permission-option strong {
+    color: var(--vu-deep);
+}
+
+.vu-permission-option small {
+    color: var(--vu-muted);
+}
+
 @media (max-width: 991.98px) {
     .vu-auth-page {
         background:
@@ -376,5 +416,1635 @@ body > main {
 
     .vu-admin-content {
         padding: 1.25rem;
+    }
+}
+
+/* Visual refresh v2 */
+:root {
+    --vu-page: #fff8f4;
+    --vu-page-alt: #f7ebe3;
+    --vu-card: #ffffff;
+    --vu-charcoal: #15110f;
+    --vu-wine: #5b1717;
+    --vu-wine-2: #7a2720;
+    --vu-coral: #ef432d;
+    --vu-orange: #ff8a45;
+    --vu-gold: #f4b24b;
+    --vu-teal: #155f61;
+    --vu-teal-2: #0f494b;
+    --vu-mint: #e7f5f1;
+    --vu-border: #ead1c4;
+    --vu-shadow: 0 18px 50px rgba(70, 33, 23, .11);
+}
+
+body {
+    background:
+        linear-gradient(180deg, #fff8f4 0, #fff8f4 36%, #f7ebe3 100%);
+}
+
+body > main {
+    background:
+        linear-gradient(90deg, rgba(239, 67, 45, .035), transparent 24rem),
+        linear-gradient(180deg, rgba(255, 255, 255, .55), transparent 28rem);
+}
+
+.vu-navbar {
+    min-height: 4.25rem;
+    background: #15110f;
+    box-shadow: 0 12px 34px rgba(21, 17, 15, .24);
+}
+
+.vu-navbar .container {
+    max-width: 1440px;
+}
+
+.vu-navbar .nav-link {
+    padding: .6rem .8rem;
+    color: rgba(255, 246, 239, .78);
+    border-radius: 8px;
+}
+
+.vu-navbar .nav-link:hover,
+.vu-navbar .nav-link:focus {
+    color: #ffffff;
+    background: rgba(255, 138, 69, .14);
+}
+
+.vu-nav-logo {
+    width: 2.45rem;
+    height: 2.45rem;
+    border-color: rgba(255, 255, 255, .9);
+}
+
+.vu-navbar .btn-light {
+    color: #15110f;
+    background: #fff4eb;
+    border: 0;
+    border-radius: 8px;
+    font-weight: 800;
+}
+
+.vu-footer {
+    color: #f8d9c8;
+    background: #241a17;
+}
+
+.vu-hero {
+    position: relative;
+    min-height: calc(100vh - 12rem);
+    display: flex;
+    align-items: center;
+    padding: 5.25rem 0 4rem;
+    overflow: hidden;
+    background:
+        linear-gradient(105deg, rgba(255, 248, 244, .98) 0 54%, rgba(239, 67, 45, .95) 54% 72%, rgba(255, 138, 69, .95) 72% 100%);
+}
+
+.vu-hero::after {
+    position: absolute;
+    right: max(1rem, calc((100vw - 1320px) / 2));
+    bottom: -5rem;
+    width: min(28rem, 42vw);
+    height: min(28rem, 42vw);
+    content: "";
+    background: url("../img/logo-vibra-urbana.jpeg") center / cover no-repeat;
+    border: 8px solid rgba(255, 255, 255, .72);
+    border-radius: 16px;
+    box-shadow: 0 28px 80px rgba(21, 17, 15, .28);
+    transform: rotate(-4deg);
+}
+
+.vu-hero .container {
+    position: relative;
+    z-index: 1;
+}
+
+.vu-hero h1 {
+    max-width: 11ch;
+    color: #15110f;
+    font-size: clamp(3.5rem, 8vw, 7rem);
+    line-height: .88;
+}
+
+.vu-lead {
+    max-width: 38rem;
+    color: #5d4b43;
+    font-size: 1.18rem;
+}
+
+.vu-hero .btn {
+    border-radius: 8px;
+    font-weight: 850;
+}
+
+.vu-hero .btn-dark {
+    background: #15110f;
+    border-color: #15110f;
+}
+
+.vu-hero .btn-outline-dark {
+    background: rgba(255, 255, 255, .68);
+    border-color: rgba(21, 17, 15, .34);
+}
+
+.vu-hero-visual {
+    position: relative;
+    z-index: 2;
+    max-width: 26rem;
+    margin-left: auto;
+    padding: 1rem;
+    color: #15110f;
+    background: rgba(255, 255, 255, .9);
+    border: 1px solid rgba(255, 255, 255, .72);
+    border-radius: 12px;
+    box-shadow: 0 28px 76px rgba(21, 17, 15, .22);
+    backdrop-filter: blur(10px);
+}
+
+.vu-hero-visual img {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    object-fit: cover;
+    border-radius: 8px;
+}
+
+.vu-hero-visual div {
+    display: grid;
+    gap: .25rem;
+    padding: 1rem .35rem .2rem;
+}
+
+.vu-hero-visual strong {
+    font-size: 1.15rem;
+    font-weight: 900;
+}
+
+.vu-hero-visual span {
+    color: #6d5b53;
+    font-weight: 650;
+}
+
+.vu-module {
+    position: relative;
+    padding: 1.35rem;
+    overflow: hidden;
+    border-color: rgba(234, 209, 196, .95);
+}
+
+.vu-module::before {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: .25rem;
+    content: "";
+    background: linear-gradient(90deg, var(--vu-coral), var(--vu-orange));
+}
+
+.vu-admin-shell {
+    min-height: calc(100vh - 136px);
+    background:
+        linear-gradient(180deg, #fff8f4 0, #fff8f4 48%, #f7ebe3 100%);
+}
+
+.vu-admin-content {
+    padding: 2rem clamp(1rem, 2vw, 2.4rem) 2.6rem;
+}
+
+.vu-admin-sidebar {
+    position: sticky;
+    top: 0;
+    min-height: calc(100vh - 4.25rem);
+    padding: 1.15rem .95rem;
+    background:
+        linear-gradient(180deg, #4d1514 0, #641f1c 62%, #311817 100%);
+    box-shadow: inset -1px 0 rgba(255, 255, 255, .08);
+}
+
+.vu-sidebar-brand {
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+    min-height: 3.1rem;
+    margin-bottom: 1.25rem;
+    color: #fff8f4;
+}
+
+.vu-sidebar-brand::before {
+    width: 2.35rem;
+    height: 2.35rem;
+    flex: 0 0 auto;
+    content: "";
+    background: url("../img/logo-vibra-urbana.jpeg") center / cover no-repeat;
+    border: 2px solid rgba(255, 255, 255, .78);
+    border-radius: 8px;
+}
+
+.vu-sidebar-nav {
+    gap: .25rem;
+}
+
+.vu-sidebar-nav a {
+    display: flex;
+    align-items: center;
+    min-height: 2.55rem;
+    padding: .7rem .78rem;
+    color: rgba(255, 244, 235, .78);
+    border: 1px solid transparent;
+    border-radius: 8px;
+    font-size: .94rem;
+}
+
+.vu-sidebar-nav a:hover,
+.vu-sidebar-nav a.active {
+    color: #ffffff;
+    background: rgba(255, 138, 69, .18);
+    border-color: rgba(255, 194, 137, .2);
+}
+
+.vu-admin-header {
+    padding-bottom: 1.25rem;
+    border-bottom: 1px solid rgba(234, 209, 196, .72);
+}
+
+.vu-admin-header h1 {
+    color: #15110f;
+    font-size: clamp(2rem, 3vw, 3.05rem);
+    line-height: 1;
+}
+
+.vu-admin-header p {
+    max-width: 48rem;
+}
+
+.vu-eyebrow {
+    color: var(--vu-coral);
+    letter-spacing: .08em;
+}
+
+.vu-panel,
+.vu-dashboard-card,
+.vu-status-panel,
+.vu-form-shell {
+    background: rgba(255, 255, 255, .96);
+    border: 1px solid rgba(234, 209, 196, .9);
+    border-radius: 10px;
+    box-shadow: var(--vu-shadow);
+}
+
+.vu-panel {
+    padding: 1.35rem;
+}
+
+.vu-dashboard-card {
+    padding: 1.25rem;
+    transition: transform .16s ease, box-shadow .16s ease, border-color .16s ease;
+}
+
+.vu-dashboard-card:hover {
+    border-color: rgba(239, 67, 45, .35);
+    box-shadow: 0 22px 58px rgba(70, 33, 23, .15);
+    transform: translateY(-2px);
+}
+
+.vu-dashboard-card span {
+    color: #155f61;
+}
+
+.vu-dashboard-card strong,
+.vu-panel h2 {
+    color: #15110f;
+}
+
+.vu-module-grid {
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+}
+
+.vu-module-grid a {
+    color: #15110f;
+    background: #fff4eb;
+    border-color: rgba(234, 209, 196, .95);
+}
+
+.vu-module-grid a:hover {
+    background: #155f61;
+}
+
+.form-label,
+.form-check-label {
+    color: #2e2420;
+    font-weight: 800;
+}
+
+.form-control,
+.form-select {
+    min-height: 2.75rem;
+    color: #15110f;
+    background-color: #fffaf7;
+    border-color: #e3c5b7;
+    border-radius: 8px;
+    box-shadow: none;
+}
+
+.form-control:focus,
+.form-select:focus,
+.form-check-input:focus {
+    border-color: var(--vu-coral);
+    box-shadow: 0 0 0 .2rem rgba(239, 67, 45, .16);
+}
+
+.form-check-input:checked {
+    background-color: var(--vu-coral);
+    border-color: var(--vu-coral);
+}
+
+.btn {
+    border-radius: 8px;
+    font-weight: 800;
+}
+
+.btn-success {
+    background: #1f7a4d;
+    border-color: #1f7a4d;
+}
+
+.btn-danger {
+    background: #b72622;
+    border-color: #b72622;
+}
+
+.badge {
+    border-radius: 999px;
+    font-weight: 800;
+}
+
+.vu-auth-page {
+    min-height: calc(100vh - 136px);
+    display: flex;
+    align-items: center;
+    padding: 3rem 0;
+    background:
+        linear-gradient(103deg, #fff8f4 0 58%, #15110f 58% 100%);
+}
+
+.vu-auth-page .container {
+    position: relative;
+}
+
+.vu-auth-page .container::after {
+    position: absolute;
+    right: .75rem;
+    bottom: -2rem;
+    width: min(21rem, 30vw);
+    height: min(21rem, 30vw);
+    content: "";
+    background: url("../img/logo-vibra-urbana.jpeg") center / cover no-repeat;
+    border: 6px solid rgba(255, 255, 255, .88);
+    border-radius: 16px;
+    box-shadow: 0 22px 70px rgba(21, 17, 15, .42);
+    transform: rotate(3deg);
+}
+
+.vu-auth-copy {
+    position: relative;
+    z-index: 1;
+    color: #15110f;
+}
+
+.vu-auth-copy h1 {
+    max-width: 12ch;
+    color: #15110f;
+    line-height: .96;
+}
+
+.vu-auth-copy p {
+    max-width: 32rem;
+    color: #5d4b43;
+}
+
+.vu-auth-pills span {
+    color: #155f61;
+    background: #ffffff;
+    border-color: #cfe7e2;
+}
+
+.vu-auth-card {
+    position: relative;
+    z-index: 2;
+    background: rgba(255, 255, 255, .97);
+    border-radius: 12px;
+    box-shadow: 0 28px 80px rgba(21, 17, 15, .28);
+}
+
+.vu-auth-card h2 {
+    color: #15110f;
+}
+
+.vu-auth-card-logo {
+    width: 4.65rem;
+    height: 4.65rem;
+}
+
+.vu-text-link {
+    color: #155f61;
+}
+
+.vu-text-link:hover {
+    color: #0f494b;
+}
+
+.vu-panel table.dataTable {
+    margin-top: 1rem !important;
+}
+
+.vu-panel table.dataTable thead th {
+    padding: .9rem .8rem;
+    color: #ffffff;
+    background: #155f61;
+    border-bottom: 0 !important;
+    font-size: .82rem;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+}
+
+.vu-panel table.dataTable tbody td {
+    padding: .9rem .8rem;
+    color: #2d2420;
+    border-color: #f0ded5;
+}
+
+.vu-panel table.dataTable tbody tr:nth-child(even) > * {
+    background: #fffaf7;
+}
+
+.vu-panel .dataTables_wrapper .dataTables_filter input,
+.vu-panel .dataTables_wrapper .dataTables_length select {
+    background: #ffffff;
+    border-color: #d9bbb0;
+}
+
+.vu-panel .dataTables_wrapper .dataTables_filter input:focus {
+    border-color: #155f61;
+    box-shadow: 0 0 0 .2rem rgba(21, 95, 97, .13);
+}
+
+.vu-actions {
+    gap: .45rem;
+}
+
+.vu-icon-btn {
+    width: 2.25rem;
+    height: 2.25rem;
+    border-width: 1px;
+}
+
+.vu-icon-btn:hover,
+.vu-icon-btn:focus {
+    transform: translateY(-1px);
+}
+
+.vu-permission-option {
+    background: #fffaf7;
+    border-color: #ead1c4;
+    transition: border-color .16s ease, background-color .16s ease, transform .16s ease;
+}
+
+.vu-permission-option:hover {
+    background: #fff4eb;
+    border-color: rgba(239, 67, 45, .42);
+    transform: translateY(-1px);
+}
+
+@media (max-width: 991.98px) {
+    .vu-hero {
+        min-height: auto;
+        background: linear-gradient(180deg, #fff8f4 0 64%, #ef432d 64% 100%);
+    }
+
+    .vu-hero::after,
+    .vu-auth-page .container::after {
+        display: none;
+    }
+
+    .vu-hero-visual {
+        margin-right: auto;
+        margin-left: 0;
+    }
+
+    .vu-admin-sidebar {
+        position: static;
+        min-height: auto;
+    }
+
+    .vu-auth-page {
+        background: linear-gradient(180deg, #fff8f4 0 63%, #15110f 63% 100%);
+    }
+}
+
+@media (max-width: 575.98px) {
+    .vu-admin-header {
+        align-items: flex-start;
+    }
+
+    .vu-actions {
+        gap: .3rem;
+    }
+
+    .vu-icon-btn {
+        width: 2rem;
+        height: 2rem;
+    }
+}
+
+.vu-navbar.navbar {
+    background: #15110f !important;
+}
+
+.vu-hero .btn-outline-dark {
+    color: #15110f !important;
+    background: rgba(255, 255, 255, .84) !important;
+    border-color: rgba(21, 17, 15, .42) !important;
+}
+
+.vu-hero .btn-outline-dark:hover,
+.vu-hero .btn-outline-dark:focus {
+    color: #ffffff !important;
+    background: #15110f !important;
+    border-color: #15110f !important;
+}
+
+.vu-user-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: .6rem;
+    color: #fff8f4;
+}
+
+.vu-user-avatar {
+    display: inline-grid;
+    width: 2.15rem;
+    height: 2.15rem;
+    place-items: center;
+    color: #15110f;
+    background: #fff8f4;
+    border-radius: 999px;
+    font-weight: 900;
+}
+
+.vu-user-meta {
+    display: grid;
+    gap: .05rem;
+    line-height: 1.05;
+}
+
+.vu-user-meta strong {
+    font-size: .9rem;
+}
+
+.vu-user-meta small {
+    color: rgba(255, 248, 244, .68);
+    font-size: .72rem;
+    font-weight: 700;
+}
+
+.vu-admin-shell .row.g-0 {
+    display: flex;
+    flex-wrap: nowrap;
+}
+
+.vu-admin-sidebar {
+    flex: 0 0 17rem;
+    width: 17rem;
+    max-width: 17rem;
+    transition: flex-basis .2s ease, width .2s ease, max-width .2s ease;
+}
+
+.vu-admin-content {
+    flex: 1 1 auto;
+    width: auto;
+    max-width: none;
+    min-width: 0;
+}
+
+.vu-sidebar-toggle {
+    display: inline-grid;
+    width: 2.5rem;
+    height: 2.5rem;
+    margin: 0 0 1rem;
+    place-items: center;
+    color: #fff8f4;
+    background: rgba(255, 255, 255, .1);
+    border: 1px solid rgba(255, 255, 255, .16);
+    border-radius: 8px;
+}
+
+.vu-sidebar-toggle:hover,
+.vu-sidebar-toggle:focus {
+    color: #15110f;
+    background: #fff8f4;
+}
+
+.vu-menu-icon {
+    width: 1.12rem;
+    height: 1.12rem;
+    flex: 0 0 auto;
+    fill: none;
+    stroke: currentColor;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 2;
+}
+
+.vu-sidebar-nav a {
+    gap: .75rem;
+}
+
+.vu-sidebar-link-text {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+body.vu-sidebar-collapsed .vu-admin-sidebar {
+    flex-basis: 5.35rem;
+    width: 5.35rem;
+    max-width: 5.35rem;
+    padding-right: .8rem;
+    padding-left: .8rem;
+}
+
+body.vu-sidebar-collapsed .vu-sidebar-brand {
+    justify-content: center;
+}
+
+body.vu-sidebar-collapsed .vu-sidebar-brand {
+    font-size: 0;
+}
+
+body.vu-sidebar-collapsed .vu-sidebar-nav a {
+    justify-content: center;
+    padding-right: .7rem;
+    padding-left: .7rem;
+}
+
+body.vu-sidebar-collapsed .vu-sidebar-link-text {
+    display: none;
+}
+
+body.vu-sidebar-collapsed .vu-sidebar-toggle {
+    margin-right: auto;
+    margin-left: auto;
+}
+
+.vu-auth-page {
+    position: relative;
+    overflow: hidden;
+    background:
+        linear-gradient(90deg, rgba(255, 248, 244, .97) 0 45%, rgba(255, 248, 244, .83) 45% 55%, rgba(21, 17, 15, .52) 55% 100%),
+        url("../img/auth-boutique-bg.png") left center / cover no-repeat;
+}
+
+.vu-auth-page::before {
+    position: absolute;
+    inset: 0;
+    content: "";
+    background: linear-gradient(120deg, rgba(255, 248, 244, .58) 0 42%, rgba(239, 67, 45, .16) 42% 100%);
+    pointer-events: none;
+}
+
+.vu-auth-page .container {
+    z-index: 1;
+}
+
+.vu-auth-page .container::after {
+    opacity: .42;
+    filter: saturate(.95);
+}
+
+.vu-auth-card {
+    background: rgba(255, 255, 255, .92);
+    backdrop-filter: blur(16px);
+}
+
+.vu-confirm-frame {
+    position: fixed;
+    z-index: 1080;
+    top: 5.25rem;
+    left: 50%;
+    display: grid;
+    width: min(42rem, calc(100vw - 2rem));
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    color: #15110f;
+    background: rgba(255, 255, 255, .96);
+    border: 1px solid rgba(234, 209, 196, .95);
+    border-radius: 10px;
+    box-shadow: 0 20px 60px rgba(21, 17, 15, .2);
+    transform: translate(-50%, -1rem);
+    backdrop-filter: blur(14px);
+}
+
+.vu-confirm-frame[hidden] {
+    display: none;
+}
+
+.vu-confirm-frame.is-visible {
+    animation: vuConfirmIn .16s ease-out forwards;
+}
+
+.vu-confirm-icon {
+    display: inline-grid;
+    width: 2.5rem;
+    height: 2.5rem;
+    place-items: center;
+    color: #9f321f;
+    background: #fff0e8;
+    border-radius: 8px;
+}
+
+.vu-confirm-icon svg {
+    width: 1.25rem;
+    height: 1.25rem;
+    fill: none;
+    stroke: currentColor;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 2;
+}
+
+.vu-confirm-copy {
+    display: grid;
+    gap: .15rem;
+}
+
+.vu-confirm-copy strong {
+    font-size: 1rem;
+    font-weight: 900;
+}
+
+.vu-confirm-copy span {
+    color: #6d5b53;
+    font-weight: 650;
+}
+
+.vu-confirm-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: .5rem;
+}
+
+@keyframes vuConfirmIn {
+    from {
+        opacity: 0;
+        transform: translate(-50%, -1rem);
+    }
+
+    to {
+        opacity: 1;
+        transform: translate(-50%, 0);
+    }
+}
+
+@media (max-width: 991.98px) {
+    .vu-admin-shell .row.g-0 {
+        flex-wrap: wrap;
+    }
+
+    .vu-admin-sidebar,
+    body.vu-sidebar-collapsed .vu-admin-sidebar {
+        flex-basis: 100%;
+        width: 100%;
+        max-width: 100%;
+    }
+
+    body.vu-sidebar-collapsed .vu-sidebar-brand {
+        justify-content: flex-start;
+        font-size: 1.15rem;
+    }
+
+    body.vu-sidebar-collapsed .vu-sidebar-nav a {
+        justify-content: flex-start;
+    }
+
+    body.vu-sidebar-collapsed .vu-sidebar-link-text {
+        display: inline;
+    }
+
+    .vu-sidebar-toggle {
+        display: none;
+    }
+
+    .vu-auth-page {
+        background:
+            linear-gradient(180deg, rgba(255, 248, 244, .97) 0 58%, rgba(21, 17, 15, .74) 58% 100%),
+            url("../img/auth-boutique-bg.png") center top / cover no-repeat;
+    }
+}
+
+@media (max-width: 575.98px) {
+    .vu-user-meta {
+        display: none;
+    }
+
+    .vu-confirm-frame {
+        top: 4.75rem;
+        grid-template-columns: auto 1fr;
+    }
+
+    .vu-confirm-actions {
+        grid-column: 1 / -1;
+        justify-content: stretch;
+    }
+
+.vu-confirm-actions .btn {
+        flex: 1 1 0;
+    }
+}
+
+.vu-auth-page {
+    background:
+        linear-gradient(90deg, rgba(255, 248, 244, .78) 0 43%, rgba(255, 248, 244, .94) 43% 100%),
+        url("../img/auth-boutique-bg.png") left center / cover no-repeat !important;
+}
+
+.vu-auth-page::before,
+.vu-auth-page .container::after {
+    display: none;
+}
+
+.vu-auth-card {
+    background: rgba(255, 255, 255, .88);
+    border-color: rgba(255, 255, 255, .72);
+    box-shadow: 0 28px 80px rgba(21, 17, 15, .22);
+}
+
+.vu-navbar {
+    background: var(--vu-header);
+}
+
+.vu-navbar-brand {
+    display: inline-flex;
+    align-items: center;
+    gap: .65rem;
+}
+
+.vu-nav-logo {
+    width: 2.25rem;
+    height: 2.25rem;
+    object-fit: cover;
+    border: 2px solid rgba(255, 255, 255, .72);
+    border-radius: 8px;
+}
+
+body,
+.vu-admin-shell {
+    background: #fff7f0;
+}
+
+.vu-hero {
+    background: linear-gradient(120deg, #fffaf6 0%, #fff2ea 56%, #ffe0cf 100%);
+}
+
+.vu-footer {
+    color: #ffe6d6;
+    background: var(--vu-footer-bg);
+}
+
+.btn-primary {
+    color: #ffffff !important;
+    background-color: var(--vu-accent) !important;
+    border-color: var(--vu-accent) !important;
+}
+
+.btn-primary:hover,
+.btn-primary:focus {
+    background-color: #c93622 !important;
+    border-color: #c93622 !important;
+}
+
+.btn-outline-primary {
+    color: #9f321f !important;
+    border-color: #ff9f78 !important;
+}
+
+.btn-outline-primary:hover,
+.btn-outline-primary:focus {
+    color: #ffffff !important;
+    background-color: var(--vu-accent) !important;
+    border-color: var(--vu-accent) !important;
+}
+
+.vu-auth-page {
+    background:
+        radial-gradient(circle at 12% 12%, rgba(255, 138, 69, .28), transparent 24rem),
+        linear-gradient(105deg, #fffaf6 0%, #fff2ea 56%, #f04a2f 56%, #ff8a45 100%);
+}
+
+.vu-auth-copy {
+    color: var(--vu-ink);
+}
+
+.vu-auth-copy p {
+    color: var(--vu-muted);
+}
+
+.vu-auth-pills span {
+    color: #641f1c;
+    background: #ffffff;
+    border-color: rgba(240, 74, 47, .22);
+}
+
+.vu-auth-card {
+    border-color: rgba(240, 74, 47, .18);
+    box-shadow: 0 24px 64px rgba(100, 31, 28, .18);
+}
+
+.vu-auth-card-logo {
+    width: 5rem;
+    height: 5rem;
+    margin-bottom: 1rem;
+    object-fit: cover;
+    border: 3px solid #fff2ea;
+    border-radius: 8px;
+    box-shadow: 0 12px 28px rgba(23, 17, 15, .16);
+}
+
+.vu-admin-sidebar {
+    background: var(--vu-sidebar);
+}
+
+.vu-sidebar-nav a:hover,
+.vu-sidebar-nav a.active {
+    background: rgba(255, 138, 69, .22);
+}
+
+.vu-dashboard-card,
+.vu-panel,
+.vu-status-panel,
+.vu-form-shell,
+.vu-module {
+    border-color: rgba(240, 74, 47, .14);
+    box-shadow: 0 12px 32px rgba(100, 31, 28, .08);
+}
+
+.vu-panel {
+    overflow: hidden;
+}
+
+.vu-panel .table-responsive {
+    overflow-x: auto;
+}
+
+.vu-panel table.vu-data-table,
+.vu-panel table.dataTable {
+    width: 100% !important;
+    border-collapse: separate !important;
+    border-spacing: 0;
+}
+
+.vu-panel table.vu-data-table thead th,
+.vu-panel table.dataTable thead th {
+    color: #ffffff;
+    background: var(--vu-table);
+    border-color: #0e4545;
+}
+
+.vu-panel table.vu-data-table thead th:first-child,
+.vu-panel table.dataTable thead th:first-child {
+    border-top-left-radius: 8px;
+}
+
+.vu-panel table.vu-data-table thead th:last-child,
+.vu-panel table.dataTable thead th:last-child {
+    border-top-right-radius: 8px;
+}
+
+.vu-panel .table-hover tbody tr:hover > * {
+    background-color: var(--vu-table-soft) !important;
+}
+
+.vu-panel .dataTables_wrapper {
+    color: var(--vu-ink);
+}
+
+.vu-panel .dataTables_wrapper .dataTables_length,
+.vu-panel .dataTables_wrapper .dataTables_filter,
+.vu-panel .dataTables_wrapper .dataTables_info,
+.vu-panel .dataTables_wrapper .dataTables_paginate {
+    color: var(--vu-muted) !important;
+    font-weight: 700;
+}
+
+.vu-panel .dataTables_wrapper .dataTables_filter input,
+.vu-panel .dataTables_wrapper .dataTables_length select {
+    margin: 0 .35rem;
+    color: var(--vu-ink);
+    background: #fffaf6;
+    border: 1px solid #efbca9;
+    border-radius: 8px;
+    outline: 0;
+}
+
+.vu-panel .dataTables_wrapper .dataTables_filter input {
+    min-width: 13rem;
+    padding: .45rem .75rem;
+}
+
+.vu-panel .dataTables_wrapper .dataTables_length select {
+    padding: .35rem 1.75rem .35rem .55rem;
+}
+
+.vu-panel .dataTables_wrapper .dataTables_paginate .paginate_button {
+    margin-left: .2rem;
+    color: var(--vu-table) !important;
+    border: 1px solid transparent !important;
+    border-radius: 8px;
+}
+
+.vu-panel .dataTables_wrapper .dataTables_paginate .paginate_button.current,
+.vu-panel .dataTables_wrapper .dataTables_paginate .paginate_button.current:hover {
+    color: #ffffff !important;
+    background: var(--vu-table) !important;
+    border-color: var(--vu-table) !important;
+}
+
+.vu-panel .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+    color: #ffffff !important;
+    background: #0e4545 !important;
+    border-color: #0e4545 !important;
+}
+
+.vu-actions {
+    display: inline-flex;
+    flex-wrap: nowrap;
+    justify-content: flex-end;
+    gap: .4rem;
+}
+
+.vu-icon-btn {
+    display: inline-grid;
+    width: 2.15rem;
+    height: 2.15rem;
+    padding: 0;
+    place-items: center;
+    border-radius: 8px;
+}
+
+.vu-icon-btn svg {
+    width: 1rem;
+    height: 1rem;
+    fill: none;
+    stroke: currentColor;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 2.2;
+}
+
+.vu-icon-view {
+    color: #145a5a;
+    background: #e7f4f2;
+    border-color: #a8d8d4;
+}
+
+.vu-icon-edit {
+    color: #8a2d16;
+    background: #fff0e8;
+    border-color: #ffb199;
+}
+
+.vu-icon-reset {
+    color: #584000;
+    background: #fff6d8;
+    border-color: #ffd27a;
+}
+
+.vu-icon-disable {
+    color: #941b1b;
+    background: #ffe2dc;
+    border-color: #f7b0a2;
+}
+
+.vu-icon-enable {
+    color: #1f6b45;
+    background: #e8f7ef;
+    border-color: #a8ddbd;
+}
+
+.vu-icon-btn:hover,
+.vu-icon-btn:focus {
+    color: #ffffff;
+    background: var(--vu-ink);
+    border-color: var(--vu-ink);
+}
+
+@media (max-width: 991.98px) {
+    .vu-auth-page {
+        background:
+            radial-gradient(circle at top left, rgba(255, 138, 69, .22), transparent 28rem),
+            linear-gradient(180deg, #fffaf6 0%, #fff2ea 58%, #f04a2f 58%, #ff8a45 100%);
+    }
+
+    .vu-panel .dataTables_wrapper .dataTables_filter,
+    .vu-panel .dataTables_wrapper .dataTables_length {
+        float: none;
+        text-align: left;
+    }
+
+    .vu-panel .dataTables_wrapper .dataTables_filter input {
+        width: 100%;
+        min-width: 0;
+        margin: .4rem 0 0;
+    }
+}
+
+/* Sprint 2 readiness polish */
+:root {
+    --vu-slate: #334155;
+    --vu-slate-soft: #f3f7fa;
+    --vu-blue: #1f4e79;
+    --vu-blue-dark: #173c5f;
+    --vu-blue-soft: #edf5fb;
+}
+
+.vu-admin-content,
+.vu-module-placeholder-page {
+    background:
+        linear-gradient(135deg, rgba(31, 78, 121, .045), transparent 22rem),
+        linear-gradient(180deg, rgba(255, 255, 255, .42), transparent 26rem);
+}
+
+.vu-admin-header {
+    margin-bottom: 1.75rem;
+}
+
+.vu-admin-header h1,
+.vu-module-placeholder h1 {
+    letter-spacing: 0;
+}
+
+.vu-admin-header p,
+.vu-module-placeholder p {
+    color: #5f6b78;
+    font-size: 1rem;
+}
+
+.vu-panel {
+    position: relative;
+    border-color: rgba(226, 232, 240, .95);
+}
+
+.vu-panel::before {
+    position: absolute;
+    inset: 0 0 auto;
+    height: .22rem;
+    content: "";
+    background: linear-gradient(90deg, var(--vu-coral), var(--vu-orange), var(--vu-blue));
+    opacity: .95;
+}
+
+.vu-panel > h2:first-child,
+.vu-panel .d-flex h2 {
+    margin-bottom: .2rem;
+}
+
+.vu-dashboard-card {
+    position: relative;
+    display: grid;
+    min-height: 9rem;
+    align-content: start;
+    gap: .25rem;
+    overflow: hidden;
+    background:
+        linear-gradient(135deg, #ffffff 0, #ffffff 62%, #f8fbfd 100%);
+}
+
+.vu-dashboard-card::after {
+    position: absolute;
+    right: 1rem;
+    bottom: 1rem;
+    width: 2.7rem;
+    height: 2.7rem;
+    content: "";
+    background:
+        radial-gradient(circle, rgba(31, 78, 121, .18) 0 38%, transparent 39%),
+        linear-gradient(135deg, rgba(239, 67, 45, .18), rgba(255, 138, 69, .08));
+    border-radius: 999px;
+}
+
+.vu-dashboard-card span {
+    color: var(--vu-blue);
+    letter-spacing: .05em;
+}
+
+.vu-status-list li {
+    padding: .75rem .85rem;
+    color: #44515f;
+    background: #f8fbfd;
+    border: 1px solid #e4edf3;
+    border-radius: 8px;
+}
+
+.vu-status-list span {
+    background: var(--vu-blue);
+    box-shadow: 0 0 0 .22rem rgba(31, 78, 121, .12);
+}
+
+.vu-module-grid a {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 3.25rem;
+    color: #1f2937;
+    background: #ffffff;
+    border-color: #e4edf3;
+    box-shadow: 0 8px 24px rgba(31, 78, 121, .06);
+}
+
+.vu-module-grid a::after {
+    content: ">";
+    color: var(--vu-orange);
+    font-weight: 900;
+}
+
+.vu-module-grid a:hover {
+    color: #ffffff;
+    background: var(--vu-blue);
+    border-color: var(--vu-blue);
+}
+
+.vu-module-grid a:hover::after {
+    color: #ffffff;
+}
+
+.vu-panel form .row.g-3 {
+    row-gap: 1.15rem !important;
+}
+
+.form-label {
+    margin-bottom: .35rem;
+    color: #273443;
+    font-size: .86rem;
+}
+
+.form-control,
+.form-select {
+    background-color: #ffffff;
+    border-color: #d9e4ec;
+}
+
+.form-control::placeholder {
+    color: #94a3b8;
+}
+
+.text-danger.small {
+    display: inline-block;
+    margin-top: .25rem;
+    font-weight: 700;
+}
+
+.alert {
+    border-radius: 8px;
+    font-weight: 700;
+}
+
+.alert-success {
+    color: #15543b;
+    background: #e8f7ef;
+    border-color: #bde4cc;
+}
+
+.alert-info {
+    color: #1f4e79;
+    background: #edf5fb;
+    border-color: #bfd7e8;
+}
+
+.alert-warning {
+    color: #7c3f12;
+    background: #fff4e6;
+    border-color: #ffd4a3;
+}
+
+.alert-danger {
+    color: #87211d;
+    background: #fff0ed;
+    border-color: #ffc2b8;
+}
+
+.validation-summary-valid {
+    display: none;
+}
+
+.vu-permission-option {
+    background: #ffffff;
+    border-color: #dfe9f0;
+}
+
+.vu-permission-option strong {
+    color: #213042;
+}
+
+.vu-permission-option small {
+    color: #637083;
+}
+
+.vu-module-placeholder-page {
+    min-height: calc(100vh - 136px);
+    display: flex;
+    align-items: center;
+    padding: 4rem 0;
+}
+
+.vu-module-placeholder {
+    position: relative;
+    max-width: 54rem;
+    padding: clamp(2rem, 5vw, 4rem);
+    overflow: hidden;
+    background: rgba(255, 255, 255, .94);
+    border: 1px solid rgba(226, 232, 240, .95);
+    border-radius: 12px;
+    box-shadow: 0 28px 80px rgba(31, 78, 121, .14);
+}
+
+.vu-module-placeholder::after {
+    position: absolute;
+    right: -4rem;
+    bottom: -4rem;
+    width: 17rem;
+    height: 17rem;
+    content: "";
+    background:
+        radial-gradient(circle, rgba(255, 138, 69, .18) 0 36%, transparent 37%),
+        radial-gradient(circle at 70% 30%, rgba(31, 78, 121, .16), transparent 52%);
+    border-radius: 999px;
+}
+
+.vu-module-placeholder-icon {
+    display: inline-grid;
+    width: 4rem;
+    height: 4rem;
+    margin-bottom: 1.25rem;
+    place-items: center;
+    color: var(--vu-blue);
+    background: var(--vu-blue-soft);
+    border: 1px solid #cfe0ec;
+    border-radius: 12px;
+}
+
+.vu-module-placeholder-icon .vu-menu-icon {
+    width: 1.9rem;
+    height: 1.9rem;
+}
+
+.vu-module-placeholder h1 {
+    margin-bottom: .85rem;
+    color: #15110f;
+    font-size: clamp(2.5rem, 5vw, 4.5rem);
+    font-weight: 900;
+    line-height: .96;
+}
+
+.vu-module-placeholder p:not(.vu-eyebrow) {
+    max-width: 40rem;
+    margin-bottom: 1.5rem;
+    color: #536273;
+    font-size: 1.08rem;
+}
+
+.vu-placeholder-actions {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-wrap: wrap;
+    gap: .75rem;
+}
+
+.alert-success {
+    transition: opacity .24s ease, transform .24s ease;
+}
+
+.alert-success.vu-alert-dismissing {
+    opacity: 0;
+    transform: translateY(-.35rem);
+}
+
+.vu-product-cell {
+    display: flex;
+    align-items: center;
+    gap: .8rem;
+    min-width: 16rem;
+}
+
+.vu-product-cell span {
+    display: grid;
+    gap: .15rem;
+}
+
+.vu-product-cell strong {
+    color: var(--vu-ink);
+}
+
+.vu-product-cell small {
+    max-width: 24rem;
+    overflow: hidden;
+    color: var(--vu-muted);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.vu-product-thumb {
+    display: inline-grid;
+    width: 3rem;
+    height: 3rem;
+    flex: 0 0 auto;
+    place-items: center;
+    object-fit: cover;
+    color: #ffffff;
+    background: linear-gradient(135deg, var(--vu-coral), var(--vu-orange));
+    border-radius: 8px;
+    font-size: .8rem;
+    font-weight: 900;
+}
+
+.vu-product-preview {
+    display: grid;
+    gap: 1rem;
+}
+
+.vu-product-preview-image,
+.vu-product-preview-empty {
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+    border: 1px solid #dfe9f0;
+    border-radius: 8px;
+}
+
+.vu-product-preview-empty {
+    display: grid;
+    place-items: center;
+    color: #ffffff;
+    background: linear-gradient(135deg, var(--vu-blue), var(--vu-coral));
+    font-size: 3rem;
+    font-weight: 900;
+}
+
+.vu-product-preview strong {
+    color: #15110f;
+    font-size: 1.15rem;
+}
+
+.vu-stock-alert {
+    border-width: 0 0 0 .35rem;
+    border-left-color: #ffc107;
+    box-shadow: 0 10px 28px rgba(31, 78, 121, .08);
+}
+
+.vu-stock-low-row > * {
+    background: #fff8e1 !important;
+}
+
+.vu-stock-low-row:hover > * {
+    background: #fff1bd !important;
+}
+
+@media (max-width: 575.98px) {
+    .vu-module-placeholder-page {
+        padding: 2rem 0;
+    }
+
+    .vu-module-placeholder {
+        padding: 1.5rem;
+    }
+}
+
+/* Final polish: header user area, sidebar brand, and table palette */
+.vu-user-area {
+    display: flex;
+    align-items: center;
+    gap: .8rem;
+    padding-left: .85rem;
+    border-left: 1px solid rgba(255, 248, 244, .18);
+}
+
+.vu-user-area form {
+    margin: 0;
+}
+
+.vu-user-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: .7rem;
+    max-width: 18rem;
+    padding: .35rem .65rem .35rem .35rem;
+    color: #fff8f4;
+    background: rgba(255, 255, 255, .08);
+    border: 1px solid rgba(255, 248, 244, .14);
+    border-radius: 999px;
+}
+
+.vu-user-avatar {
+    display: inline-grid;
+    width: 2.25rem;
+    height: 2.25rem;
+    place-items: center;
+    color: #15110f;
+    background: linear-gradient(135deg, #fff8f4, #ffd6bf);
+    border: 1px solid rgba(255, 255, 255, .75);
+    border-radius: 999px;
+    font-weight: 900;
+}
+
+.vu-user-meta {
+    display: grid;
+    min-width: 0;
+    gap: .12rem;
+    line-height: 1.05;
+}
+
+.vu-user-meta strong {
+    overflow: hidden;
+    color: #ffffff;
+    font-size: .86rem;
+    font-weight: 850;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.vu-user-meta small {
+    color: rgba(255, 248, 244, .66);
+    font-size: .7rem;
+    font-weight: 750;
+}
+
+.vu-sidebar-brand {
+    min-height: 2.6rem;
+    padding-left: .15rem;
+}
+
+.vu-sidebar-brand::before {
+    display: none !important;
+}
+
+body.vu-sidebar-collapsed .vu-sidebar-brand {
+    display: none;
+}
+
+:root {
+    --vu-table: #1f4e79;
+    --vu-table-soft: #edf5fb;
+}
+
+.vu-panel table.vu-data-table thead th,
+.vu-panel table.dataTable thead th {
+    color: #ffffff;
+    background: linear-gradient(180deg, #245b8d, #1f4e79) !important;
+    border-color: #173c5f !important;
+}
+
+.vu-panel table.dataTable tbody td {
+    border-color: #e3edf4;
+}
+
+.vu-panel table.dataTable tbody tr:nth-child(even) > * {
+    background: #f8fbfd !important;
+}
+
+.vu-panel .table-hover tbody tr:hover > * {
+    background-color: #edf5fb !important;
+}
+
+.vu-panel .dataTables_wrapper .dataTables_filter input:focus {
+    border-color: #1f4e79;
+    box-shadow: 0 0 0 .2rem rgba(31, 78, 121, .15);
+}
+
+.vu-panel .dataTables_wrapper .dataTables_paginate .paginate_button {
+    color: #1f4e79 !important;
+}
+
+.vu-panel .dataTables_wrapper .dataTables_paginate .paginate_button.current,
+.vu-panel .dataTables_wrapper .dataTables_paginate .paginate_button.current:hover {
+    color: #ffffff !important;
+    background: #1f4e79 !important;
+    border-color: #1f4e79 !important;
+}
+
+.vu-panel .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+    color: #ffffff !important;
+    background: #173c5f !important;
+    border-color: #173c5f !important;
+}
+
+@media (max-width: 991.98px) {
+    .vu-user-area {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: .6rem;
+        padding: .75rem 0 0;
+        border-left: 0;
     }
 }

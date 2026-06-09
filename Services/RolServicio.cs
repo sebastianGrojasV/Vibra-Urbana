@@ -1,68 +1,145 @@
-﻿using VibraUrbana.Models;
+using VibraUrbana.Models;
 using VibraUrbana.Repositories;
+using VibraUrbana.ViewModels;
 
-namespace VibraUrbana.Services
+namespace VibraUrbana.Services;
+
+public class RolServicio : IRolServicio
 {
-    public class RolServicio : IRolServicio
+    private const string AdministratorRoleName = "Administrador";
+
+    private readonly IRolRepositorio _rolRepositorio;
+
+    public RolServicio(IRolRepositorio rolRepositorio)
     {
+        _rolRepositorio = rolRepositorio;
+    }
 
-        private readonly IRolRepositorio _rolRepositorio;
-        public RolServicio(IRolRepositorio rolRepositorio)
+    public async Task<List<Rol>> ObtenerRolesAsync()
+    {
+        var roles = await _rolRepositorio.ObtenerRolesAsync();
+        return roles.OrderBy(rol => rol.Nombre).ToList();
+    }
+
+    public async Task<Rol?> ObtenerRolPorIdAsync(int id)
+    {
+        return await _rolRepositorio.ObtenerRolPorIdAsync(id);
+    }
+
+    public async Task<bool> AgregarRolAsync(CrearRolViewModel model)
+    {
+        var nombre = model.Nombre.Trim();
+
+        if (await _rolRepositorio.ExisteRolPorNombreAsync(nombre))
         {
-            _rolRepositorio = rolRepositorio;
+            return false;
         }
 
-        public async Task<bool> ActivarRolAsync(int id)
+        var rol = new Rol
         {
-            var rol = await _rolRepositorio.ObtenerRolPorIdAsync(id);
-            if (rol == null)
-                return false;
+            Nombre = nombre,
+            Descripcion = model.Descripcion.Trim(),
+            Activo = true,
+            FechaCreacion = DateTime.UtcNow
+        };
 
-            if (rol.Activo)
-                return false; // Ya está activo
+        await _rolRepositorio.AgregarRolAsync(rol);
+        return true;
+    }
 
-            return await _rolRepositorio.ActivarRolAsync(id);
+    public async Task<EditarRolViewModel?> ObtenerRolParaEditarAsync(int id)
+    {
+        var rol = await _rolRepositorio.ObtenerRolConPermisosAsync(id);
 
+        if (rol is null)
+        {
+            return null;
         }
 
-        public async Task<bool> AgregarRolAsync(Rol rol)
+        var permisos = await _rolRepositorio.ObtenerPermisosActivosAsync();
+        var permisosAsignados = rol.RolPermisos.Select(rolPermiso => rolPermiso.PermisoId).ToHashSet();
+
+        return new EditarRolViewModel
         {
-            var rolesExistentes = await _rolRepositorio.ObtenerRolesAsync();
-            if (rolesExistentes.Any(r => r.Nombre == rol.Nombre))
-                return false;
+            Id = rol.Id,
+            Nombre = rol.Nombre,
+            Descripcion = rol.Descripcion,
+            Activo = rol.Activo,
+            PermisosSeleccionados = permisosAsignados.ToList(),
+            Permisos = permisos.Select(permiso => new PermisoSeleccionViewModel
+            {
+                Id = permiso.Id,
+                Nombre = permiso.Nombre,
+                Descripcion = permiso.Descripcion,
+                Seleccionado = permisosAsignados.Contains(permiso.Id)
+            }).ToList()
+        };
+    }
 
-            await _rolRepositorio.AgregarRolAsync(rol);
-            return true;
+    public async Task<ActualizarRolResult> ActualizarRolAsync(EditarRolViewModel model)
+    {
+        var rol = await _rolRepositorio.ObtenerRolConPermisosAsync(model.Id);
 
+        if (rol is null)
+        {
+            return ActualizarRolResult.NotFound;
         }
 
-        public async Task<bool> EliminarRolAsync(int id)
+        var nombre = model.Nombre.Trim();
+
+        if (await _rolRepositorio.ExisteRolPorNombreAsync(nombre, model.Id))
         {
-            //  verificar que el rol exista y esté activo
-            var rol = await _rolRepositorio.ObtenerRolPorIdAsync(id);
-            if (rol == null)
-                return false;
-
-            if (!rol.Activo)
-                return false; // Ya estaba inactivo
-
-            //  marcarlo como inactivo
-            return await _rolRepositorio.EliminarRolAsync(id);
-
+            return ActualizarRolResult.DuplicateName;
         }
 
-        public async Task<List<Rol>> ObtenerRolesAsync()
+        if (DebeProtegerUltimoAdministrador(rol, nombre, model.Activo) &&
+            !await _rolRepositorio.ExisteOtroAdministradorActivoAsync(rol.Id))
         {
-            var roles = await _rolRepositorio.ObtenerRolesAsync();
-            return roles.ToList();
-
+            return ActualizarRolResult.LastActiveAdministrator;
         }
 
-        public async Task<Rol> ObtenerRolPorIdAsync(int id)
-        {
-            var rol = await _rolRepositorio.ObtenerRolPorIdAsync(id);
-            return rol;
+        rol.Nombre = nombre;
+        rol.Descripcion = model.Descripcion.Trim();
+        rol.Activo = model.Activo;
 
+        await _rolRepositorio.ActualizarRolAsync(rol);
+        await _rolRepositorio.ActualizarPermisosAsync(rol.Id, model.PermisosSeleccionados);
+
+        return ActualizarRolResult.Success;
+    }
+
+    public async Task<CambiarEstadoRolResult> CambiarEstadoAsync(int id, bool active)
+    {
+        var rol = await _rolRepositorio.ObtenerRolPorIdAsync(id);
+
+        if (rol is null)
+        {
+            return CambiarEstadoRolResult.NotFound;
         }
+
+        if (rol.Activo == active)
+        {
+            return CambiarEstadoRolResult.NoChange;
+        }
+
+        if (!active &&
+            rol.Nombre == AdministratorRoleName &&
+            !await _rolRepositorio.ExisteOtroAdministradorActivoAsync(rol.Id))
+        {
+            return CambiarEstadoRolResult.LastActiveAdministrator;
+        }
+
+        var actualizado = active
+            ? await _rolRepositorio.ActivarRolAsync(id)
+            : await _rolRepositorio.EliminarRolAsync(id);
+
+        return actualizado ? CambiarEstadoRolResult.Success : CambiarEstadoRolResult.NotFound;
+    }
+
+    private static bool DebeProtegerUltimoAdministrador(Rol rol, string nuevoNombre, bool nuevoActivo)
+    {
+        return rol.Nombre == AdministratorRoleName &&
+            rol.Activo &&
+            (!nuevoActivo || nuevoNombre != AdministratorRoleName);
     }
 }

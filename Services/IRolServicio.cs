@@ -1,19 +1,19 @@
-﻿using VibraUrbana.Models;
+using VibraUrbana.Models;
+using VibraUrbana.ViewModels;
 
-namespace VibraUrbana.Services
+namespace VibraUrbana.Services;
+
+public interface IRolServicio
 {
-    public interface IRolServicio
-    {
+    Task<List<Rol>> ObtenerRolesAsync();
 
-        Task<List<Rol>> ObtenerRolesAsync();
+    Task<bool> AgregarRolAsync(CrearRolViewModel model);
 
-        Task<bool> AgregarRolAsync(Rol rol);
+    Task<EditarRolViewModel?> ObtenerRolParaEditarAsync(int id);
 
-        Task<Rol> ObtenerRolPorIdAsync(int id);
+    Task<ActualizarRolResult> ActualizarRolAsync(EditarRolViewModel model);
 
-        Task<bool> EliminarRolAsync(int id);
+    Task<Rol?> ObtenerRolPorIdAsync(int id);
 
-        Task<bool> ActivarRolAsync(int id);
-
-    }
+    Task<CambiarEstadoRolResult> CambiarEstadoAsync(int id, bool active);
 }

@@ -1,9 +1,155 @@
+@model VibraUrbana.ViewModels.ProductosIndexViewModel
+
 @{
     ViewData["Title"] = "Productos";
 }
 
-<section class="container py-5">
-    <p class="vu-eyebrow">Modulo</p>
-    <h1>Productos</h1>
-    <p class="text-muted">Vista reservada para el catalogo de productos en proximos issues.</p>
+<section class="vu-admin-shell">
+    <div class="container-fluid">
+        <div class="row g-0">
+            <aside class="col-lg-3 col-xl-2 vu-admin-sidebar">
+                <div class="vu-sidebar-brand">Vibra Urbana</div>
+                <nav class="vu-sidebar-nav">
+                    <a asp-controller="Admin" asp-action="Index">Panel inicial</a>
+                    <a asp-controller="Admin" asp-action="Usuarios">Usuarios</a>
+                    <a asp-controller="Rol" asp-action="Index">Roles</a>
+                    <a asp-controller="Cliente" asp-action="Index">Clientes</a>
+                    <a class="active" asp-controller="Producto" asp-action="Index">Productos</a>
+                    <a asp-controller="Inventario" asp-action="Index">Inventario</a>
+                    <a asp-controller="Venta" asp-action="Index">Ventas</a>
+                    <a asp-controller="Factura" asp-action="Index">Facturación</a>
+                    <a asp-controller="Reporte" asp-action="Index">Reportes</a>
+                    <a asp-controller="Pedido" asp-action="Index">Pedidos</a>
+                </nav>
+            </aside>
+
+            <div class="col-lg-9 col-xl-10 vu-admin-content">
+                <div class="vu-admin-header">
+                    <div>
+                        <p class="vu-eyebrow">Catálogo</p>
+                        <h1>Productos</h1>
+                        <p>Administra prendas, precios, variantes, descripción e imagen comercial del catálogo.</p>
+                    </div>
+                    <a class="btn btn-primary" asp-controller="Producto" asp-action="Crear">Registrar producto</a>
+                </div>
+
+                <div class="vu-panel mb-4">
+                    <form asp-controller="Producto" asp-action="Index" method="get" class="row g-3 align-items-end">
+                        <div class="col-md-3">
+                            <label class="form-label" for="categoriaId">Categoría</label>
+                            <select id="categoriaId" name="categoriaId" asp-items="Model.Categorias" class="form-select">
+                                <option value="">Todas</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label" for="talla">Talla</label>
+                            <select id="talla" name="talla" asp-items="Model.Tallas" class="form-select">
+                                <option value="">Todas</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label" for="color">Color</label>
+                            <select id="color" name="color" asp-items="Model.Colores" class="form-select">
+                                <option value="">Todos</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label" for="activo">Estado</label>
+                            <select id="activo" name="activo" class="form-select">
+                                <option value="">Todos</option>
+                                <option value="true" selected="@(Model.Activo == true ? "selected" : null)">Activos</option>
+                                <option value="false" selected="@(Model.Activo == false ? "selected" : null)">Inactivos</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3 d-flex flex-wrap gap-2">
+                            <button class="btn btn-outline-primary" type="submit">Filtrar</button>
+                            <a class="btn btn-outline-secondary" asp-controller="Producto" asp-action="Index">Limpiar</a>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="vu-panel">
+                    @if (TempData["SuccessMessage"] is string successMessage)
+                    {
+                        <div class="alert alert-success" role="alert">@successMessage</div>
+                    }
+
+                    @if (!Model.Productos.Any())
+                    {
+                        <div class="alert alert-info" role="alert">
+                            No existen productos registrados con los filtros actuales.
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle vu-data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Producto</th>
+                                        <th>Categoría</th>
+                                        <th>Precio</th>
+                                        <th>Talla</th>
+                                        <th>Color</th>
+                                        <th>Stock</th>
+                                        <th>Estado</th>
+                                        <th class="text-end vu-actions-column">Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var producto in Model.Productos)
+                                    {
+                                        <tr class="@(producto.StockBajo ? "vu-stock-low-row" : string.Empty)">
+                                            <td>
+                                                <div class="vu-product-cell">
+                                                    @if (!string.IsNullOrWhiteSpace(producto.ImagenUrl))
+                                                    {
+                                                        <img src="@producto.ImagenUrl" alt="@producto.Nombre" class="vu-product-thumb" />
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="vu-product-thumb vu-product-thumb-empty">VU</span>
+                                                    }
+                                                    <span>
+                                                        <strong>@producto.Nombre</strong>
+                                                        <small>@(string.IsNullOrWhiteSpace(producto.Descripcion) ? "Sin descripción" : producto.Descripcion)</small>
+                                                    </span>
+                                                </div>
+                                            </td>
+                                            <td>@producto.Categoria</td>
+                                            <td>@producto.Precio.ToString("C0")</td>
+                                            <td>@(string.IsNullOrWhiteSpace(producto.Talla) ? "Sin talla" : producto.Talla)</td>
+                                            <td>@(string.IsNullOrWhiteSpace(producto.Color) ? "Sin color" : producto.Color)</td>
+                                            <td>
+                                                <span class="badge @(producto.StockBajo ? "bg-warning text-dark" : "bg-success")">
+                                                    @producto.CantidadDisponible / mín. @producto.StockMinimo
+                                                </span>
+                                            </td>
+                                            <td>
+                                                @if (producto.Activo)
+                                                {
+                                                    <span class="badge bg-success">Activo</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-secondary">Inactivo</span>
+                                                }
+                                            </td>
+                                            <td class="text-end">
+                                                <div class="vu-actions">
+                                                    <a class="btn btn-sm vu-icon-btn vu-icon-edit" asp-controller="Producto" asp-action="Editar" asp-route-id="@producto.Id" title="Editar" aria-label="Editar producto">
+                                                        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h9"></path><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5Z"></path></svg>
+                                                    </a>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
 </section>

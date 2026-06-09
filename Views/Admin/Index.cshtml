@@ -10,11 +10,12 @@
                 <nav class="vu-sidebar-nav">
                     <a class="active" asp-controller="Admin" asp-action="Index">Panel inicial</a>
                     <a asp-controller="Admin" asp-action="Usuarios">Usuarios</a>
+                    <a asp-controller="Rol" asp-action="Index">Roles</a>
                     <a asp-controller="Cliente" asp-action="Index">Clientes</a>
                     <a asp-controller="Producto" asp-action="Index">Productos</a>
                     <a asp-controller="Inventario" asp-action="Index">Inventario</a>
                     <a asp-controller="Venta" asp-action="Index">Ventas</a>
-                    <a asp-controller="Factura" asp-action="Index">Facturacion</a>
+                    <a asp-controller="Factura" asp-action="Index">Facturación</a>
                     <a asp-controller="Reporte" asp-action="Index">Reportes</a>
                     <a asp-controller="Pedido" asp-action="Index">Pedidos</a>
                 </nav>
@@ -23,9 +24,9 @@
             <div class="col-lg-9 col-xl-10 vu-admin-content">
                 <div class="vu-admin-header">
                     <div>
-                        <p class="vu-eyebrow">Administracion</p>
+                        <p class="vu-eyebrow">Administración</p>
                         <h1>Panel inicial</h1>
-                        <p>Vista base para organizar los modulos comerciales de Vibra Urbana.</p>
+                        <p>Centro de navegación para organizar los módulos comerciales de Vibra Urbana.</p>
                     </div>
                     <a class="btn btn-outline-primary" asp-controller="Account" asp-action="Login">Cerrar vista</a>
                 </div>
@@ -35,28 +36,35 @@
                         <a class="vu-dashboard-card vu-module-link" asp-controller="Admin" asp-action="Usuarios">
                             <span>Usuarios</span>
                             <strong>Registro</strong>
-                            <p>Consulta y alta de empleados.</p>
+                            <p>Consulta, registro y control de accesos.</p>
+                        </a>
+                    </div>
+                    <div class="col-md-6 col-xl-3">
+                        <a class="vu-dashboard-card vu-module-link" asp-controller="Rol" asp-action="Index">
+                            <span>Roles</span>
+                            <strong>Accesos</strong>
+                            <p>Gestión de perfiles y permisos internos.</p>
                         </a>
                     </div>
                     <div class="col-md-6 col-xl-3">
                         <div class="vu-dashboard-card">
                             <span>Productos</span>
-                            <strong>Catalogo</strong>
-                            <p>Estructura preparada.</p>
+                            <strong>Catálogo</strong>
+                            <p>Catálogo listo para el siguiente sprint.</p>
                         </div>
                     </div>
                     <div class="col-md-6 col-xl-3">
                         <div class="vu-dashboard-card">
                             <span>Inventario</span>
                             <strong>Control</strong>
-                            <p>Modulo pendiente.</p>
+                            <p>Preparado para existencias y movimientos.</p>
                         </div>
                     </div>
                     <div class="col-md-6 col-xl-3">
                         <div class="vu-dashboard-card">
                             <span>Ventas</span>
-                            <strong>Operacion</strong>
-                            <p>Flujo pendiente.</p>
+                            <strong>Operación</strong>
+                            <p>Preparado para operación comercial.</p>
                         </div>
                     </div>
                 </div>
@@ -66,18 +74,19 @@
                         <div class="vu-panel">
                             <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
                                 <div>
-                                    <h2>Modulos principales</h2>
-                                    <p>Accesos iniciales para validar la navegacion MVC.</p>
+                                    <h2>Módulos principales</h2>
+                                    <p>Accesos organizados para avanzar con las historias del Sprint 2.</p>
                                 </div>
                             </div>
                             <div class="vu-module-grid">
                                 <a asp-controller="Admin" asp-action="Usuarios">Usuarios</a>
+                                <a asp-controller="Rol" asp-action="Index">Roles</a>
                                 <a asp-controller="Admin" asp-action="CrearUsuario">Registrar usuario</a>
                                 <a asp-controller="Cliente" asp-action="Index">Clientes</a>
                                 <a asp-controller="Producto" asp-action="Index">Productos</a>
                                 <a asp-controller="Inventario" asp-action="Index">Inventario</a>
                                 <a asp-controller="Venta" asp-action="Index">Ventas</a>
-                                <a asp-controller="Factura" asp-action="Index">Facturacion</a>
+                                <a asp-controller="Factura" asp-action="Index">Facturación</a>
                                 <a asp-controller="Reporte" asp-action="Index">Reportes</a>
                             </div>
                         </div>
@@ -85,12 +94,12 @@
 
                     <div class="col-xl-4">
                         <div class="vu-panel">
-                            <h2>Estado del sprint</h2>
+                            <h2>Base lista</h2>
                             <ul class="vu-status-list">
                                 <li><span></span> MVC base configurado</li>
                                 <li><span></span> EF Core preparado</li>
-                                <li><span></span> Login funcional pendiente</li>
-                                <li><span></span> CRUD pendiente</li>
+                                <li><span></span> Seguridad inicial activa</li>
+                                <li><span></span> Módulos preparados</li>
                             </ul>
                         </div>
                     </div>
