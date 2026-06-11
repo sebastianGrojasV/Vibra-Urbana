@@ -1,0 +1,201 @@
+﻿@model IEnumerable<VibraUrbana.Models.Categoria>
+
+@{
+    ViewData["Title"] = "Categorías";
+}
+
+<section class="vu-admin-shell">
+    <div class="container-fluid">
+        <div class="row g-0">
+            <!-- 🔹 Sidebar -->
+            <aside class="col-lg-3 col-xl-2 vu-admin-sidebar">
+                <div class="vu-sidebar-brand">Vibra Urbana</div>
+                <nav class="vu-sidebar-nav">
+                    <a asp-controller="Admin" asp-action="Index">Panel inicial</a>
+                    <a asp-controller="Admin" asp-action="Usuarios">Usuarios</a>
+                    <a asp-controller="Rol" asp-action="Index">Roles</a>
+                    <a asp-controller="Cliente" asp-action="Index">Clientes</a>
+                    <a asp-controller="Producto" asp-action="Index">Productos</a>
+                    <a asp-controller="Inventario" asp-action="Index">Inventario</a>
+                    <a asp-controller="Venta" asp-action="Index">Ventas</a>
+                    <a asp-controller="Factura" asp-action="Index">Facturación</a>
+                    <a asp-controller="Reporte" asp-action="Index">Reportes</a>
+                    <a asp-controller="Pedido" asp-action="Index">Pedidos</a>
+                    <a class="active" asp-controller="Categoria" asp-action="Index">Categorías</a>
+                </nav>
+            </aside>
+
+            <!-- 🔹 Contenido principal -->
+            <div class="col-lg-9 col-xl-10 vu-admin-content">
+                <div class="vu-admin-header">
+                    <div>
+                        <p class="vu-eyebrow">Administración</p>
+                        <h1>Categorías</h1>
+                        <p>Consulta y administra las categorías disponibles para los productos.</p>
+                    </div>
+                    <a class="btn btn-primary" asp-controller="Categoria" asp-action="Create">Crear categoría</a>
+                </div>
+
+                <!-- 🔹 Toasts de confirmación -->
+                @if (TempData["CategoriaCreada"] != null)
+                {
+                    <div class="toast-container position-fixed bottom-0 end-0 p-3">
+                        <div class="toast align-items-center text-bg-success border-0" role="alert">
+                            <div class="d-flex">
+                                <div class="toast-body">
+                                    @TempData["CategoriaCreada"]
+                                </div>
+                                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+                            </div>
+                        </div>
+                    </div>
+                }
+
+                @if (TempData["CategoriaError"] != null)
+                {
+                    <div class="toast-container position-fixed bottom-0 end-0 p-3">
+                        <div class="toast align-items-center text-bg-danger border-0" role="alert">
+                            <div class="d-flex">
+                                <div class="toast-body">
+                                    @TempData["CategoriaError"]
+                                </div>
+                                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+                            </div>
+                        </div>
+                    </div>
+                }
+
+                @if (TempData["CategoriaActualizada"] != null)
+                {
+                    <div class="toast-container position-fixed bottom-0 end-0 p-3">
+                        <div class="toast align-items-center text-bg-info border-0" role="alert">
+                            <div class="d-flex">
+                                <div class="toast-body">
+                                    @TempData["CategoriaActualizada"]
+                                </div>
+                                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+                            </div>
+                        </div>
+                    </div>
+                }
+
+                @if (TempData["CategoriaEliminada"] != null)
+                {
+                    <div class="toast-container position-fixed bottom-0 end-0 p-3">
+                        <div class="toast align-items-center text-bg-warning border-0" role="alert">
+                            <div class="d-flex">
+                                <div class="toast-body">
+                                    @TempData["CategoriaEliminada"]
+                                </div>
+                                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+                            </div>
+                        </div>
+                    </div>
+                }
+
+                <div class="vu-panel">
+                    @if (!Model.Any())
+                    {
+                        <div class="alert alert-info" role="alert">
+                            No existen categorías registradas.
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle vu-data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Nombre</th>
+                                        <th>Descripción</th>
+                                        <th>Estado</th>
+                                        <th class="text-end vu-actions-column">Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var categoria in Model)
+                                    {
+                                        <tr>
+                                            <td>@categoria.Nombre</td>
+                                            <td>@categoria.Descripcion</td>
+                                            <td>
+                                                @if (categoria.Activo)
+                                                {
+                                                    <span class="badge bg-success">Activo</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-secondary">Inactivo</span>
+                                                }
+                                            </td>
+                                            <td class="text-end">
+                                                <div class="vu-actions">
+                                                    <!-- Editar -->
+                                                    <a class="btn btn-sm vu-icon-btn vu-icon-edit"
+                                                       asp-controller="Categoria"
+                                                       asp-action="Edit"
+                                                       asp-route-id="@categoria.Id"
+                                                       title="Editar"
+                                                       aria-label="Editar categoría">
+                                                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                                                            <path d="M12 20h9"></path>
+                                                            <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5Z"></path>
+                                                        </svg>
+                                                    </a>
+
+                                                    <!-- Activar/Desactivar -->
+                                                    <form asp-controller="Categoria"
+                                                          asp-action="ConfirmarCambiarEstado"
+                                                          method="post"
+                                                          class="d-inline"
+                                                          data-vu-confirm
+                                                          data-vu-confirm-title="@(categoria.Activo ? "Desactivar categoría" : "Activar categoría")"
+                                                          data-vu-confirm-message="@(categoria.Activo ? $"¿Deseas desactivar la categoría {categoria.Nombre}?" : $"¿Deseas activar la categoría {categoria.Nombre}?")"
+                                                          data-vu-confirm-action="@(categoria.Activo ? "Desactivar" : "Activar")">
+                                                        @Html.AntiForgeryToken()
+                                                        <input name="id" type="hidden" value="@categoria.Id" />
+                                                        <input name="active" type="hidden" value="@(categoria.Activo ? "false" : "true")" />
+                                                        <button class="btn btn-sm vu-icon-btn @(categoria.Activo ? "vu-icon-disable" : "vu-icon-enable")"
+                                                                type="submit"
+                                                                title="@(categoria.Activo ? "Desactivar" : "Activar")"
+                                                                aria-label="@(categoria.Activo ? "Desactivar categoría" : "Activar categoría")">
+                                                            @if (categoria.Activo)
+                                                            {
+                                                                <svg viewBox="0 0 24 24" aria-hidden="true">
+                                                                    <path d="M18.4 6.6a9 9 0 1 1-12.8 0"></path>
+                                                                    <path d="M12 2v10"></path>
+                                                                </svg>
+                                                            }
+                                                            else
+                                                            {
+                                                                <svg viewBox="0 0 24 24" aria-hidden="true">
+                                                                    <path d="M20 6 9 17l-5-5"></path>
+                                                                </svg>
+                                                            }
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            var toastElList = [].slice.call(document.querySelectorAll('.toast'))
+            toastElList.map(function (toastEl) {
+                var toast = new bootstrap.Toast(toastEl, { delay: 4000, autohide: true })
+                toast.show()
+            });
+        });
+    </script>
+}
