@@ -31,6 +31,8 @@ builder.Services.AddScoped<IClienteServicio, ClienteServicio>();
 builder.Services.AddScoped<IProductoServicio, ProductoServicio>();
 builder.Services.AddScoped<INavigationMenuService, NavigationMenuService>();
 builder.Services.AddScoped<IAuthorizationHandler, PermisoAuthorizationHandler>();
+builder.Services.AddScoped<ICategoriaRepositorio, CategoriaRepositorio>();
+builder.Services.AddScoped<ICategoriaServicio, CategoriaServicio>();
 
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
