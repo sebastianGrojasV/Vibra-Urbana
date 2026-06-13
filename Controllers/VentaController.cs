@@ -32,9 +32,21 @@ public class VentaController : Controller
     }
 
     [HttpGet]
-    public async Task<IActionResult> Index()
+    public async Task<IActionResult> Index(int? clienteId)
     {
-        var ventas = await _ventaServicio.ObtenerVentasAsync();
+        var ventas = await _ventaServicio.ObtenerVentasAsync(clienteId);
+
+        if (clienteId.HasValue)
+        {
+            var cliente = await _context.Clientes.FindAsync(clienteId.Value);
+            if (cliente != null)
+            {
+                ViewBag.ClienteFiltrado = cliente.NombreCompleto;
+                ViewBag.ClienteIdentificacion = cliente.Identificacion;
+            }
+            ViewBag.ClienteId = clienteId.Value;
+        }
+
         return View(ventas);
     }
 

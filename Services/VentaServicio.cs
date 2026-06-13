@@ -18,12 +18,20 @@ public class VentaServicio : IVentaServicio
         _context = context;
     }
 
-    public async Task<IReadOnlyList<Venta>> ObtenerVentasAsync()
+    public async Task<IReadOnlyList<Venta>> ObtenerVentasAsync(int? clienteId = null)
     {
-        return await _context.Ventas
+        var query = _context.Ventas
             .Include(v => v.Cliente)
             .Include(v => v.Usuario)
             .Include(v => v.MetodoPago)
+            .AsQueryable();
+
+        if (clienteId.HasValue)
+        {
+            query = query.Where(v => v.ClienteId == clienteId.Value);
+        }
+
+        return await query
             .OrderByDescending(v => v.FechaVenta)
             .ToListAsync();
     }

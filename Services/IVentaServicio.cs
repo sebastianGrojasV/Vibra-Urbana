@@ -7,7 +7,7 @@ namespace VibraUrbana.Services;
 
 public interface IVentaServicio
 {
-    Task<IReadOnlyList<Venta>> ObtenerVentasAsync();
+    Task<IReadOnlyList<Venta>> ObtenerVentasAsync(int? clienteId = null);
 
     Task<VentaOperacionResult> RegistrarVentaAsync(RegistrarVentaViewModel model, int usuarioId);
 }

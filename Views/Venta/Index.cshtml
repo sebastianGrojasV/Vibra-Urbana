@@ -40,6 +40,17 @@
                         <div class="alert alert-success" role="alert">@successMessage</div>
                     }
 
+                    @if (ViewBag.ClienteFiltrado != null)
+                    {
+                        <div class="alert alert-info d-flex justify-content-between align-items-center mb-3" role="alert">
+                            <div>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 20px; height: 20px; vertical-align: middle;" class="me-2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                                <span>Mostrando compras del cliente: <strong>@ViewBag.ClienteFiltrado</strong> (@ViewBag.ClienteIdentificacion)</span>
+                            </div>
+                            <a class="btn btn-sm btn-outline-primary" asp-controller="Venta" asp-action="Index">Mostrar todas</a>
+                        </div>
+                    }
+
                     @if (!Model.Any())
                     {
                         <div class="alert alert-info" role="alert">

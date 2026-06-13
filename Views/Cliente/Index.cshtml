@@ -82,6 +82,9 @@
                                             </td>
                                             <td class="text-end">
                                                 <div class="vu-actions">
+                                                    <a class="btn btn-sm vu-icon-btn" asp-controller="Venta" asp-action="Index" asp-route-clienteId="@cliente.Id" title="Historial de compras" aria-label="Historial de compras del cliente" style="background-color: #f1ebff; color: #6f42c1; border: 1px solid #d6c7f7;">
+                                                        <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 01-8 0"></path></svg>
+                                                    </a>
                                                     <a class="btn btn-sm vu-icon-btn vu-icon-edit" asp-controller="Cliente" asp-action="Editar" asp-route-id="@cliente.Id" title="Editar" aria-label="Editar cliente">
                                                         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h9"></path><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5Z"></path></svg>
                                                     </a>
