@@ -1,0 +1,567 @@
+@model VibraUrbana.ViewModels.CrearVentaViewModel
+
+@{
+    ViewData["Title"] = "Registrar Nueva Venta";
+}
+
+<section class="vu-admin-shell">
+    <div class="container-fluid">
+        <div class="row g-0">
+            <!-- Sidebar -->
+            <aside class="col-lg-3 col-xl-2 vu-admin-sidebar">
+                <div class="vu-sidebar-brand">Vibra Urbana</div>
+                <nav class="vu-sidebar-nav">
+                    <a asp-controller="Admin" asp-action="Index">Panel inicial</a>
+                    <a asp-controller="Admin" asp-action="Usuarios">Usuarios</a>
+                    <a asp-controller="Rol" asp-action="Index">Roles</a>
+                    <a asp-controller="Cliente" asp-action="Index">Clientes</a>
+                    <a asp-controller="Producto" asp-action="Index">Productos</a>
+                    <a asp-controller="Inventario" asp-action="Index">Inventario</a>
+                    <a class="active" asp-controller="Venta" asp-action="Index">Ventas</a>
+                    <a asp-controller="Factura" asp-action="Index">Facturación</a>
+                    <a asp-controller="Reporte" asp-action="Index">Reportes</a>
+                    <a asp-controller="Pedido" asp-action="Index">Pedidos</a>
+                    <a asp-controller="Categoria" asp-action="Index">Categorías</a>
+                </nav>
+            </aside>
+
+            <!-- Main Content -->
+            <div class="col-lg-9 col-xl-10 vu-admin-content">
+                <div class="vu-admin-header d-flex justify-content-between align-items-center">
+                    <div>
+                        <p class="vu-eyebrow">Módulo de ventas</p>
+                        <h1>Registrar Nueva Venta</h1>
+                        <p>Crea una nueva transacción comercial seleccionando cliente, productos y método de pago.</p>
+                    </div>
+                    <a class="btn btn-outline-secondary" asp-controller="Venta" asp-action="Index">Volver al historial</a>
+                </div>
+
+                <form id="antiForgeryForm" hidden>
+                    @Html.AntiForgeryToken()
+                </form>
+
+                <div class="row">
+                    <!-- Formulario de venta y carrito -->
+                    <div class="col-lg-8">
+                        <!-- Card 1: Datos Generales -->
+                        <div class="card mb-4 shadow-soft">
+                            <div class="card-header bg-primary text-white">
+                                <span class="align-middle">Datos Generales de la Venta</span>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="clienteSelect" class="form-label font-weight-bold">Cliente <span class="text-danger">*</span></label>
+                                        <select id="clienteSelect" class="form-select" required>
+                                            <option value="">-- Seleccione un cliente --</option>
+                                            @foreach (var cliente in Model.Clientes)
+                                            {
+                                                <option value="@cliente.Id">@cliente.NombreCompleto (@cliente.Identificacion)</option>
+                                            }
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="metodoPagoSelect" class="form-label font-weight-bold">Método de Pago <span class="text-danger">*</span></label>
+                                        <select id="metodoPagoSelect" class="form-select" required>
+                                            <option value="">-- Seleccione el método --</option>
+                                            @foreach (var metodo in Model.MetodosPago)
+                                            {
+                                                <option value="@metodo.Id">@metodo.Nombre</option>
+                                            }
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-12">
+                                        <label for="observacionText" class="form-label">Observaciones</label>
+                                        <textarea id="observacionText" class="form-control" rows="2" placeholder="Notas adicionales sobre la venta..." maxlength="500"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Card 2: Selección de Productos -->
+                        <div class="card mb-4 shadow-soft">
+                            <div class="card-header bg-primary text-white">
+                                <span>Agregar Productos</span>
+                            </div>
+                            <div class="card-body">
+                                <div class="row align-items-end">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="productoSelect" class="form-label font-weight-bold">Producto</label>
+                                        <select id="productoSelect" class="form-select">
+                                            <option value="">-- Buscar / Seleccionar producto --</option>
+                                            @foreach (var prod in Model.Productos)
+                                            {
+                                                <option value="@prod.Id">@prod.Nombre (Talla: @prod.Talla | Col: @prod.Color) - @prod.Precio.ToString("C2")</option>
+                                            }
+                                        </select>
+                                    </div>
+                                    <div class="col-md-3 mb-3">
+                                        <label for="cantidadInput" class="form-label font-weight-bold">Cantidad</label>
+                                        <input type="number" id="cantidadInput" class="form-control" min="1" value="1" disabled />
+                                    </div>
+                                    <div class="col-md-3 mb-3">
+                                        <button type="button" id="btnAgregarProducto" class="btn btn-primary w-100" disabled>
+                                            Agregar Item
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- Detalles del producto seleccionado -->
+                                <div id="detalleProductoSeleccionado" class="alert alert-info py-2 px-3 mb-0 d-none" role="alert">
+                                    <div class="row text-center text-md-start">
+                                        <div class="col-md-4"><strong>Precio Unitario:</strong> <span id="lblPrecioUnitario">₡0.00</span></div>
+                                        <div class="col-md-4"><strong>Stock Disponible:</strong> <span id="lblStockDisponible" class="badge bg-success">0</span></div>
+                                        <div class="col-md-4"><strong>Categoría:</strong> <span id="lblCategoria">N/A</span></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Card 3: Tabla de Detalles -->
+                        <div class="card mb-4 shadow-soft">
+                            <div class="card-header bg-primary text-white">
+                                <span>Detalle de la Venta</span>
+                            </div>
+                            <div class="card-body p-0">
+                                <div class="table-responsive">
+                                    <table id="tablaDetalles" class="table table-hover align-middle mb-0">
+                                        <thead>
+                                            <tr>
+                                                <th class="ps-3">Producto</th>
+                                                <th class="text-center">Talla/Color</th>
+                                                <th class="text-end">Precio Unit.</th>
+                                                <th class="text-center" style="width: 150px;">Cantidad</th>
+                                                <th class="text-end">Subtotal</th>
+                                                <th class="text-center" style="width: 80px;">Quitar</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr id="filaVacia">
+                                                <td colspan="6" class="text-center py-4 text-muted">
+                                                    No se han agregado productos a la venta todavía.
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Panel de Totales y Confirmación -->
+                    <div class="col-lg-4">
+                        <div class="card shadow-soft sticky-top" style="top: 80px; z-index: 100;">
+                            <div class="card-header bg-primary text-white text-center py-3">
+                                <h5 class="mb-0">Resumen y Cómputo</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span class="text-muted">Subtotal:</span>
+                                    <strong id="lblResumenSubtotal">₡0.00</strong>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="descuentoInput" class="form-label text-muted mb-1">Descuento Directo (₡):</label>
+                                    <div class="input-group input-group-sm">
+                                        <span class="input-group-text">₡</span>
+                                        <input type="number" id="descuentoInput" class="form-control text-end" min="0" value="0" step="100" />
+                                    </div>
+                                </div>
+
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span class="text-muted">Monto Gravable:</span>
+                                    <span id="lblResumenGravable">₡0.00</span>
+                                </div>
+
+                                <div class="d-flex justify-content-between mb-3 border-bottom pb-2">
+                                    <span class="text-muted">Impuesto (IVA 13%):</span>
+                                    <strong id="lblResumenImpuesto">₡0.00</strong>
+                                </div>
+
+                                <div class="d-flex justify-content-between align-items-center mb-4">
+                                    <span class="h5 mb-0 text-dark">Total Neto:</span>
+                                    <span class="h4 mb-0 text-primary font-weight-bold" id="lblResumenTotal">₡0.00</span>
+                                </div>
+
+                                <div id="errorSubmitAlert" class="alert alert-danger d-none py-2" role="alert"></div>
+
+                                <button type="button" id="btnGuardarVenta" class="btn btn-success btn-lg w-100 py-3 rounded-custom shadow-soft" disabled>
+                                    Registrar Venta
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <script>
+        // Serialización de productos y clientes para uso interactivo en el cliente
+        const productosDisponibles = @Html.Raw(Json.Serialize(Model.Productos));
+        const clientesDisponibles = @Html.Raw(Json.Serialize(Model.Clientes));
+
+        // Carrito en memoria
+        let carrito = [];
+
+        // Elementos DOM
+        const productoSelect = document.getElementById("productoSelect");
+        const cantidadInput = document.getElementById("cantidadInput");
+        const btnAgregarProducto = document.getElementById("btnAgregarProducto");
+        const detalleProductoSeleccionado = document.getElementById("detalleProductoSeleccionado");
+        const lblPrecioUnitario = document.getElementById("lblPrecioUnitario");
+        const lblStockDisponible = document.getElementById("lblStockDisponible");
+        const lblCategoria = document.getElementById("lblCategoria");
+        const tablaDetalles = document.getElementById("tablaDetalles").getElementsByTagName("tbody")[0];
+        const filaVacia = document.getElementById("filaVacia");
+
+        // Totales DOM
+        const lblResumenSubtotal = document.getElementById("lblResumenSubtotal");
+        const descuentoInput = document.getElementById("descuentoInput");
+        const lblResumenGravable = document.getElementById("lblResumenGravable");
+        const lblResumenImpuesto = document.getElementById("lblResumenImpuesto");
+        const lblResumenTotal = document.getElementById("lblResumenTotal");
+        
+        // Formulario y Submit
+        const clienteSelect = document.getElementById("clienteSelect");
+        const metodoPagoSelect = document.getElementById("metodoPagoSelect");
+        const observacionText = document.getElementById("observacionText");
+        const btnGuardarVenta = document.getElementById("btnGuardarVenta");
+        const errorSubmitAlert = document.getElementById("errorSubmitAlert");
+
+        // Formatear moneda de Costa Rica (Colon)
+        const formatMoneda = (valor) => {
+            return new Intl.NumberFormat('es-CR', { style: 'currency', currency: 'CRC' }).format(valor);
+        };
+
+        // Escuchar cambio en selección de producto
+        productoSelect.addEventListener("change", () => {
+            const prodId = parseInt(productoSelect.value);
+            const producto = productosDisponibles.find(p => (p.id ?? p.Id) === prodId);
+
+            if (producto) {
+                const precio = producto.precio ?? producto.Precio;
+                const stock = producto.cantidadDisponible ?? producto.CantidadDisponible;
+                const categoria = producto.categoria ?? producto.Categoria;
+
+                lblPrecioUnitario.textContent = formatMoneda(precio);
+                lblStockDisponible.textContent = stock;
+                lblCategoria.textContent = categoria;
+
+                if (stock <= (producto.stockMinimo ?? producto.StockMinimo)) {
+                    lblStockDisponible.className = "badge bg-warning text-dark";
+                } else {
+                    lblStockDisponible.className = "badge bg-success";
+                }
+
+                // Habilitar controles
+                cantidadInput.disabled = false;
+                cantidadInput.max = stock;
+                cantidadInput.value = 1;
+                btnAgregarProducto.disabled = false;
+                detalleProductoSeleccionado.classList.remove("d-none");
+            } else {
+                // Deshabilitar controles
+                cantidadInput.disabled = true;
+                cantidadInput.value = 1;
+                btnAgregarProducto.disabled = true;
+                detalleProductoSeleccionado.classList.add("d-none");
+            }
+        });
+
+        // Validar cantidad ingresada en el input
+        cantidadInput.addEventListener("input", () => {
+            const prodId = parseInt(productoSelect.value);
+            const producto = productosDisponibles.find(p => (p.id ?? p.Id) === prodId);
+            if (!producto) return;
+
+            const maxStock = producto.cantidadDisponible ?? producto.CantidadDisponible;
+            let val = parseInt(cantidadInput.value);
+
+            if (isNaN(val) || val < 1) {
+                cantidadInput.value = 1;
+                val = 1;
+            }
+
+            if (val > maxStock) {
+                alert(`Atención: Solo quedan ${maxStock} unidades disponibles en inventario.`);
+                cantidadInput.value = maxStock;
+            }
+        });
+
+        // Agregar producto al carrito
+        btnAgregarProducto.addEventListener("click", () => {
+            const prodId = parseInt(productoSelect.value);
+            const producto = productosDisponibles.find(p => (p.id ?? p.Id) === prodId);
+            if (!producto) return;
+
+            const cantidadToAdd = parseInt(cantidadInput.value);
+            const stockMax = producto.cantidadDisponible ?? producto.CantidadDisponible;
+            
+            // Verificar si ya existe en el carrito
+            const itemExistente = carrito.find(item => item.productoId === prodId);
+            if (itemExistente) {
+                const nuevaCantidad = itemExistente.cantidad + cantidadToAdd;
+                if (nuevaCantidad > stockMax) {
+                    alert(`No puedes agregar esa cantidad. Ya tienes ${itemExistente.cantidad} en el carrito y el stock máximo es ${stockMax}.`);
+                    return;
+                }
+                itemExistente.cantidad = nuevaCantidad;
+            } else {
+                carrito.push({
+                    productoId: prodId,
+                    nombre: producto.nombre ?? producto.Nombre,
+                    talla: producto.talla ?? producto.Talla,
+                    color: producto.color ?? producto.Color,
+                    precioUnitario: producto.precio ?? producto.Precio,
+                    cantidad: cantidadToAdd,
+                    stockMax: stockMax
+                });
+            }
+
+            // Resetear seleccionador
+            productoSelect.value = "";
+            cantidadInput.disabled = true;
+            cantidadInput.value = 1;
+            btnAgregarProducto.disabled = true;
+            detalleProductoSeleccionado.classList.add("d-none");
+
+            dibujarCarrito();
+        });
+
+        // Dibujar el carrito en la tabla
+        function dibujarCarrito() {
+            // Limpiar tabla exceptuando encabezado
+            while (tablaDetalles.rows.length > 0) {
+                tablaDetalles.deleteRow(0);
+            }
+
+            if (carrito.length === 0) {
+                filaVacia.classList.remove("d-none");
+                tablaDetalles.appendChild(filaVacia);
+                btnGuardarVenta.disabled = true;
+                actualizarTotales();
+                return;
+            }
+
+            filaVacia.classList.add("d-none");
+
+            carrito.forEach((item, index) => {
+                const tr = document.createElement("tr");
+
+                // Nombre Producto
+                const tdNombre = document.createElement("td");
+                tdNombre.className = "ps-3";
+                tdNombre.innerHTML = `<strong>${item.nombre}</strong>`;
+                tr.appendChild(tdNombre);
+
+                // Talla / Color
+                const tdDetalle = document.createElement("td");
+                tdDetalle.className = "text-center";
+                tdDetalle.textContent = `${item.talla} / ${item.color}`;
+                tr.appendChild(tdDetalle);
+
+                // Precio Unitario
+                const tdPrecio = document.createElement("td");
+                tdPrecio.className = "text-end";
+                tdPrecio.textContent = formatMoneda(item.precioUnitario);
+                tr.appendChild(tdPrecio);
+
+                // Cantidad Selector
+                const tdCantidad = document.createElement("td");
+                tdCantidad.className = "text-center";
+                
+                const divGroup = document.createElement("div");
+                divGroup.className = "input-group input-group-sm justify-content-center";
+                divGroup.style.maxWidth = "110px";
+                divGroup.style.margin = "0 auto";
+
+                const btnMinus = document.createElement("button");
+                btnMinus.type = "button";
+                btnMinus.className = "btn btn-outline-secondary btn-sm";
+                btnMinus.textContent = "-";
+                btnMinus.addEventListener("click", () => modificarCantidad(index, -1));
+
+                const inputQty = document.createElement("input");
+                inputQty.type = "text";
+                inputQty.className = "form-control text-center";
+                inputQty.value = item.cantidad;
+                inputQty.readOnly = true;
+
+                const btnPlus = document.createElement("button");
+                btnPlus.type = "button";
+                btnPlus.className = "btn btn-outline-secondary btn-sm";
+                btnPlus.textContent = "+";
+                btnPlus.addEventListener("click", () => modificarCantidad(index, 1));
+
+                divGroup.appendChild(btnMinus);
+                divGroup.appendChild(inputQty);
+                divGroup.appendChild(btnPlus);
+                tdCantidad.appendChild(divGroup);
+                tr.appendChild(tdCantidad);
+
+                // Subtotal Item
+                const tdSubtotal = document.createElement("td");
+                tdSubtotal.className = "text-end";
+                tdSubtotal.textContent = formatMoneda(item.precioUnitario * item.cantidad);
+                tr.appendChild(tdSubtotal);
+
+                // Botón Quitar
+                const tdAcciones = document.createElement("td");
+                tdAcciones.className = "text-center";
+                const btnQuitar = document.createElement("button");
+                btnQuitar.type = "button";
+                btnQuitar.className = "btn btn-danger btn-sm vu-icon-btn";
+                btnQuitar.innerHTML = `<svg viewBox="0 0 24 24" style="width: 14px; height: 14px;" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>`;
+                btnQuitar.addEventListener("click", () => quitarDelCarrito(index));
+                tdAcciones.appendChild(btnQuitar);
+                tr.appendChild(tdAcciones);
+
+                tablaDetalles.appendChild(tr);
+            });
+
+            btnGuardarVenta.disabled = false;
+            actualizarTotales();
+        }
+
+        // Modificar cantidad desde la tabla
+        function modificarCantidad(index, offset) {
+            const item = carrito[index];
+            const nuevaCant = item.cantidad + offset;
+
+            if (nuevaCant < 1) {
+                quitarDelCarrito(index);
+                return;
+            }
+
+            if (nuevaCant > item.stockMax) {
+                alert(`No es posible agregar más de este producto. El stock máximo disponible es ${item.stockMax}.`);
+                return;
+            }
+
+            item.cantidad = nuevaCant;
+            dibujarCarrito();
+        }
+
+        // Eliminar elemento
+        function quitarDelCarrito(index) {
+            carrito.splice(index, 1);
+            dibujarCarrito();
+        }
+
+        // Calcular Totales
+        function actualizarTotales() {
+            let subtotal = 0;
+            carrito.forEach(item => {
+                subtotal += item.precioUnitario * item.cantidad;
+            });
+
+            // Leer descuento
+            let descuento = parseFloat(descuentoInput.value);
+            if (isNaN(descuento) || descuento < 0) {
+                descuentoInput.value = 0;
+                descuento = 0;
+            }
+
+            if (descuento > subtotal) {
+                descuento = subtotal;
+                descuentoInput.value = subtotal;
+            }
+
+            const gravable = subtotal - descuento;
+            const impuesto = gravable * 0.13; // IVA 13% Costa Rica
+            const total = gravable + impuesto;
+
+            lblResumenSubtotal.textContent = formatMoneda(subtotal);
+            lblResumenGravable.textContent = formatMoneda(gravable);
+            lblResumenImpuesto.textContent = formatMoneda(impuesto);
+            lblResumenTotal.textContent = formatMoneda(total);
+
+            // Almacenar valores computados en atributos para recuperarlos al guardar
+            lblResumenSubtotal.dataset.valor = subtotal;
+            descuentoInput.dataset.valor = descuento;
+            lblResumenImpuesto.dataset.valor = impuesto;
+            lblResumenTotal.dataset.valor = total;
+        }
+
+        descuentoInput.addEventListener("input", actualizarTotales);
+
+        // Guardar Venta
+        btnGuardarVenta.addEventListener("click", async () => {
+            const clienteId = parseInt(clienteSelect.value);
+            const metodoPagoId = parseInt(metodoPagoSelect.value);
+            const observacion = observacionText.value;
+
+            if (!clienteId) {
+                alert("Debes seleccionar un cliente obligatoriamente.");
+                clienteSelect.focus();
+                return;
+            }
+
+            if (!metodoPagoId) {
+                alert("Debes seleccionar un método de pago obligatoriamente.");
+                metodoPagoSelect.focus();
+                return;
+            }
+
+            if (carrito.length === 0) {
+                alert("El detalle de la venta no puede estar vacío.");
+                return;
+            }
+
+            btnGuardarVenta.disabled = true;
+            btnGuardarVenta.textContent = "Registrando...";
+            errorSubmitAlert.classList.add("d-none");
+
+            // Construir payload
+            const payload = {
+                clienteId: clienteId,
+                metodoPagoId: metodoPagoId,
+                descuento: parseFloat(descuentoInput.dataset.valor || 0),
+                impuesto: parseFloat(lblResumenImpuesto.dataset.valor || 0),
+                observacion: observacion,
+                detalles: carrito.map(item => ({
+                    productoId: item.productoId,
+                    cantidad: item.cantidad,
+                    precioUnitario: item.precioUnitario
+                }))
+            };
+
+            // Obtener Token CSRF
+            const csrfToken = document.querySelector('#antiForgeryForm input[name="__RequestVerificationToken"]').value;
+
+            try {
+                const response = await fetch('/Venta/Crear', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': csrfToken
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.esExitoso) {
+                    // Redireccionar con éxito
+                    window.location.href = '/Venta';
+                } else {
+                    errorSubmitAlert.textContent = data.mensaje || "Error desconocido al registrar la venta.";
+                    errorSubmitAlert.classList.remove("d-none");
+                    btnGuardarVenta.disabled = false;
+                    btnGuardarVenta.textContent = "Registrar Venta";
+                }
+            } catch (err) {
+                errorSubmitAlert.textContent = "Error de red o conexión al servidor. Intente nuevamente.";
+                errorSubmitAlert.classList.remove("d-none");
+                btnGuardarVenta.disabled = false;
+                btnGuardarVenta.textContent = "Registrar Venta";
+                console.error(err);
+            }
+        });
+    </script>
+}
