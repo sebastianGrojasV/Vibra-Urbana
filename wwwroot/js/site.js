@@ -10,6 +10,21 @@ window.addEventListener("DOMContentLoaded", () => {
     }
 
     jQuery(".vu-data-table").DataTable({
+        dom: 'Bfrtip', //  espacio para los botones
+        buttons: [
+            {
+                extend: 'excelHtml5',
+                text: '📊 Exportar a Excel',
+                title: 'Reporte'
+            },
+            {
+                extend: 'pdfHtml5',
+                text: '📄 Exportar a PDF',
+                title: 'Reporte',
+                orientation: 'landscape', // horizontal
+                pageSize: 'A4'
+            }
+        ],
         pageLength: 8,
         lengthMenu: [5, 8, 10, 25],
         order: [],
