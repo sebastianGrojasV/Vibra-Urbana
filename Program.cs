@@ -33,6 +33,7 @@ builder.Services.AddScoped<INavigationMenuService, NavigationMenuService>();
 builder.Services.AddScoped<IAuthorizationHandler, PermisoAuthorizationHandler>();
 builder.Services.AddScoped<ICategoriaRepositorio, CategoriaRepositorio>();
 builder.Services.AddScoped<ICategoriaServicio, CategoriaServicio>();
+builder.Services.AddScoped<IVentaServicio, VentaServicio>();
 
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
