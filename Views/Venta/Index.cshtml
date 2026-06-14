@@ -1,17 +1,117 @@
+@model IReadOnlyList<VibraUrbana.Models.Venta>
+
 @{
-    ViewData["Title"] = "Ventas";
+    ViewData["Title"] = "Historial de Ventas";
 }
 
-<section class="vu-module-placeholder-page">
-    <div class="container">
-        <div class="vu-module-placeholder">
-            <span class="vu-module-placeholder-icon" data-vu-module-icon="ventas"></span>
-            <p class="vu-eyebrow">Módulo en preparación</p>
-            <h1>Ventas</h1>
-            <p>En el siguiente sprint se integrará el flujo comercial para registrar ventas y sus detalles.</p>
-            <div class="vu-placeholder-actions">
-                <a class="btn btn-primary" asp-controller="Admin" asp-action="Index">Volver al panel</a>
-                <a class="btn btn-outline-primary" asp-controller="Factura" asp-action="Index">Ver facturación</a>
+<section class="vu-admin-shell">
+    <div class="container-fluid">
+        <div class="row g-0">
+            <aside class="col-lg-3 col-xl-2 vu-admin-sidebar">
+                <div class="vu-sidebar-brand">Vibra Urbana</div>
+                <nav class="vu-sidebar-nav">
+                    <a asp-controller="Admin" asp-action="Index">Panel inicial</a>
+                    <a asp-controller="Admin" asp-action="Usuarios">Usuarios</a>
+                    <a asp-controller="Rol" asp-action="Index">Roles</a>
+                    <a asp-controller="Cliente" asp-action="Index">Clientes</a>
+                    <a asp-controller="Producto" asp-action="Index">Productos</a>
+                    <a asp-controller="Inventario" asp-action="Index">Inventario</a>
+                    <a class="active" asp-controller="Venta" asp-action="Index">Ventas</a>
+                    <a asp-controller="Factura" asp-action="Index">Facturación</a>
+                    <a asp-controller="Reporte" asp-action="Index">Reportes</a>
+                    <a asp-controller="Pedido" asp-action="Index">Pedidos</a>
+                    <a asp-controller="Categoria" asp-action="Index">Categorías</a>
+                </nav>
+            </aside>
+
+            <div class="col-lg-9 col-xl-10 vu-admin-content">
+                <div class="vu-admin-header">
+                    <div>
+                        <p class="vu-eyebrow">Gestión comercial</p>
+                        <h1>Ventas</h1>
+                        <p>Consulta el historial de ventas realizadas y registra nuevas transacciones comerciales.</p>
+                    </div>
+                    <a class="btn btn-primary" asp-controller="Venta" asp-action="Crear">Registrar Venta</a>
+                </div>
+
+                <div class="vu-panel">
+                    @if (TempData["SuccessMessage"] is string successMessage)
+                    {
+                        <div class="alert alert-success" role="alert">@successMessage</div>
+                    }
+
+                    @if (ViewBag.ClienteFiltrado != null)
+                    {
+                        <div class="alert alert-info d-flex justify-content-between align-items-center mb-3" role="alert">
+                            <div>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 20px; height: 20px; vertical-align: middle;" class="me-2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                                <span>Mostrando compras del cliente: <strong>@ViewBag.ClienteFiltrado</strong> (@ViewBag.ClienteIdentificacion)</span>
+                            </div>
+                            <a class="btn btn-sm btn-outline-primary" asp-controller="Venta" asp-action="Index">Mostrar todas</a>
+                        </div>
+                    }
+
+                    @if (!Model.Any())
+                    {
+                        <div class="alert alert-info" role="alert">
+                            No existen ventas registradas. ¡Comienza registrando una nueva venta!
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle vu-data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Código</th>
+                                        <th>Fecha</th>
+                                        <th>Cliente</th>
+                                        <th>Cajero</th>
+                                        <th>Método Pago</th>
+                                        <th class="text-end">Subtotal</th>
+                                        <th class="text-end">Descuento</th>
+                                        <th class="text-end">Impuesto</th>
+                                        <th class="text-end">Total</th>
+                                        <th class="text-center">Estado</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var venta in Model)
+                                    {
+                                        <tr>
+                                            <td><strong>#@venta.Id.ToString("D5")</strong></td>
+                                            <td>@venta.FechaVenta.ToLocalTime().ToString("dd/MM/yyyy hh:mm tt")</td>
+                                            <td>
+                                                <div class="d-flex flex-column">
+                                                    <span>@venta.Cliente.NombreCompleto</span>
+                                                    <small class="text-muted">@venta.Cliente.Identificacion</small>
+                                                </div>
+                                            </td>
+                                            <td>@venta.Usuario.NombreCompleto</td>
+                                            <td>
+                                                <span class="badge bg-secondary">@venta.MetodoPago.Nombre</span>
+                                            </td>
+                                            <td class="text-end">@venta.Subtotal.ToString("C2")</td>
+                                            <td class="text-end text-danger">-@venta.Descuento.ToString("C2")</td>
+                                            <td class="text-end">@venta.Impuesto.ToString("C2")</td>
+                                            <td class="text-end font-weight-bold text-primary">@venta.Total.ToString("C2")</td>
+                                            <td class="text-center">
+                                                @if (venta.Estado == "Registrada")
+                                                {
+                                                    <span class="badge bg-success">@venta.Estado</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-secondary">@venta.Estado</span>
+                                                }
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                </div>
             </div>
         </div>
     </div>
