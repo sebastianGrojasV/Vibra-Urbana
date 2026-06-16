@@ -89,6 +89,24 @@ public class ProductoController : Controller
         return View(await RepoblarCategoriasParaEditarAsync(model));
     }
 
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> ConfirmarCambiarEstado(int id, bool active)
+    {
+        var result = await _productoServicio.CambiarEstadoAsync(id, active);
+
+        if (result == CambiarEstadoProductoResult.NotFound)
+        {
+            return NotFound();
+        }
+
+        TempData["SuccessMessage"] = active
+            ? "Producto activado correctamente."
+            : "Producto desactivado correctamente.";
+
+        return RedirectToAction(nameof(Index));
+    }
+
     private async Task<ProductoFormViewModel> RepoblarCategoriasParaCrearAsync(ProductoFormViewModel model)
     {
         model.Categorias = (await _productoServicio.PrepararCrearAsync()).Categorias;
