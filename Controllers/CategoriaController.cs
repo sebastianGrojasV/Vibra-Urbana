@@ -1,9 +1,11 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using VibraUrbana.Models;
 using VibraUrbana.Services;
 
 namespace VibraUrbana.Controllers
 {
+    [Authorize(Policy = PermisosSistema.ProductosGestionar)]
     public class CategoriaController : Controller
     {
         private readonly ICategoriaServicio _categoriaServicio;

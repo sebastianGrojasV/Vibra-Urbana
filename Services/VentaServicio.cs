@@ -43,6 +43,25 @@ public class VentaServicio : IVentaServicio
             return VentaOperacionResult.Failure("La venta debe tener al menos un producto.");
         }
 
+        if (model.Detalles.Any(detalle => detalle.ProductoId <= 0 || detalle.Cantidad <= 0))
+        {
+            return VentaOperacionResult.Failure("Los productos y cantidades de la venta no son válidos.");
+        }
+
+        var detallesAgrupados = model.Detalles
+            .GroupBy(detalle => detalle.ProductoId)
+            .Select(grupo => new
+            {
+                ProductoId = grupo.Key,
+                Cantidad = grupo.Sum(detalle => (long)detalle.Cantidad)
+            })
+            .ToList();
+
+        if (detallesAgrupados.Any(detalle => detalle.Cantidad > int.MaxValue))
+        {
+            return VentaOperacionResult.Failure("La cantidad solicitada para un producto es demasiado alta.");
+        }
+
         // Validar Cliente
         var cliente = await _context.Clientes.FindAsync(model.ClienteId);
         if (cliente == null)
@@ -70,7 +89,7 @@ public class VentaServicio : IVentaServicio
         try
         {
             // Cargar productos en memoria para validar stock
-            var productIds = model.Detalles.Select(d => d.ProductoId).Distinct().ToList();
+            var productIds = detallesAgrupados.Select(detalle => detalle.ProductoId).ToList();
             var productos = await _context.Productos
                 .Include(p => p.Inventario)
                 .Where(p => productIds.Contains(p.Id))
@@ -79,7 +98,7 @@ public class VentaServicio : IVentaServicio
             decimal subtotal = 0;
 
             // Validar existencia y stock de cada producto
-            foreach (var detail in model.Detalles)
+            foreach (var detail in detallesAgrupados)
             {
                 if (!productos.TryGetValue(detail.ProductoId, out var producto))
                 {
@@ -140,7 +159,7 @@ public class VentaServicio : IVentaServicio
             await _context.SaveChangesAsync(); // Guarda venta para generar ID
 
             // Crear Detalles y actualizar Inventario
-            foreach (var detail in model.Detalles)
+            foreach (var detail in detallesAgrupados)
             {
                 var producto = productos[detail.ProductoId];
                 var inventario = producto.Inventario!;
@@ -150,7 +169,7 @@ public class VentaServicio : IVentaServicio
                 {
                     VentaId = venta.Id,
                     ProductoId = detail.ProductoId,
-                    Cantidad = detail.Cantidad,
+                    Cantidad = (int)detail.Cantidad,
                     PrecioUnitario = producto.Precio,
                     Subtotal = detail.Cantidad * producto.Precio
                 };
@@ -158,7 +177,7 @@ public class VentaServicio : IVentaServicio
 
                 // 2. Descontar Stock
                 int cantidadAnterior = inventario.CantidadDisponible;
-                inventario.CantidadDisponible -= detail.Cantidad;
+                inventario.CantidadDisponible -= (int)detail.Cantidad;
                 inventario.FechaActualizacion = DateTime.UtcNow;
 
                 // 3. Registrar Movimiento de Inventario
@@ -166,7 +185,7 @@ public class VentaServicio : IVentaServicio
                 {
                     ProductoId = producto.Id,
                     TipoMovimiento = "Salida",
-                    Cantidad = detail.Cantidad,
+                    Cantidad = (int)detail.Cantidad,
                     CantidadAnterior = cantidadAnterior,
                     CantidadNueva = inventario.CantidadDisponible,
                     Motivo = $"Venta #{venta.Id}",
@@ -180,6 +199,12 @@ public class VentaServicio : IVentaServicio
             await transaction.CommitAsync();
 
             return VentaOperacionResult.Success(venta.Id);
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            await transaction.RollbackAsync();
+            return VentaOperacionResult.Failure(
+                "El inventario cambió mientras se registraba la venta. Actualiza la página y vuelve a intentarlo.");
         }
         catch (Exception ex)
         {

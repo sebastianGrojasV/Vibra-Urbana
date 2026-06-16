@@ -107,20 +107,16 @@ public class ProductoServicio : IProductoServicio
             ImagenUrl = model.ImagenUrl.Trim(),
             CategoriaId = model.CategoriaId,
             Activo = true,
-            FechaRegistro = DateTime.UtcNow
+            FechaRegistro = DateTime.UtcNow,
+            Inventario = new Inventario
+            {
+                CantidadDisponible = model.CantidadDisponible!.Value,
+                StockMinimo = model.StockMinimo!.Value,
+                FechaActualizacion = DateTime.UtcNow
+            }
         };
 
         _context.Productos.Add(producto);
-        await _context.SaveChangesAsync();
-
-        _context.Inventario.Add(new Inventario
-        {
-            ProductoId = producto.Id,
-            CantidadDisponible = model.CantidadDisponible!.Value,
-            StockMinimo = model.StockMinimo!.Value,
-            FechaActualizacion = DateTime.UtcNow
-        });
-
         await _context.SaveChangesAsync();
 
         return ProductoOperacionResult.Success;
@@ -165,7 +161,6 @@ public class ProductoServicio : IProductoServicio
         }
         else
         {
-            producto.Inventario.CantidadDisponible = model.CantidadDisponible!.Value;
             producto.Inventario.StockMinimo = model.StockMinimo!.Value;
             producto.Inventario.FechaActualizacion = DateTime.UtcNow;
         }
@@ -203,6 +198,107 @@ public class ProductoServicio : IProductoServicio
             Tallas = await ObtenerTallasSelectAsync(talla),
             Colores = await ObtenerColoresSelectAsync(color)
         };
+    }
+
+    public async Task<AjustarInventarioViewModel?> ObtenerAjusteInventarioAsync(int productoId)
+    {
+        var producto = await _context.Productos
+            .AsNoTracking()
+            .Include(item => item.Categoria)
+            .Include(item => item.Inventario)
+            .SingleOrDefaultAsync(item => item.Id == productoId);
+
+        if (producto?.Inventario is null)
+        {
+            return null;
+        }
+
+        return new AjustarInventarioViewModel
+        {
+            ProductoId = producto.Id,
+            Producto = producto.Nombre,
+            Categoria = producto.Categoria.Nombre,
+            Talla = producto.Talla,
+            Color = producto.Color,
+            CantidadAnterior = producto.Inventario.CantidadDisponible,
+            NuevaCantidad = producto.Inventario.CantidadDisponible,
+            Version = Convert.ToBase64String(producto.Inventario.Version)
+        };
+    }
+
+    public async Task<AjustarInventarioResult> AjustarInventarioAsync(
+        AjustarInventarioViewModel model,
+        int usuarioId)
+    {
+        if (!model.NuevaCantidad.HasValue || model.NuevaCantidad.Value < 0)
+        {
+            return AjustarInventarioResult.InvalidQuantity;
+        }
+
+        var motivo = model.Motivo.Trim();
+
+        if (motivo.Length < 5 || motivo.Length > 300)
+        {
+            return AjustarInventarioResult.InvalidReason;
+        }
+
+        byte[] version;
+
+        try
+        {
+            version = Convert.FromBase64String(model.Version);
+        }
+        catch (FormatException)
+        {
+            return AjustarInventarioResult.ConcurrencyConflict;
+        }
+
+        var producto = await _context.Productos
+            .Include(item => item.Inventario)
+            .SingleOrDefaultAsync(item => item.Id == model.ProductoId);
+
+        if (producto?.Inventario is null)
+        {
+            return AjustarInventarioResult.NotFound;
+        }
+
+        var inventario = producto.Inventario;
+        var cantidadAnterior = inventario.CantidadDisponible;
+        var cantidadNueva = model.NuevaCantidad.Value;
+
+        if (cantidadAnterior == cantidadNueva)
+        {
+            return AjustarInventarioResult.NoChange;
+        }
+
+        _context.Entry(inventario)
+            .Property(item => item.Version)
+            .OriginalValue = version;
+
+        inventario.CantidadDisponible = cantidadNueva;
+        inventario.FechaActualizacion = DateTime.UtcNow;
+
+        _context.MovimientosInventario.Add(new MovimientoInventario
+        {
+            ProductoId = producto.Id,
+            TipoMovimiento = "Ajuste",
+            Cantidad = Math.Abs(cantidadNueva - cantidadAnterior),
+            CantidadAnterior = cantidadAnterior,
+            CantidadNueva = cantidadNueva,
+            Motivo = motivo,
+            FechaMovimiento = DateTime.UtcNow,
+            UsuarioId = usuarioId
+        });
+
+        try
+        {
+            await _context.SaveChangesAsync();
+            return AjustarInventarioResult.Success;
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            return AjustarInventarioResult.ConcurrencyConflict;
+        }
     }
 
     private IQueryable<Producto> QueryProductos()

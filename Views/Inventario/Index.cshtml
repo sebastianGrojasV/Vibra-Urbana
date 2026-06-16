@@ -78,6 +78,11 @@
                 </div>
 
                 <div class="vu-panel">
+                    @if (TempData["SuccessMessage"] is string successMessage)
+                    {
+                        <div class="alert alert-success" role="alert">@successMessage</div>
+                    }
+
                     @if (!Model.Inventario.Any())
                     {
                         <div class="alert alert-info" role="alert">
@@ -127,6 +132,12 @@
                                             <td>@item.FechaActualizacion.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</td>
                                             <td class="text-end">
                                                 <div class="vu-actions">
+                                                    <a class="btn btn-sm vu-icon-btn vu-icon-enable" asp-controller="Inventario" asp-action="Ajustar" asp-route-id="@item.ProductoId" title="Ajustar existencias" aria-label="Ajustar existencias de @item.Producto">
+                                                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                                                            <path d="M12 3v18"></path>
+                                                            <path d="M3 12h18"></path>
+                                                        </svg>
+                                                    </a>
                                                     <a class="btn btn-sm vu-icon-btn vu-icon-edit" asp-controller="Producto" asp-action="Editar" asp-route-id="@item.ProductoId" title="Editar" aria-label="Editar producto">
                                                         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h9"></path><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5Z"></path></svg>
                                                     </a>

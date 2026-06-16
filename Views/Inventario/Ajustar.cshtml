@@ -1,0 +1,117 @@
+@model VibraUrbana.ViewModels.AjustarInventarioViewModel
+
+@{
+    ViewData["Title"] = "Ajustar inventario";
+}
+
+<section class="vu-admin-shell">
+    <div class="container-fluid">
+        <div class="row g-0">
+            <aside class="col-lg-3 col-xl-2 vu-admin-sidebar">
+                <div class="vu-sidebar-brand">Vibra Urbana</div>
+                <nav class="vu-sidebar-nav">
+                    <a asp-controller="Admin" asp-action="Index">Panel inicial</a>
+                    <a asp-controller="Admin" asp-action="Usuarios">Usuarios</a>
+                    <a asp-controller="Rol" asp-action="Index">Roles</a>
+                    <a asp-controller="Cliente" asp-action="Index">Clientes</a>
+                    <a asp-controller="Producto" asp-action="Index">Productos</a>
+                    <a class="active" asp-controller="Inventario" asp-action="Index">Inventario</a>
+                    <a asp-controller="Venta" asp-action="Index">Ventas</a>
+                    <a asp-controller="Factura" asp-action="Index">Facturación</a>
+                    <a asp-controller="Reporte" asp-action="Index">Reportes</a>
+                    <a asp-controller="Pedido" asp-action="Index">Pedidos</a>
+                    <a asp-controller="Categoria" asp-action="Index">Categorías</a>
+                </nav>
+            </aside>
+
+            <div class="col-lg-9 col-xl-10 vu-admin-content">
+                <div class="vu-admin-header">
+                    <div>
+                        <p class="vu-eyebrow">Control de existencias</p>
+                        <h1>Ajustar inventario</h1>
+                        <p>Corrige diferencias entre las existencias físicas y las registradas en el sistema.</p>
+                    </div>
+                    <a class="btn btn-outline-primary" asp-action="Index">Volver al inventario</a>
+                </div>
+
+                <div class="row g-4">
+                    <div class="col-xl-8">
+                        <div class="vu-panel">
+                            <form asp-action="Ajustar" method="post" novalidate>
+                                @Html.AntiForgeryToken()
+                                <input asp-for="ProductoId" type="hidden" />
+                                <input asp-for="Version" type="hidden" />
+
+                                <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+
+                                <div class="row g-3">
+                                    <div class="col-md-8">
+                                        <label class="form-label">Producto</label>
+                                        <input class="form-control" value="@Model.Producto" disabled />
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label">Cantidad registrada</label>
+                                        <input class="form-control" value="@Model.CantidadAnterior" disabled />
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label">Categoría</label>
+                                        <input class="form-control" value="@Model.Categoria" disabled />
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label">Talla</label>
+                                        <input class="form-control" value="@(string.IsNullOrWhiteSpace(Model.Talla) ? "Sin talla" : Model.Talla)" disabled />
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label">Color</label>
+                                        <input class="form-control" value="@(string.IsNullOrWhiteSpace(Model.Color) ? "Sin color" : Model.Color)" disabled />
+                                    </div>
+                                    <div class="col-md-5">
+                                        <label asp-for="NuevaCantidad" class="form-label"></label>
+                                        <input asp-for="NuevaCantidad"
+                                               class="form-control"
+                                               type="number"
+                                               min="0"
+                                               step="1"
+                                               inputmode="numeric"
+                                               data-msg-min="La nueva cantidad debe ser mayor o igual a cero." />
+                                        <span asp-validation-for="NuevaCantidad" class="text-danger small"></span>
+                                    </div>
+                                    <div class="col-12">
+                                        <label asp-for="Motivo" class="form-label"></label>
+                                        <textarea asp-for="Motivo" class="form-control" rows="4" maxlength="300" placeholder="Ejemplo: Diferencia detectada durante el conteo físico."></textarea>
+                                        <span asp-validation-for="Motivo" class="text-danger small"></span>
+                                    </div>
+                                </div>
+
+                                <div class="alert alert-warning mt-4 mb-0" role="alert">
+                                    El ajuste quedará registrado con el usuario, la fecha, las cantidades anterior y nueva, y el motivo indicado.
+                                </div>
+
+                                <div class="d-flex flex-wrap gap-2 mt-4">
+                                    <button class="btn btn-primary" type="submit">Guardar ajuste</button>
+                                    <a class="btn btn-outline-primary" asp-action="Index">Cancelar</a>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div class="col-xl-4">
+                        <div class="vu-panel">
+                            <h2>Trazabilidad</h2>
+                            <ul class="vu-status-list">
+                                <li><span></span> La cantidad nunca puede ser negativa</li>
+                                <li><span></span> El motivo es obligatorio</li>
+                                <li><span></span> El movimiento conserva el usuario responsable</li>
+                                <li><span></span> Los cambios simultáneos son detectados</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

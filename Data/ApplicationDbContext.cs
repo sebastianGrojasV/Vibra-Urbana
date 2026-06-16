@@ -185,6 +185,7 @@ public class ApplicationDbContext : DbContext
             entity.HasKey(inventario => inventario.Id);
 
             entity.Property(inventario => inventario.FechaActualizacion).HasDefaultValueSql("GETUTCDATE()");
+            entity.Property(inventario => inventario.Version).IsRowVersion();
 
             entity.HasIndex(inventario => inventario.ProductoId).IsUnique();
 
