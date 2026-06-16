@@ -15,4 +15,8 @@ public interface IProductoServicio
     Task<ProductoOperacionResult> ActualizarAsync(ProductoFormViewModel model);
 
     Task<InventarioIndexViewModel> ObtenerInventarioAsync(int? categoriaId, string? talla, string? color, bool? activo);
+
+    Task<AjustarInventarioViewModel?> ObtenerAjusteInventarioAsync(int productoId);
+
+    Task<AjustarInventarioResult> AjustarInventarioAsync(AjustarInventarioViewModel model, int usuarioId);
 }

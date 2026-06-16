@@ -1,17 +1,152 @@
+@model VibraUrbana.ViewModels.ReporteInventarioViewModel
+
 @{
-    ViewData["Title"] = "Reportes";
+    ViewData["Title"] = "Reporte de inventario";
 }
 
-<section class="vu-module-placeholder-page">
-    <div class="container">
-        <div class="vu-module-placeholder">
-            <span class="vu-module-placeholder-icon" data-vu-module-icon="reportes"></span>
-            <p class="vu-eyebrow">Módulo en preparación</p>
-            <h1>Reportes</h1>
-            <p>Próximamente se mostrarán indicadores de ventas, inventario, facturación y actividad administrativa.</p>
-            <div class="vu-placeholder-actions">
-                <a class="btn btn-primary" asp-controller="Admin" asp-action="Index">Volver al panel</a>
-                <a class="btn btn-outline-primary" asp-controller="Venta" asp-action="Index">Ver ventas</a>
+<section class="vu-admin-shell">
+    <div class="container-fluid">
+        <div class="row g-0">
+            <aside class="col-lg-3 col-xl-2 vu-admin-sidebar">
+                <div class="vu-sidebar-brand">Vibra Urbana</div>
+                <nav class="vu-sidebar-nav">
+                    <a asp-controller="Admin" asp-action="Index">Panel inicial</a>
+                    <a asp-controller="Admin" asp-action="Usuarios">Usuarios</a>
+                    <a asp-controller="Rol" asp-action="Index">Roles</a>
+                    <a asp-controller="Cliente" asp-action="Index">Clientes</a>
+                    <a asp-controller="Producto" asp-action="Index">Productos</a>
+                    <a asp-controller="Inventario" asp-action="Index">Inventario</a>
+                    <a asp-controller="Venta" asp-action="Index">Ventas</a>
+                    <a asp-controller="Factura" asp-action="Index">Facturación</a>
+                    <a class="active" asp-controller="Reporte" asp-action="Index">Reportes</a>
+                    <a asp-controller="Pedido" asp-action="Index">Pedidos</a>
+                    <a asp-controller="Categoria" asp-action="Index">Categorías</a>
+                </nav>
+            </aside>
+
+            <div class="col-lg-9 col-xl-10 vu-admin-content">
+                <div class="vu-admin-header">
+                    <div>
+                        <p class="vu-eyebrow">Análisis de existencias</p>
+                        <h1>Reporte de inventario</h1>
+                        <p>Consulta la disponibilidad actual y detecta productos que requieren reposición.</p>
+                    </div>
+                    <a class="btn btn-outline-primary" asp-controller="Inventario" asp-action="Index">
+                        Ver inventario
+                    </a>
+                </div>
+
+                <div class="row g-3 mb-4">
+                    <div class="col-md-4">
+                        <div class="vu-dashboard-card h-100">
+                            <span class="vu-card-label">Productos encontrados</span>
+                            <strong class="vu-card-value">@Model.TotalProductos</strong>
+                            <span class="text-muted small">Según los filtros aplicados</span>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="vu-dashboard-card h-100">
+                            <span class="vu-card-label">Unidades disponibles</span>
+                            <strong class="vu-card-value">@Model.TotalUnidades</strong>
+                            <span class="text-muted small">Existencias registradas</span>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="vu-dashboard-card h-100">
+                            <span class="vu-card-label">Productos con stock bajo</span>
+                            <strong class="vu-card-value">@Model.ProductosStockBajo</strong>
+                            <span class="text-muted small">Requieren seguimiento</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="vu-panel mb-4">
+                    <form asp-controller="Reporte" asp-action="Index" method="get" class="row g-3 align-items-end">
+                        <div class="col-md-4">
+                            <label class="form-label" for="categoriaId">Categoría</label>
+                            <select id="categoriaId" name="categoriaId" asp-items="Model.Categorias" class="form-select">
+                                <option value="">Todas las categorías</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label" for="estadoStock">Estado de stock</label>
+                            <select id="estadoStock" name="estadoStock" class="form-select">
+                                <option value="">Todos los estados</option>
+                                <option value="@VibraUrbana.ViewModels.ReporteInventarioViewModel.EstadoStockDisponible"
+                                        selected="@(Model.EstadoStock == VibraUrbana.ViewModels.ReporteInventarioViewModel.EstadoStockDisponible ? "selected" : null)">
+                                    Disponible
+                                </option>
+                                <option value="@VibraUrbana.ViewModels.ReporteInventarioViewModel.EstadoStockBajo"
+                                        selected="@(Model.EstadoStock == VibraUrbana.ViewModels.ReporteInventarioViewModel.EstadoStockBajo ? "selected" : null)">
+                                    Stock bajo
+                                </option>
+                            </select>
+                        </div>
+                        <div class="col-md-4 d-flex flex-wrap gap-2">
+                            <button class="btn btn-primary" type="submit">
+                                Generar reporte
+                            </button>
+                            <a class="btn btn-outline-secondary" asp-controller="Reporte" asp-action="Index">
+                                Limpiar
+                            </a>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="vu-panel">
+                    @if (!Model.Inventario.Any())
+                    {
+                        <div class="alert alert-info mb-0" role="status">
+                            No existen productos en inventario con los filtros seleccionados.
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle vu-data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Producto</th>
+                                        <th>Categoría</th>
+                                        <th>Talla</th>
+                                        <th>Color</th>
+                                        <th>Disponible</th>
+                                        <th>Stock mínimo</th>
+                                        <th>Estado de stock</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var item in Model.Inventario)
+                                    {
+                                        <tr class="@(item.StockBajo ? "vu-stock-low-row" : string.Empty)">
+                                            <td>
+                                                <strong>@item.Producto</strong>
+                                                <div class="text-muted small">
+                                                    @(item.Activo ? "Producto activo" : "Producto inactivo")
+                                                </div>
+                                            </td>
+                                            <td>@item.Categoria</td>
+                                            <td>@(string.IsNullOrWhiteSpace(item.Talla) ? "Sin talla" : item.Talla)</td>
+                                            <td>@(string.IsNullOrWhiteSpace(item.Color) ? "Sin color" : item.Color)</td>
+                                            <td>@item.CantidadDisponible</td>
+                                            <td>@item.StockMinimo</td>
+                                            <td>
+                                                @if (item.StockBajo)
+                                                {
+                                                    <span class="badge bg-warning text-dark">Stock bajo</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-success">Disponible</span>
+                                                }
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                </div>
             </div>
         </div>
     </div>

@@ -1,0 +1,32 @@
+@{
+    ViewData["Title"] = "Acceso denegado";
+}
+
+<section class="vu-auth-page">
+    <div class="container">
+        <div class="row min-vh-75 align-items-center justify-content-center">
+            <div class="col-md-8 col-lg-6">
+                <div class="vu-auth-card text-center">
+                    <div class="vu-confirm-icon mx-auto mb-3" aria-hidden="true">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"></path>
+                            <path d="M9 9l6 6"></path>
+                            <path d="M15 9l-6 6"></path>
+                        </svg>
+                    </div>
+
+                    <p class="vu-eyebrow">Permisos del sistema</p>
+                    <h1 class="h2">No tienes acceso a esta sección</h1>
+                    <p class="mb-4">
+                        Tu sesión continúa activa, pero tu rol no cuenta con el permiso necesario para realizar esta acción.
+                    </p>
+
+                    <div class="d-flex flex-wrap justify-content-center gap-2">
+                        <a class="btn btn-primary" asp-controller="Home" asp-action="Index">Volver al inicio</a>
+                        <button class="btn btn-outline-primary" type="button" onclick="history.back()">Regresar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

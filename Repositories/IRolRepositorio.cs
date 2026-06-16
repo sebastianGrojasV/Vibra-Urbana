@@ -18,9 +18,7 @@ public interface IRolRepositorio
 
     Task<bool> AgregarRolAsync(Rol rol);
 
-    Task<bool> ActualizarRolAsync(Rol rol);
-
-    Task ActualizarPermisosAsync(int rolId, IEnumerable<int> permisoIds);
+    Task<bool> ActualizarRolConPermisosAsync(Rol rol, IEnumerable<int> permisoIds);
 
     Task<bool> EliminarRolAsync(int id);
 

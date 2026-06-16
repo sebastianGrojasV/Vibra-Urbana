@@ -13,4 +13,6 @@ public class Inventario
     public int StockMinimo { get; set; }
 
     public DateTime FechaActualizacion { get; set; } = DateTime.UtcNow;
+
+    public byte[] Version { get; set; } = [];
 }
