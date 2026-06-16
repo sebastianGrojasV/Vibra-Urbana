@@ -4,6 +4,9 @@ namespace VibraUrbana.ViewModels;
 
 public class InventarioIndexViewModel
 {
+    public const string EstadoStockBajo = "bajo";
+    public const string EstadoStockDisponible = "disponible";
+
     public int? CategoriaId { get; set; }
 
     public string? Talla { get; set; }
@@ -11,6 +14,8 @@ public class InventarioIndexViewModel
     public string? Color { get; set; }
 
     public bool? Activo { get; set; }
+
+    public string? EstadoStock { get; set; }
 
     public IReadOnlyList<InventarioListadoItemViewModel> Inventario { get; set; } = [];
 
