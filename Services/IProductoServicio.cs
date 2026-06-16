@@ -16,9 +16,13 @@ public interface IProductoServicio
 
     Task<CambiarEstadoProductoResult> CambiarEstadoAsync(int id, bool active);
 
-    Task<InventarioIndexViewModel> ObtenerInventarioAsync(int? categoriaId, string? talla, string? color, bool? activo);
+    Task<InventarioIndexViewModel> ObtenerInventarioAsync(int? categoriaId, string? talla, string? color, bool? activo, string? estadoStock);
 
     Task<AjustarInventarioViewModel?> ObtenerAjusteInventarioAsync(int productoId);
 
     Task<AjustarInventarioResult> AjustarInventarioAsync(AjustarInventarioViewModel model, int usuarioId);
+
+    Task<EntradaInventarioViewModel?> ObtenerEntradaInventarioAsync(int productoId);
+
+    Task<EntradaInventarioResult> RegistrarEntradaInventarioAsync(EntradaInventarioViewModel model, int usuarioId);
 }
