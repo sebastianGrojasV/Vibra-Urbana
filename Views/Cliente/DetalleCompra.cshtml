@@ -1,0 +1,123 @@
+@model VibraUrbana.ViewModels.ClienteCompraDetalleViewModel
+
+@{
+    ViewData["Title"] = "Detalle de compra";
+}
+
+<section class="vu-admin-shell">
+    <div class="container-fluid">
+        <div class="row g-0">
+            <aside class="col-lg-3 col-xl-2 vu-admin-sidebar">
+                <div class="vu-sidebar-brand">Vibra Urbana</div>
+                <nav class="vu-sidebar-nav">
+                    <a asp-controller="Admin" asp-action="Index">Panel inicial</a>
+                    <a asp-controller="Admin" asp-action="Usuarios">Usuarios</a>
+                    <a asp-controller="Rol" asp-action="Index">Roles</a>
+                    <a class="active" asp-controller="Cliente" asp-action="Index">Clientes</a>
+                    <a asp-controller="Producto" asp-action="Index">Productos</a>
+                    <a asp-controller="Inventario" asp-action="Index">Inventario</a>
+                    <a asp-controller="Venta" asp-action="Index">Ventas</a>
+                    <a asp-controller="Factura" asp-action="Index">Facturación</a>
+                    <a asp-controller="Reporte" asp-action="Index">Reportes</a>
+                    <a asp-controller="Pedido" asp-action="Index">Pedidos</a>
+                    <a asp-controller="Categoria" asp-action="Index">Categorías</a>
+                </nav>
+            </aside>
+
+            <div class="col-lg-9 col-xl-10 vu-admin-content">
+                <div class="vu-admin-header">
+                    <div>
+                        <p class="vu-eyebrow">Compra #@Model.VentaId.ToString("D5")</p>
+                        <h1>Detalle de compra</h1>
+                        <p>@Model.Cliente · @Model.Identificacion</p>
+                    </div>
+                    <a class="btn btn-outline-primary"
+                       asp-controller="Cliente"
+                       asp-action="HistorialCompras"
+                       asp-route-id="@Model.ClienteId">
+                        Volver al historial
+                    </a>
+                </div>
+
+                <div class="vu-panel mb-4">
+                    <div class="row g-3">
+                        <div class="col-md-3">
+                            <span class="text-muted small d-block">Fecha</span>
+                            <strong>@Model.FechaVenta.ToLocalTime().ToString("dd/MM/yyyy hh:mm tt")</strong>
+                        </div>
+                        <div class="col-md-3">
+                            <span class="text-muted small d-block">Cajero</span>
+                            <strong>@Model.Cajero</strong>
+                        </div>
+                        <div class="col-md-3">
+                            <span class="text-muted small d-block">Método de pago</span>
+                            <strong>@Model.MetodoPago</strong>
+                        </div>
+                        <div class="col-md-3">
+                            <span class="text-muted small d-block">Comprobante</span>
+                            <strong>@(string.IsNullOrWhiteSpace(Model.NumeroComprobante) ? "Sin comprobante" : Model.NumeroComprobante)</strong>
+                        </div>
+                        <div class="col-md-3">
+                            <span class="text-muted small d-block">Estado</span>
+                            <span class="badge @(Model.Estado == "Registrada" ? "bg-success" : "bg-secondary")">@Model.Estado</span>
+                        </div>
+                        <div class="col-md-9">
+                            <span class="text-muted small d-block">Observación</span>
+                            <strong>@(string.IsNullOrWhiteSpace(Model.Observacion) ? "Sin observación" : Model.Observacion)</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="vu-panel">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead>
+                                <tr>
+                                    <th>Producto</th>
+                                    <th>Categoría</th>
+                                    <th>Talla</th>
+                                    <th>Color</th>
+                                    <th class="text-end">Cantidad</th>
+                                    <th class="text-end">Precio unitario</th>
+                                    <th class="text-end">Subtotal</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model.Productos)
+                                {
+                                    <tr>
+                                        <td><strong>@item.Producto</strong></td>
+                                        <td>@item.Categoria</td>
+                                        <td>@(string.IsNullOrWhiteSpace(item.Talla) ? "Sin talla" : item.Talla)</td>
+                                        <td>@(string.IsNullOrWhiteSpace(item.Color) ? "Sin color" : item.Color)</td>
+                                        <td class="text-end">@item.Cantidad</td>
+                                        <td class="text-end">@item.PrecioUnitario.ToString("C2")</td>
+                                        <td class="text-end">@item.Subtotal.ToString("C2")</td>
+                                    </tr>
+                                }
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <th colspan="6" class="text-end">Subtotal</th>
+                                    <th class="text-end">@Model.Subtotal.ToString("C2")</th>
+                                </tr>
+                                <tr>
+                                    <th colspan="6" class="text-end">Descuento</th>
+                                    <th class="text-end text-danger">-@Model.Descuento.ToString("C2")</th>
+                                </tr>
+                                <tr>
+                                    <th colspan="6" class="text-end">Impuesto</th>
+                                    <th class="text-end">@Model.Impuesto.ToString("C2")</th>
+                                </tr>
+                                <tr>
+                                    <th colspan="6" class="text-end">Total</th>
+                                    <th class="text-end text-primary">@Model.Total.ToString("C2")</th>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

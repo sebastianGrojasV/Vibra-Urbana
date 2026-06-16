@@ -112,4 +112,30 @@ public class ClienteController : Controller
 
         return RedirectToAction(nameof(Index));
     }
+
+    [HttpGet]
+    public async Task<IActionResult> HistorialCompras(int id)
+    {
+        var model = await _clienteServicio.ObtenerHistorialComprasAsync(id);
+
+        if (model is null)
+        {
+            return NotFound();
+        }
+
+        return View(model);
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> DetalleCompra(int clienteId, int ventaId)
+    {
+        var model = await _clienteServicio.ObtenerDetalleCompraAsync(clienteId, ventaId);
+
+        if (model is null)
+        {
+            return NotFound();
+        }
+
+        return View(model);
+    }
 }

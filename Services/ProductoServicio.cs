@@ -169,6 +169,26 @@ public class ProductoServicio : IProductoServicio
         return ProductoOperacionResult.Success;
     }
 
+    public async Task<CambiarEstadoProductoResult> CambiarEstadoAsync(int id, bool active)
+    {
+        var producto = await _context.Productos.FindAsync(id);
+
+        if (producto is null)
+        {
+            return CambiarEstadoProductoResult.NotFound;
+        }
+
+        if (producto.Activo == active)
+        {
+            return CambiarEstadoProductoResult.NoChange;
+        }
+
+        producto.Activo = active;
+        await _context.SaveChangesAsync();
+
+        return CambiarEstadoProductoResult.Success;
+    }
+
     public async Task<InventarioIndexViewModel> ObtenerInventarioAsync(int? categoriaId, string? talla, string? color, bool? activo)
     {
         var query = AplicarFiltros(QueryProductos(), categoriaId, talla, color, activo);

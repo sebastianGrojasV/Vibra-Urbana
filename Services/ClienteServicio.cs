@@ -135,6 +135,85 @@ public class ClienteServicio : IClienteServicio
         return CambiarEstadoClienteResult.Success;
     }
 
+    public async Task<ClienteHistorialComprasViewModel?> ObtenerHistorialComprasAsync(int clienteId)
+    {
+        var cliente = await _dbContext.Clientes
+            .AsNoTracking()
+            .Where(item => item.Id == clienteId)
+            .Select(item => new
+            {
+                item.Id,
+                item.Identificacion,
+                item.NombreCompleto
+            })
+            .FirstOrDefaultAsync();
+
+        if (cliente is null)
+        {
+            return null;
+        }
+
+        var compras = await _dbContext.Ventas
+            .AsNoTracking()
+            .Where(venta => venta.ClienteId == clienteId)
+            .OrderByDescending(venta => venta.FechaVenta)
+            .Select(venta => new ClienteHistorialCompraItemViewModel
+            {
+                VentaId = venta.Id,
+                FechaVenta = venta.FechaVenta,
+                Total = venta.Total,
+                Estado = venta.Estado,
+                NumeroComprobante = venta.Factura == null ? null : venta.Factura.NumeroFactura
+            })
+            .ToListAsync();
+
+        return new ClienteHistorialComprasViewModel
+        {
+            ClienteId = cliente.Id,
+            Identificacion = cliente.Identificacion,
+            NombreCompleto = cliente.NombreCompleto,
+            Compras = compras
+        };
+    }
+
+    public async Task<ClienteCompraDetalleViewModel?> ObtenerDetalleCompraAsync(int clienteId, int ventaId)
+    {
+        return await _dbContext.Ventas
+            .AsNoTracking()
+            .Where(venta => venta.Id == ventaId && venta.ClienteId == clienteId)
+            .Select(venta => new ClienteCompraDetalleViewModel
+            {
+                ClienteId = venta.ClienteId,
+                Cliente = venta.Cliente.NombreCompleto,
+                Identificacion = venta.Cliente.Identificacion,
+                VentaId = venta.Id,
+                FechaVenta = venta.FechaVenta,
+                Cajero = venta.Usuario.NombreCompleto,
+                MetodoPago = venta.MetodoPago.Nombre,
+                Estado = venta.Estado,
+                Observacion = venta.Observacion,
+                NumeroComprobante = venta.Factura == null ? null : venta.Factura.NumeroFactura,
+                Subtotal = venta.Subtotal,
+                Descuento = venta.Descuento,
+                Impuesto = venta.Impuesto,
+                Total = venta.Total,
+                Productos = venta.DetalleVentas
+                    .OrderBy(detalle => detalle.Producto.Nombre)
+                    .Select(detalle => new ClienteCompraDetalleItemViewModel
+                    {
+                        Producto = detalle.Producto.Nombre,
+                        Categoria = detalle.Producto.Categoria.Nombre,
+                        Talla = detalle.Producto.Talla,
+                        Color = detalle.Producto.Color,
+                        Cantidad = detalle.Cantidad,
+                        PrecioUnitario = detalle.PrecioUnitario,
+                        Subtotal = detalle.Subtotal
+                    })
+                    .ToList()
+            })
+            .FirstOrDefaultAsync();
+    }
+
     private async Task<bool> ExisteIdentificacionAsync(string identificacion, int? excludedId = null)
     {
         var normalizedIdentificacion = identificacion.Trim().ToLowerInvariant();
