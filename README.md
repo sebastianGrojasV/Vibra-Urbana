@@ -85,6 +85,33 @@ Datos iniciales:
 - Metodos de pago: Efectivo, SINPE, Tarjeta.
 - Permisos base: usuarios, roles, clientes, productos, inventario, ventas, facturacion y reportes.
 
+### Base compartida en Azure durante desarrollo
+
+No guardar la cadena de conexion de Azure en `appsettings.json`, porque contiene usuario y contrasena. Este proyecto tiene habilitado `User Secrets` para que cada integrante configure su conexion localmente:
+
+```bash
+dotnet user-secrets set "ConnectionStrings:DefaultConnection" "Server=tcp:TU_SERVIDOR.database.windows.net,1433;Initial Catalog=TU_BASE;Persist Security Info=False;User ID=TU_USUARIO;Password=TU_PASSWORD;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"
+```
+
+Con esa configuracion, `Program.cs` seguira usando `DefaultConnection`, pero la cadena de Azure se leera desde los secretos locales y no desde Git.
+
+Para crear o actualizar las tablas en Azure:
+
+```bash
+dotnet ef database update
+```
+
+Para copiar los datos actuales desde SQL Server Express local hacia Azure:
+
+```powershell
+$env:VIBRA_AZURE_CONNECTION = "Server=tcp:TU_SERVIDOR.database.windows.net,1433;Initial Catalog=TU_BASE;Persist Security Info=False;User ID=TU_USUARIO;Password=TU_PASSWORD;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"
+powershell -NoProfile -ExecutionPolicy Bypass -File .\Scripts\Export-LocalData.ps1
+powershell -NoProfile -ExecutionPolicy Bypass -File .\Scripts\Update-AzureDatabase.ps1
+Remove-Item Env:\VIBRA_AZURE_CONNECTION
+```
+
+El archivo generado `.database/local-data.sql` queda ignorado por Git porque puede contener datos de usuarios, clientes, ventas y hashes de contrasenas.
+
 ## Como ejecutar localmente
 
 1. Verificar que SQL Server Express este activo y que exista la base `VibraUrbanaDb`.
@@ -120,6 +147,7 @@ Migraciones actuales:
 
 - `InitialIdentityStructure`
 - `CrearBaseDatosCompleta`
+- `AgregarControlConcurrenciaInventario`
 
 ## Paquetes NuGet agregados
 
