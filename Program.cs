@@ -16,8 +16,18 @@ var costaRicaCulture = new CultureInfo("es-CR");
 CultureInfo.DefaultThreadCurrentCulture = costaRicaCulture;
 CultureInfo.DefaultThreadCurrentUICulture = costaRicaCulture;
 
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
-    ?? throw new InvalidOperationException("DefaultConnection is not configured.");
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+
+if (string.IsNullOrWhiteSpace(connectionString))
+{
+    throw new InvalidOperationException("DefaultConnection is not configured. Configure the Azure SQL connection with dotnet user-secrets or an environment variable.");
+}
+
+if (connectionString.Contains("localhost", StringComparison.OrdinalIgnoreCase)
+    || connectionString.Contains("SQLEXPRESS", StringComparison.OrdinalIgnoreCase))
+{
+    throw new InvalidOperationException("DefaultConnection points to a local SQL Server. Configure the Azure SQL connection before running the application.");
+}
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
