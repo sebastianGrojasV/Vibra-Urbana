@@ -44,25 +44,25 @@
 
                 <div class="vu-panel mb-4">
                     <form asp-controller="Inventario" asp-action="Index" method="get" class="row g-3 align-items-end">
-                        <div class="col-md-3">
+                        <div class="col-md-4 col-lg-2">
                             <label class="form-label" for="categoriaId">Categoría</label>
                             <select id="categoriaId" name="categoriaId" asp-items="Model.Categorias" class="form-select">
                                 <option value="">Todas</option>
                             </select>
                         </div>
-                        <div class="col-md-2">
+                        <div class="col-md-4 col-lg-2">
                             <label class="form-label" for="talla">Talla</label>
                             <select id="talla" name="talla" asp-items="Model.Tallas" class="form-select">
                                 <option value="">Todas</option>
                             </select>
                         </div>
-                        <div class="col-md-2">
+                        <div class="col-md-4 col-lg-2">
                             <label class="form-label" for="color">Color</label>
                             <select id="color" name="color" asp-items="Model.Colores" class="form-select">
                                 <option value="">Todos</option>
                             </select>
                         </div>
-                        <div class="col-md-2">
+                        <div class="col-md-4 col-lg-2">
                             <label class="form-label" for="activo">Estado</label>
                             <select id="activo" name="activo" class="form-select">
                                 <option value="">Todos</option>
@@ -70,7 +70,21 @@
                                 <option value="false" selected="@(Model.Activo == false ? "selected" : null)">Inactivos</option>
                             </select>
                         </div>
-                        <div class="col-md-3 d-flex flex-wrap gap-2">
+                        <div class="col-md-4 col-lg-2">
+                            <label class="form-label" for="estadoStock">Estado stock</label>
+                            <select id="estadoStock" name="estadoStock" class="form-select">
+                                <option value="">Todos</option>
+                                <option value="@VibraUrbana.ViewModels.InventarioIndexViewModel.EstadoStockDisponible"
+                                        selected="@(Model.EstadoStock == VibraUrbana.ViewModels.InventarioIndexViewModel.EstadoStockDisponible ? "selected" : null)">
+                                    Disponible
+                                </option>
+                                <option value="@VibraUrbana.ViewModels.InventarioIndexViewModel.EstadoStockBajo"
+                                        selected="@(Model.EstadoStock == VibraUrbana.ViewModels.InventarioIndexViewModel.EstadoStockBajo ? "selected" : null)">
+                                    Stock bajo
+                                </option>
+                            </select>
+                        </div>
+                        <div class="col-md-8 col-lg-2 d-flex flex-wrap gap-2">
                             <button class="btn btn-outline-primary" type="submit">Filtrar</button>
                             <a class="btn btn-outline-secondary" asp-controller="Inventario" asp-action="Index">Limpiar</a>
                         </div>
@@ -78,6 +92,11 @@
                 </div>
 
                 <div class="vu-panel">
+                    @if (TempData["SuccessMessage"] is string successMessage)
+                    {
+                        <div class="alert alert-success" role="alert">@successMessage</div>
+                    }
+
                     @if (!Model.Inventario.Any())
                     {
                         <div class="alert alert-info" role="alert">
@@ -127,6 +146,25 @@
                                             <td>@item.FechaActualizacion.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</td>
                                             <td class="text-end">
                                                 <div class="vu-actions">
+                                                    <a class="btn btn-sm vu-icon-btn vu-icon-enable" asp-controller="Inventario" asp-action="Entrada" asp-route-id="@item.ProductoId" title="Registrar entrada" aria-label="Registrar entrada para @item.Producto">
+                                                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                                                            <path d="M12 3v18"></path>
+                                                            <path d="M3 12h18"></path>
+                                                        </svg>
+                                                    </a>
+                                                    <a class="btn btn-sm vu-icon-btn vu-icon-reset" asp-controller="Inventario" asp-action="Ajustar" asp-route-id="@item.ProductoId" title="Ajustar existencias" aria-label="Ajustar existencias de @item.Producto">
+                                                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                                                            <path d="M4 21v-7"></path>
+                                                            <path d="M4 10V3"></path>
+                                                            <path d="M12 21v-9"></path>
+                                                            <path d="M12 8V3"></path>
+                                                            <path d="M20 21v-5"></path>
+                                                            <path d="M20 12V3"></path>
+                                                            <path d="M2 14h4"></path>
+                                                            <path d="M10 8h4"></path>
+                                                            <path d="M18 16h4"></path>
+                                                        </svg>
+                                                    </a>
                                                     <a class="btn btn-sm vu-icon-btn vu-icon-edit" asp-controller="Producto" asp-action="Editar" asp-route-id="@item.ProductoId" title="Editar" aria-label="Editar producto">
                                                         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h9"></path><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5Z"></path></svg>
                                                     </a>

@@ -102,10 +102,13 @@ public class RolServicio : IRolServicio
         rol.Descripcion = model.Descripcion.Trim();
         rol.Activo = model.Activo;
 
-        await _rolRepositorio.ActualizarRolAsync(rol);
-        await _rolRepositorio.ActualizarPermisosAsync(rol.Id, model.PermisosSeleccionados);
+        var actualizado = await _rolRepositorio.ActualizarRolConPermisosAsync(
+            rol,
+            model.PermisosSeleccionados);
 
-        return ActualizarRolResult.Success;
+        return actualizado
+            ? ActualizarRolResult.Success
+            : ActualizarRolResult.InvalidPermissions;
     }
 
     public async Task<CambiarEstadoRolResult> CambiarEstadoAsync(int id, bool active)

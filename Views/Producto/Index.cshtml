@@ -141,6 +141,31 @@
                                                     <a class="btn btn-sm vu-icon-btn vu-icon-edit" asp-controller="Producto" asp-action="Editar" asp-route-id="@producto.Id" title="Editar" aria-label="Editar producto">
                                                         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h9"></path><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5Z"></path></svg>
                                                     </a>
+                                                    <form asp-controller="Producto"
+                                                          asp-action="ConfirmarCambiarEstado"
+                                                          method="post"
+                                                          class="d-inline"
+                                                          data-vu-confirm
+                                                          data-vu-confirm-title="@(producto.Activo ? "Desactivar producto" : "Activar producto")"
+                                                          data-vu-confirm-message="@(producto.Activo ? $"¿Deseas desactivar el producto {producto.Nombre}?" : $"¿Deseas activar el producto {producto.Nombre}?")"
+                                                          data-vu-confirm-action="@(producto.Activo ? "Desactivar" : "Activar")">
+                                                        @Html.AntiForgeryToken()
+                                                        <input name="id" type="hidden" value="@producto.Id" />
+                                                        <input name="active" type="hidden" value="@(producto.Activo ? "false" : "true")" />
+                                                        <button class="btn btn-sm vu-icon-btn @(producto.Activo ? "vu-icon-disable" : "vu-icon-enable")"
+                                                                type="submit"
+                                                                title="@(producto.Activo ? "Desactivar" : "Activar")"
+                                                                aria-label="@(producto.Activo ? "Desactivar producto" : "Activar producto")">
+                                                            @if (producto.Activo)
+                                                            {
+                                                                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18.4 6.6a9 9 0 1 1-12.8 0"></path><path d="M12 2v10"></path></svg>
+                                                            }
+                                                            else
+                                                            {
+                                                                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"></path></svg>
+                                                            }
+                                                        </button>
+                                                    </form>
                                                 </div>
                                             </td>
                                         </tr>

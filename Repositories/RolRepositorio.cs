@@ -63,31 +63,31 @@ public class RolRepositorio : IRolRepositorio
         return true;
     }
 
-    public async Task<bool> ActualizarRolAsync(Rol rol)
+    public async Task<bool> ActualizarRolConPermisosAsync(Rol rol, IEnumerable<int> permisoIds)
     {
-        _context.Roles.Update(rol);
-        await _context.SaveChangesAsync();
-        return true;
-    }
-
-    public async Task ActualizarPermisosAsync(int rolId, IEnumerable<int> permisoIds)
-    {
-        var permisosActuales = await _context.RolPermisos
-            .Where(rolPermiso => rolPermiso.RolId == rolId)
+        var idsSeleccionados = permisoIds.Distinct().ToList();
+        var permisosValidos = await _context.Permisos
+            .Where(permiso => permiso.Activo && idsSeleccionados.Contains(permiso.Id))
+            .Select(permiso => permiso.Id)
             .ToListAsync();
 
-        _context.RolPermisos.RemoveRange(permisosActuales);
+        if (permisosValidos.Count != idsSeleccionados.Count)
+        {
+            return false;
+        }
 
-        var nuevosPermisos = permisoIds
-            .Distinct()
+        _context.RolPermisos.RemoveRange(rol.RolPermisos);
+
+        var nuevosPermisos = permisosValidos
             .Select(permisoId => new RolPermiso
             {
-                RolId = rolId,
+                RolId = rol.Id,
                 PermisoId = permisoId
             });
 
         await _context.RolPermisos.AddRangeAsync(nuevosPermisos);
         await _context.SaveChangesAsync();
+        return true;
     }
 
     public async Task<bool> EliminarRolAsync(int id)

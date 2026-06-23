@@ -167,6 +167,7 @@ public class RolController : Controller
         {
             ActualizarRolResult.DuplicateName => "Ya existe un rol con ese nombre.",
             ActualizarRolResult.LastActiveAdministrator => "No se puede dejar el sistema sin al menos un rol Administrador activo.",
+            ActualizarRolResult.InvalidPermissions => "Uno o más permisos seleccionados no están disponibles.",
             _ => "No fue posible actualizar el rol."
         };
 

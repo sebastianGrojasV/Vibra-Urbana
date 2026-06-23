@@ -13,4 +13,8 @@ public interface IClienteServicio
     Task<ActualizarClienteResult> ActualizarAsync(EditarClienteViewModel model);
 
     Task<CambiarEstadoClienteResult> CambiarEstadoAsync(int id, bool active);
+
+    Task<ClienteHistorialComprasViewModel?> ObtenerHistorialComprasAsync(int clienteId);
+
+    Task<ClienteCompraDetalleViewModel?> ObtenerDetalleCompraAsync(int clienteId, int ventaId);
 }

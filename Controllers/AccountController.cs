@@ -110,6 +110,14 @@ public class AccountController : Controller
         return RedirectToAction(nameof(RecuperarAcceso));
     }
 
+    [HttpGet]
+    [Authorize]
+    public IActionResult AccessDenied()
+    {
+        Response.StatusCode = StatusCodes.Status403Forbidden;
+        return View();
+    }
+
     [HttpPost]
     [Authorize]
     [ValidateAntiForgeryToken]

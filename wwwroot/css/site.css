@@ -1521,6 +1521,12 @@ body,
     border-color: #ffd27a;
 }
 
+.vu-icon-history {
+    color: #31516d;
+    background: #eaf3fb;
+    border-color: #b7d7ec;
+}
+
 .vu-icon-disable {
     color: #941b1b;
     background: #ffe2dc;

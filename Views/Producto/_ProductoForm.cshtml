@@ -51,9 +51,21 @@
                         <span asp-validation-for="Color" class="text-danger small"></span>
                     </div>
                     <div class="col-md-6">
-                        <label asp-for="CantidadDisponible" class="form-label"></label>
-                        <input asp-for="CantidadDisponible" class="form-control" type="number" min="0" step="1" inputmode="numeric" />
-                        <span asp-validation-for="CantidadDisponible" class="text-danger small"></span>
+                        @if (Model.Id == 0)
+                        {
+                            <label asp-for="CantidadDisponible" class="form-label"></label>
+                            <input asp-for="CantidadDisponible" class="form-control" type="number" min="0" step="1" inputmode="numeric" />
+                            <span asp-validation-for="CantidadDisponible" class="text-danger small"></span>
+                        }
+                        else
+                        {
+                            <label asp-for="CantidadDisponible" class="form-label"></label>
+                            <input asp-for="CantidadDisponible" type="hidden" />
+                            <input class="form-control" value="@Model.CantidadDisponible" disabled />
+                            <div class="form-text">
+                                Las existencias se modifican mediante un ajuste de inventario.
+                            </div>
+                        }
                     </div>
                     <div class="col-md-6">
                         <label asp-for="StockMinimo" class="form-label"></label>
@@ -83,6 +95,10 @@
 
                 <div class="d-flex flex-wrap gap-2 mt-4">
                     <button class="btn btn-primary" type="submit" disabled="@(!Model.Categorias.Any())">Guardar</button>
+                    @if (Model.Id != 0)
+                    {
+                        <a class="btn btn-outline-primary" asp-controller="Inventario" asp-action="Ajustar" asp-route-id="@Model.Id">Ajustar existencias</a>
+                    }
                     <a class="btn btn-outline-primary" asp-controller="Producto" asp-action="Index">Cancelar</a>
                 </div>
             </form>
