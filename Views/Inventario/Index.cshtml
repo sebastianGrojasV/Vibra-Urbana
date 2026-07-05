@@ -15,7 +15,7 @@
                     <div>
                         <p class="vu-eyebrow">Control de existencias</p>
                         <h1>Inventario</h1>
-                        <p>Consulta disponibilidad, stock mÃ­nimo y productos que requieren reposiciÃ³n.</p>
+                        <p>Consulta disponibilidad, stock mínimo y productos que requieren reposición.</p>
                     </div>
                     <a class="btn btn-primary" asp-controller="Producto" asp-action="Crear">Registrar producto</a>
                 </div>
@@ -23,14 +23,14 @@
                 @if (productosStockBajo > 0)
                 {
                     <div class="alert alert-warning vu-stock-alert" role="alert">
-                        Hay @productosStockBajo producto(s) con stock bajo. Revisa las filas resaltadas para planificar reposiciÃ³n.
+                        Hay @productosStockBajo producto(s) con stock bajo. Revisa las filas resaltadas para planificar reposición.
                     </div>
                 }
 
                 <div class="vu-panel mb-4">
                     <form asp-controller="Inventario" asp-action="Index" method="get" class="row g-3 align-items-end">
                         <div class="col-md-4 col-lg-2">
-                            <label class="form-label" for="categoriaId">CategorÃ­a</label>
+                            <label class="form-label" for="categoriaId">Categoría</label>
                             <select id="categoriaId" name="categoriaId" asp-items="Model.Categorias" class="form-select">
                                 <option value="">Todas</option>
                             </select>
@@ -95,13 +95,13 @@
                                 <thead>
                                     <tr>
                                         <th>Producto</th>
-                                        <th>CategorÃ­a</th>
+                                        <th>Categoría</th>
                                         <th>Talla</th>
                                         <th>Color</th>
                                         <th>Disponible</th>
-                                        <th>Stock mÃ­nimo</th>
+                                        <th>Stock mínimo</th>
                                         <th>Estado stock</th>
-                                        <th>ActualizaciÃ³n</th>
+                                        <th>Actualización</th>
                                         <th class="text-end vu-actions-column">Acciones</th>
                                     </tr>
                                 </thead>

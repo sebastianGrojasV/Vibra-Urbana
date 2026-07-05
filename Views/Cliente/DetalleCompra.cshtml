@@ -14,7 +14,7 @@
                     <div>
                         <p class="vu-eyebrow">Compra #@Model.VentaId.ToString("D5")</p>
                         <h1>Detalle de compra</h1>
-                        <p>@Model.Cliente Â· @Model.Identificacion</p>
+                        <p>@Model.Cliente · @Model.Identificacion</p>
                     </div>
                     <a class="btn btn-outline-primary"
                        asp-controller="Cliente"
@@ -35,7 +35,7 @@
                             <strong>@Model.Cajero</strong>
                         </div>
                         <div class="col-md-3">
-                            <span class="text-muted small d-block">MÃ©todo de pago</span>
+                            <span class="text-muted small d-block">Método de pago</span>
                             <strong>@Model.MetodoPago</strong>
                         </div>
                         <div class="col-md-3">
@@ -47,8 +47,8 @@
                             <span class="badge @(Model.Estado == "Registrada" ? "bg-success" : "bg-secondary")">@Model.Estado</span>
                         </div>
                         <div class="col-md-9">
-                            <span class="text-muted small d-block">ObservaciÃ³n</span>
-                            <strong>@(string.IsNullOrWhiteSpace(Model.Observacion) ? "Sin observaciÃ³n" : Model.Observacion)</strong>
+                            <span class="text-muted small d-block">Observación</span>
+                            <strong>@(string.IsNullOrWhiteSpace(Model.Observacion) ? "Sin observación" : Model.Observacion)</strong>
                         </div>
                     </div>
                 </div>
@@ -59,7 +59,7 @@
                             <thead>
                                 <tr>
                                     <th>Producto</th>
-                                    <th>CategorÃ­a</th>
+                                    <th>Categoría</th>
                                     <th>Talla</th>
                                     <th>Color</th>
                                     <th class="text-end">Cantidad</th>
