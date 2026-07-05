@@ -63,12 +63,12 @@ public class VentaServicio : IVentaServicio
 
         if (metodoPago is null)
         {
-            return VentaOperacionResult.Failure("El metodo de pago especificado no existe.");
+            return VentaOperacionResult.Failure("El método de pago especificado no existe.");
         }
 
         if (!metodoPago.Activo)
         {
-            return VentaOperacionResult.Failure("El metodo de pago seleccionado esta inactivo.");
+            return VentaOperacionResult.Failure("El método de pago seleccionado está inactivo.");
         }
 
         await using var transaction = await _context.Database.BeginTransactionAsync();
@@ -92,7 +92,7 @@ public class VentaServicio : IVentaServicio
             if (!cliente.Activo)
             {
                 await transaction.RollbackAsync();
-                return VentaOperacionResult.Failure("El cliente seleccionado esta inactivo.");
+                return VentaOperacionResult.Failure("El cliente seleccionado está inactivo.");
             }
 
             var productIds = detallesAgrupados.Select(detalle => detalle.ProductoId).ToList();
@@ -114,13 +114,13 @@ public class VentaServicio : IVentaServicio
                 if (!producto.Activo)
                 {
                     await transaction.RollbackAsync();
-                    return VentaOperacionResult.Failure($"El producto '{producto.Nombre}' esta inactivo.");
+                    return VentaOperacionResult.Failure($"El producto '{producto.Nombre}' está inactivo.");
                 }
 
                 if (producto.Inventario is null)
                 {
                     await transaction.RollbackAsync();
-                    return VentaOperacionResult.Failure($"El producto '{producto.Nombre}' no esta registrado en inventario.");
+                    return VentaOperacionResult.Failure($"El producto '{producto.Nombre}' no está registrado en inventario.");
                 }
 
                 if (producto.Inventario.CantidadDisponible < detalle.Cantidad)
@@ -169,6 +169,13 @@ public class VentaServicio : IVentaServicio
                 var inventario = producto.Inventario!;
                 var cantidadVendida = (int)detalle.Cantidad;
                 var cantidadAnterior = inventario.CantidadDisponible;
+
+                if (cantidadVendida <= 0 || inventario.CantidadDisponible < cantidadVendida)
+                {
+                    await transaction.RollbackAsync();
+                    return VentaOperacionResult.Failure(
+                        $"Stock insuficiente para '{producto.Nombre}'. Disponible: {inventario.CantidadDisponible}, solicitado: {cantidadVendida}.");
+                }
 
                 _context.DetalleVentas.Add(new DetalleVenta
                 {
@@ -221,12 +228,12 @@ public class VentaServicio : IVentaServicio
         {
             await transaction.RollbackAsync();
             return VentaOperacionResult.Failure(
-                "El inventario cambio mientras se registraba la venta. Actualiza la pagina y vuelve a intentarlo.");
+                "El inventario cambió mientras se registraba la venta. Actualiza la página y vuelve a intentarlo.");
         }
         catch (DbUpdateException)
         {
             await transaction.RollbackAsync();
-            return VentaOperacionResult.Failure("No fue posible registrar la venta. Revisa los datos e intentalo nuevamente.");
+            return VentaOperacionResult.Failure("No fue posible registrar la venta. Revisa los datos e inténtalo nuevamente.");
         }
     }
 
@@ -234,7 +241,7 @@ public class VentaServicio : IVentaServicio
     {
         if (model is null)
         {
-            return "Los datos de la venta no son validos.";
+            return "Los datos de la venta no son válidos.";
         }
 
         if (model.ClienteId <= 0)
@@ -244,7 +251,7 @@ public class VentaServicio : IVentaServicio
 
         if (model.MetodoPagoId <= 0)
         {
-            return "Selecciona un metodo de pago.";
+            return "Selecciona un método de pago.";
         }
 
         if (model.Detalles is null || !model.Detalles.Any())
@@ -254,7 +261,7 @@ public class VentaServicio : IVentaServicio
 
         if (model.Detalles.Any(detalle => detalle.ProductoId <= 0 || detalle.Cantidad <= 0))
         {
-            return "Los productos y cantidades de la venta no son validos.";
+            return "Los productos y cantidades de la venta no son válidos.";
         }
 
         if (model.Descuento < 0)
@@ -264,7 +271,7 @@ public class VentaServicio : IVentaServicio
 
         if (model.Observacion?.Length > 500)
         {
-            return "La observacion no puede superar los 500 caracteres.";
+            return "La observación no puede superar los 500 caracteres.";
         }
 
         return null;

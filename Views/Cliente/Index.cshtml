@@ -12,9 +12,9 @@
             <div class="col-lg-9 col-xl-10 vu-admin-content">
                 <div class="vu-admin-header">
                     <div>
-                        <p class="vu-eyebrow">GestiÃ³n comercial</p>
+                        <p class="vu-eyebrow">Gestión comercial</p>
                         <h1>Clientes</h1>
-                        <p>Consulta, registra y actualiza la informaciÃ³n de clientes de Vibra Urbana.</p>
+                        <p>Consulta, registra y actualiza la información de clientes de Vibra Urbana.</p>
                     </div>
                     <a class="btn btn-primary" asp-controller="Cliente" asp-action="Crear">Registrar cliente</a>
                 </div>
@@ -38,10 +38,10 @@
                                 <thead>
                                     <tr>
                                         <th>Nombre</th>
-                                        <th>IdentificaciÃ³n</th>
-                                        <th>TelÃ©fono</th>
+                                        <th>Identificación</th>
+                                        <th>Teléfono</th>
                                         <th>Correo</th>
-                                        <th>DirecciÃ³n</th>
+                                        <th>Dirección</th>
                                         <th>Estado</th>
                                         <th class="text-end vu-actions-column">Acciones</th>
                                     </tr>
@@ -52,9 +52,9 @@
                                         <tr>
                                             <td>@cliente.NombreCompleto</td>
                                             <td>@cliente.Identificacion</td>
-                                            <td>@(string.IsNullOrWhiteSpace(cliente.Telefono) ? "Sin telÃ©fono" : cliente.Telefono)</td>
+                                            <td>@(string.IsNullOrWhiteSpace(cliente.Telefono) ? "Sin teléfono" : cliente.Telefono)</td>
                                             <td>@(string.IsNullOrWhiteSpace(cliente.Correo) ? "Sin correo" : cliente.Correo)</td>
-                                            <td>@(string.IsNullOrWhiteSpace(cliente.Direccion) ? "Sin direcciÃ³n" : cliente.Direccion)</td>
+                                            <td>@(string.IsNullOrWhiteSpace(cliente.Direccion) ? "Sin dirección" : cliente.Direccion)</td>
                                             <td>
                                                 @if (cliente.Activo)
                                                 {
@@ -79,7 +79,7 @@
                                                           class="d-inline"
                                                           data-vu-confirm
                                                           data-vu-confirm-title="@(cliente.Activo ? "Desactivar cliente" : "Activar cliente")"
-                                                          data-vu-confirm-message="@(cliente.Activo ? $"Â¿Deseas desactivar a {cliente.NombreCompleto}?" : $"Â¿Deseas activar a {cliente.NombreCompleto}?")"
+                                                          data-vu-confirm-message="@(cliente.Activo ? $"¿Deseas desactivar a {cliente.NombreCompleto}?" : $"¿Deseas activar a {cliente.NombreCompleto}?")"
                                                           data-vu-confirm-action="@(cliente.Activo ? "Desactivar" : "Activar")">
                                                         @Html.AntiForgeryToken()
                                                         <input name="id" type="hidden" value="@cliente.Id" />

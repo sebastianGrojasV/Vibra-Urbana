@@ -12,7 +12,7 @@
             <div class="col-lg-9 col-xl-10 vu-admin-content">
                 <div class="vu-admin-header">
                     <div>
-                        <p class="vu-eyebrow">AdministraciÃ³n</p>
+                        <p class="vu-eyebrow">Administración</p>
                         <h1>Roles</h1>
                         <p>Consulta y crea roles disponibles para asignar a usuarios internos.</p>
                     </div>
@@ -38,7 +38,7 @@
                                 <thead>
                                     <tr>
                                         <th>Nombre</th>
-                                        <th>DescripciÃ³n</th>
+                                        <th>Descripción</th>
                                         <th>Estado</th>
                                         <th class="text-end vu-actions-column">Acciones</th>
                                     </tr>
@@ -70,7 +70,7 @@
                                                           class="d-inline"
                                                           data-vu-confirm
                                                           data-vu-confirm-title="@(rol.Activo ? "Desactivar rol" : "Activar rol")"
-                                                          data-vu-confirm-message="@(rol.Activo ? $"Â¿Deseas desactivar el rol {rol.Nombre}?" : $"Â¿Deseas activar el rol {rol.Nombre}?")"
+                                                          data-vu-confirm-message="@(rol.Activo ? $"¿Deseas desactivar el rol {rol.Nombre}?" : $"¿Deseas activar el rol {rol.Nombre}?")"
                                                           data-vu-confirm-action="@(rol.Activo ? "Desactivar" : "Activar")">
                                                         @Html.AntiForgeryToken()
                                                         <input name="id" type="hidden" value="@rol.Id" />

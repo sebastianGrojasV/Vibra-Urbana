@@ -14,9 +14,9 @@
             <div class="col-lg-9 col-xl-10 vu-admin-content">
                 <div class="vu-admin-header d-flex justify-content-between align-items-center">
                     <div>
-                        <p class="vu-eyebrow">MÃ³dulo de ventas</p>
+                        <p class="vu-eyebrow">Módulo de ventas</p>
                         <h1>Registrar Nueva Venta</h1>
-                        <p>Crea una nueva transacciÃ³n comercial seleccionando cliente, productos y mÃ©todo de pago.</p>
+                        <p>Crea una nueva transacción comercial seleccionando cliente, productos y método de pago.</p>
                     </div>
                     <a class="btn btn-outline-secondary" asp-controller="Venta" asp-action="Index">Volver al historial</a>
                 </div>
@@ -43,7 +43,7 @@
                                             <input type="search"
                                                    id="clienteSearchInput"
                                                    class="form-control"
-                                                   placeholder="Buscar por nombre o identificaciÃ³n"
+                                                   placeholder="Buscar por nombre o identificación"
                                                    autocomplete="off" />
                                             <input type="hidden" id="clienteIdInput" value="" />
                                             <div id="clienteResults" class="vu-sale-search-results d-none" role="listbox"></div>
@@ -51,9 +51,9 @@
                                         <small id="clienteSeleccionado" class="vu-sale-selected-client text-muted">Sin cliente seleccionado.</small>
                                     </div>
                                     <div class="col-md-6 mb-3">
-                                        <label for="metodoPagoSelect" class="form-label font-weight-bold">MÃ©todo de Pago <span class="text-danger">*</span></label>
+                                        <label for="metodoPagoSelect" class="form-label font-weight-bold">Método de Pago <span class="text-danger">*</span></label>
                                         <select id="metodoPagoSelect" class="form-select" required>
-                                            <option value="">-- Seleccione el mÃ©todo --</option>
+                                            <option value="">-- Seleccione el método --</option>
                                             @foreach (var metodo in Model.MetodosPago)
                                             {
                                                 <option value="@metodo.Id">@metodo.Nombre</option>
@@ -70,7 +70,7 @@
                             </div>
                         </div>
 
-                        <!-- Card 2: SelecciÃ³n de Productos -->
+                        <!-- Card 2: Seleccion de Productos -->
                         <div class="vu-panel vu-sale-panel mb-4">
                             <div class="vu-sale-panel-header">
                                 <span>Agregar Productos</span>
@@ -101,9 +101,9 @@
                                 <!-- Detalles del producto seleccionado -->
                                 <div id="detalleProductoSeleccionado" class="vu-sale-product-summary d-none" role="status">
                                     <div class="row text-center text-md-start">
-                                        <div class="col-md-4"><strong>Precio Unitario:</strong> <span id="lblPrecioUnitario">â‚¡0.00</span></div>
+                                        <div class="col-md-4"><strong>Precio Unitario:</strong> <span id="lblPrecioUnitario">₡0.00</span></div>
                                         <div class="col-md-4"><strong>Stock Disponible:</strong> <span id="lblStockDisponible" class="badge vu-stock-badge vu-stock-ok">0</span></div>
-                                        <div class="col-md-4"><strong>CategorÃ­a:</strong> <span id="lblCategoria">N/A</span></div>
+                                        <div class="col-md-4"><strong>Categoría:</strong> <span id="lblCategoria">N/A</span></div>
                                     </div>
                                 </div>
                             </div>
@@ -130,7 +130,7 @@
                                         <tbody>
                                             <tr id="filaVacia">
                                                 <td colspan="6" class="text-center py-4 text-muted">
-                                                    No se han agregado productos a la venta todavÃ­a.
+                                                    No se han agregado productos a la venta todavía.
                                                 </td>
                                             </tr>
                                         </tbody>
@@ -140,39 +140,39 @@
                         </div>
                     </div>
 
-                    <!-- Panel de Totales y ConfirmaciÃ³n -->
+                    <!-- Panel de Totales y Confirmacion -->
                     <div class="col-lg-4">
                         <div class="vu-panel vu-sale-summary sticky-top" style="top: 80px; z-index: 100;">
                             <div class="vu-sale-panel-header text-center py-3">
-                                <h5 class="mb-0">Resumen y CÃ³mputo</h5>
+                                <h5 class="mb-0">Resumen y Cómputo</h5>
                             </div>
                             <div class="vu-sale-panel-body">
                                 <div class="d-flex justify-content-between mb-2">
                                     <span class="text-muted">Subtotal:</span>
-                                    <strong id="lblResumenSubtotal">â‚¡0.00</strong>
+                                    <strong id="lblResumenSubtotal">₡0.00</strong>
                                 </div>
 
                                 <div class="mb-3">
-                                    <label for="descuentoInput" class="form-label text-muted mb-1">Descuento Directo (â‚¡):</label>
+                                    <label for="descuentoInput" class="form-label text-muted mb-1">Descuento Directo (₡):</label>
                                     <div class="input-group input-group-sm">
-                                        <span class="input-group-text">â‚¡</span>
+                                        <span class="input-group-text">₡</span>
                                         <input type="number" id="descuentoInput" class="form-control text-end" min="0" value="0" step="100" />
                                     </div>
                                 </div>
 
                                 <div class="d-flex justify-content-between mb-2">
                                     <span class="text-muted">Monto Gravable:</span>
-                                    <span id="lblResumenGravable">â‚¡0.00</span>
+                                    <span id="lblResumenGravable">₡0.00</span>
                                 </div>
 
                                 <div class="d-flex justify-content-between mb-3 border-bottom pb-2">
                                     <span class="text-muted">Impuesto (IVA 13%):</span>
-                                    <strong id="lblResumenImpuesto">â‚¡0.00</strong>
+                                    <strong id="lblResumenImpuesto">₡0.00</strong>
                                 </div>
 
                                 <div class="d-flex justify-content-between align-items-center mb-4">
                                     <span class="h5 mb-0 text-dark">Total Neto:</span>
-                                    <span class="h4 mb-0 text-primary font-weight-bold" id="lblResumenTotal">â‚¡0.00</span>
+                                    <span class="h4 mb-0 text-primary font-weight-bold" id="lblResumenTotal">₡0.00</span>
                                 </div>
 
                                 <div id="errorSubmitAlert" class="vu-sale-notice vu-sale-notice-danger d-none py-2" role="alert"></div>
@@ -191,7 +191,7 @@
 
 @section Scripts {
     <script>
-        // SerializaciÃ³n de productos y clientes para uso interactivo en el cliente
+        // Serializacion de productos y clientes para uso interactivo en el cliente
         const productosDisponibles = @Html.Raw(Json.Serialize(Model.Productos));
         const clientesDisponibles = @Html.Raw(Json.Serialize(Model.Clientes))
             .filter(c => (c.identificacion ?? c.Identificacion) !== "000000000");
@@ -295,7 +295,7 @@
                 button.type = "button";
                 button.className = "vu-sale-search-item";
                 button.setAttribute("role", "option");
-                button.innerHTML = `<strong>${nombre}</strong><span>${identificacion}${telefono ? ` Â· ${telefono}` : ""}</span>`;
+                button.innerHTML = `<strong>${nombre}</strong><span>${identificacion}${telefono ? ` · ${telefono}` : ""}</span>`;
                 button.addEventListener("click", () => seleccionarCliente(cliente));
                 clienteResults.appendChild(button);
             });
@@ -318,7 +318,7 @@
             }
         });
 
-        // Escuchar cambio en selecciÃ³n de producto
+        // Escuchar cambio en seleccion de producto
         productoSelect.addEventListener("change", () => {
             const prodId = parseInt(productoSelect.value);
             const producto = productosDisponibles.find(p => (p.id ?? p.Id) === prodId);
@@ -338,14 +338,21 @@
                     lblStockDisponible.className = "badge vu-stock-badge vu-stock-ok";
                 }
 
-                // Habilitar controles
-                cantidadInput.disabled = false;
+                const productoActivo = producto.activo ?? producto.Activo;
+                const puedeVenderse = productoActivo && stock > 0;
+
+                cantidadInput.disabled = !puedeVenderse;
                 cantidadInput.max = stock;
-                cantidadInput.value = 1;
-                btnAgregarProducto.disabled = false;
+                cantidadInput.value = puedeVenderse ? 1 : 0;
+                btnAgregarProducto.disabled = !puedeVenderse;
                 detalleProductoSeleccionado.classList.remove("d-none");
+
+                if (!productoActivo) {
+                    mostrarAviso("Este producto está inactivo y no puede agregarse a la venta.", "warning");
+                } else if (stock <= 0) {
+                    mostrarAviso("Este producto no tiene existencias disponibles.", "warning");
+                }
             } else {
-                // Deshabilitar controles
                 cantidadInput.disabled = true;
                 cantidadInput.value = 1;
                 btnAgregarProducto.disabled = true;
@@ -363,12 +370,13 @@
             let val = parseInt(cantidadInput.value);
 
             if (isNaN(val) || val < 1) {
-                cantidadInput.value = 1;
-                val = 1;
+                mostrarAviso("La cantidad debe ser mayor a cero.", "warning");
+                cantidadInput.value = "";
+                return;
             }
 
             if (val > maxStock) {
-                mostrarAviso(`AtenciÃ³n: solo quedan ${maxStock} unidades disponibles en inventario.`, "warning");
+                mostrarAviso(`Atención: solo quedan ${maxStock} unidades disponibles en inventario.`, "warning");
                 cantidadInput.value = maxStock;
             }
         });
@@ -381,13 +389,36 @@
 
             const cantidadToAdd = parseInt(cantidadInput.value);
             const stockMax = producto.cantidadDisponible ?? producto.CantidadDisponible;
+            const productoActivo = producto.activo ?? producto.Activo;
+
+            if (!productoActivo) {
+                mostrarAviso("Este producto está inactivo y no puede agregarse a la venta.", "warning");
+                return;
+            }
+
+            if (stockMax <= 0) {
+                mostrarAviso("Este producto no tiene existencias disponibles.", "warning");
+                return;
+            }
+
+            if (Number.isNaN(cantidadToAdd) || cantidadToAdd <= 0) {
+                mostrarAviso("La cantidad debe ser mayor a cero.", "warning");
+                cantidadInput.focus();
+                return;
+            }
+
+            if (cantidadToAdd > stockMax) {
+                mostrarAviso(`Stock insuficiente. Disponible: ${stockMax}, solicitado: ${cantidadToAdd}.`, "warning");
+                cantidadInput.focus();
+                return;
+            }
             
             // Verificar si ya existe en el carrito
             const itemExistente = carrito.find(item => item.productoId === prodId);
             if (itemExistente) {
                 const nuevaCantidad = itemExistente.cantidad + cantidadToAdd;
                 if (nuevaCantidad > stockMax) {
-                    mostrarAviso(`No puedes agregar esa cantidad. Ya tienes ${itemExistente.cantidad} en el carrito y el stock mÃ¡ximo es ${stockMax}.`, "warning");
+                    mostrarAviso(`No puedes agregar esa cantidad. Ya tienes ${itemExistente.cantidad} en el carrito y el stock máximo es ${stockMax}.`, "warning");
                     return;
                 }
                 itemExistente.cantidad = nuevaCantidad;
@@ -433,7 +464,7 @@
             carrito.forEach((item, index) => {
                 const tr = document.createElement("tr");
 
-                // Nombre Producto
+                // Nombre producto
                 const tdNombre = document.createElement("td");
                 tdNombre.className = "ps-3";
                 tdNombre.innerHTML = `<strong>${item.nombre}</strong>`;
@@ -490,7 +521,7 @@
                 tdSubtotal.textContent = formatMoneda(item.precioUnitario * item.cantidad);
                 tr.appendChild(tdSubtotal);
 
-                // BotÃ³n Quitar
+                // Boton quitar
                 const tdAcciones = document.createElement("td");
                 tdAcciones.className = "text-center";
                 const btnQuitar = document.createElement("button");
@@ -519,7 +550,7 @@
             }
 
             if (nuevaCant > item.stockMax) {
-                mostrarAviso(`No es posible agregar mÃ¡s de este producto. El stock mÃ¡ximo disponible es ${item.stockMax}.`, "warning");
+                mostrarAviso(`No es posible agregar más de este producto. El stock máximo disponible es ${item.stockMax}.`, "warning");
                 return;
             }
 
@@ -608,13 +639,13 @@
             }
 
             if (!metodoPagoId) {
-                mostrarAviso("Debes seleccionar un mÃ©todo de pago.", "warning");
+                mostrarAviso("Debes seleccionar un método de pago.", "warning");
                 metodoPagoSelect.focus();
                 return;
             }
 
             if (carrito.length === 0) {
-                mostrarAviso("El detalle de la venta no puede estar vacÃ­o.", "warning");
+                mostrarAviso("El detalle de la venta no puede estar vacío.", "warning");
                 return;
             }
 
@@ -660,7 +691,7 @@
                     btnGuardarVenta.textContent = "Registrar Venta";
                 }
             } catch (err) {
-                mostrarErrorSubmit("Error de red o conexiÃ³n al servidor. Intenta nuevamente.");
+                mostrarErrorSubmit("Error de red o conexión al servidor. Intenta nuevamente.");
                 btnGuardarVenta.disabled = false;
                 btnGuardarVenta.textContent = "Registrar Venta";
                 console.error(err);

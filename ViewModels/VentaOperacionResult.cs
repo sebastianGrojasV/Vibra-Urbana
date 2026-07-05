@@ -13,7 +13,7 @@ public class VentaOperacionResult
     public static VentaOperacionResult Success(
         int ventaId,
         string numeroFactura,
-        string mensaje = "Venta registrada con exito.") =>
+        string mensaje = "Venta registrada con éxito.") =>
         new() { EsExitoso = true, VentaId = ventaId, NumeroFactura = numeroFactura, Mensaje = mensaje };
 
     public static VentaOperacionResult Failure(string mensaje) =>
