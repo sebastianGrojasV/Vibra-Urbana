@@ -1,4 +1,4 @@
-
+﻿
 window.addEventListener("DOMContentLoaded", () => {
     enhanceSidebar();
     enhanceModulePlaceholders();
@@ -9,22 +9,9 @@ window.addEventListener("DOMContentLoaded", () => {
         return;
     }
 
-    jQuery(".vu-data-table").DataTable({
-        dom: 'Bfrtip', //  espacio para los botones
-        buttons: [
-            {
-                extend: 'excelHtml5',
-                text: '📊 Exportar a Excel',
-                title: 'Reporte'
-            },
-            {
-                extend: 'pdfHtml5',
-                text: '📄 Exportar a PDF',
-                title: 'Reporte',
-                orientation: 'landscape', // horizontal
-                pageSize: 'A4'
-            }
-        ],
+    const hasDataTableButtons = Boolean(jQuery.fn.dataTable?.Buttons);
+    const dataTableOptions = {
+        dom: hasDataTableButtons ? 'Bfrtip' : 'frtip',
         pageLength: 8,
         lengthMenu: [5, 8, 10, 25],
         order: [],
@@ -49,7 +36,26 @@ window.addEventListener("DOMContentLoaded", () => {
                 targets: "vu-actions-column"
             }
         ]
-    });
+    };
+
+    if (hasDataTableButtons) {
+        dataTableOptions.buttons = [
+            {
+                extend: 'excelHtml5',
+                text: 'Exportar a Excel',
+                title: 'Reporte'
+            },
+            {
+                extend: 'pdfHtml5',
+                text: 'Exportar a PDF',
+                title: 'Reporte',
+                orientation: 'landscape',
+                pageSize: 'A4'
+            }
+        ];
+    }
+
+    jQuery(".vu-data-table").DataTable(dataTableOptions);
 });
 
 function enhanceSidebar() {
@@ -70,6 +76,7 @@ function enhanceSidebar() {
         "ventas": "cart",
         "facturación": "file",
         "facturacion": "file",
+        "cierre de caja": "file",
         "reportes": "chart",
         "pedidos": "bag"
     };

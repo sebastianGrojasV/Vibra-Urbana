@@ -1,0 +1,148 @@
+@model VibraUrbana.ViewModels.FacturaDetalleViewModel
+
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Comprobante @Model.NumeroFactura - Vibra Urbana</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <style>
+        body {
+            background: #f5f0eb;
+            color: #181311;
+            font-family: Arial, sans-serif;
+            margin: 0;
+        }
+
+        .receipt-shell {
+            max-width: 880px;
+            margin: 32px auto;
+            padding: 32px;
+            background: #ffffff;
+            border: 1px solid #eadfd7;
+            border-radius: 8px;
+        }
+
+        .receipt-brand {
+            color: #f04a2f;
+            font-weight: 800;
+            letter-spacing: .08em;
+            text-transform: uppercase;
+        }
+
+        .receipt-muted {
+            color: #6b625d;
+        }
+
+        .receipt-total {
+            color: #145a5a;
+            font-size: 1.75rem;
+            font-weight: 800;
+        }
+
+        @@media print {
+            body {
+                background: #ffffff;
+            }
+
+            .receipt-shell {
+                border: 0;
+                margin: 0;
+                max-width: none;
+                padding: 0;
+            }
+
+            .no-print {
+                display: none !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <main class="receipt-shell">
+        <div class="d-flex flex-wrap justify-content-between gap-3 mb-4">
+            <div>
+                <div class="receipt-brand">Vibra Urbana</div>
+                <h1 class="h3 mb-1">Comprobante de venta</h1>
+                <p class="receipt-muted mb-0">@Model.NumeroFactura</p>
+            </div>
+            <div class="text-md-end">
+                <span class="badge bg-success">@Model.EstadoFactura</span>
+                <p class="receipt-muted mb-0 mt-2">@Model.FechaEmision.ToLocalTime().ToString("dd/MM/yyyy hh:mm tt")</p>
+            </div>
+        </div>
+
+        <div class="row g-3 mb-4">
+            <div class="col-md-6">
+                <span class="receipt-muted small d-block">Cliente</span>
+                <strong>@Model.Cliente</strong>
+                <p class="mb-0 receipt-muted">@Model.IdentificacionCliente</p>
+            </div>
+            <div class="col-md-6">
+                <span class="receipt-muted small d-block">Atendido por</span>
+                <strong>@Model.Cajero</strong>
+                <p class="mb-0 receipt-muted">@Model.MetodoPago</p>
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table align-middle">
+                <thead>
+                    <tr>
+                        <th>Producto</th>
+                        <th class="text-end">Cantidad</th>
+                        <th class="text-end">Precio</th>
+                        <th class="text-end">Subtotal</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.Productos)
+                    {
+                        <tr>
+                            <td>
+                                <strong>@item.Producto</strong>
+                                <small class="d-block receipt-muted">@item.Categoria · @(string.IsNullOrWhiteSpace(item.Talla) ? "Sin talla" : item.Talla) · @(string.IsNullOrWhiteSpace(item.Color) ? "Sin color" : item.Color)</small>
+                            </td>
+                            <td class="text-end">@item.Cantidad</td>
+                            <td class="text-end">@item.PrecioUnitario.ToString("C0")</td>
+                            <td class="text-end">@item.Subtotal.ToString("C0")</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <div class="row justify-content-end mt-4">
+            <div class="col-md-5">
+                <div class="d-flex justify-content-between">
+                    <span>Subtotal</span>
+                    <strong>@Model.Subtotal.ToString("C0")</strong>
+                </div>
+                <div class="d-flex justify-content-between">
+                    <span>Descuento</span>
+                    <strong>-@Model.Descuento.ToString("C0")</strong>
+                </div>
+                <div class="d-flex justify-content-between">
+                    <span>Impuesto</span>
+                    <strong>@Model.Impuesto.ToString("C0")</strong>
+                </div>
+                <hr />
+                <div class="d-flex justify-content-between align-items-center">
+                    <span>Total</span>
+                    <span class="receipt-total">@Model.Total.ToString("C0")</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="d-flex flex-wrap justify-content-between gap-2 mt-5 no-print">
+            <a class="btn btn-outline-primary" asp-controller="Factura" asp-action="Detalle" asp-route-id="@Model.Id">Volver al detalle</a>
+            <button class="btn btn-primary" type="button" onclick="window.print()">Imprimir o guardar PDF</button>
+        </div>
+    </main>
+</body>
+</html>
