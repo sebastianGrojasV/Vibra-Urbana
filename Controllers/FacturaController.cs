@@ -82,6 +82,7 @@ public class FacturaController : Controller
             .Include(venta => venta.MetodoPago)
             .Include(venta => venta.Factura)
             .Where(venta => venta.FechaVenta >= fechaSeleccionada && venta.FechaVenta < fechaSiguiente)
+            .Where(venta => venta.Estado == "Aprobada")
             .OrderByDescending(venta => venta.FechaVenta)
             .ToListAsync();
 

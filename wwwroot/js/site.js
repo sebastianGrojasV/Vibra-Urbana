@@ -3,6 +3,7 @@ window.addEventListener("DOMContentLoaded", () => {
     enhanceSidebar();
     enhanceModulePlaceholders();
     setupInlineConfirmations();
+    setupSaleCancellation();
     setupAutoDismissAlerts();
 
     if (!window.jQuery || !jQuery.fn.DataTable) {
@@ -153,6 +154,43 @@ function setupInlineConfirmations() {
 
     cancel.addEventListener("click", () => {
         pendingForm = null;
+        frame.classList.remove("is-visible");
+        frame.hidden = true;
+    });
+}
+
+function setupSaleCancellation() {
+    const frame = document.querySelector("[data-vu-cancel-sale-frame]");
+
+    if (!frame) {
+        return;
+    }
+
+    const idInput = frame.querySelector("[data-vu-cancel-sale-id]");
+    const reasonInput = frame.querySelector("[data-vu-cancel-sale-reason]");
+    const title = frame.querySelector("[data-vu-cancel-sale-title]");
+    const message = frame.querySelector("[data-vu-cancel-sale-message]");
+    const close = frame.querySelector("[data-vu-cancel-sale-close]");
+
+    document.querySelectorAll("[data-vu-cancel-sale]").forEach((button) => {
+        button.addEventListener("click", () => {
+            const saleId = button.dataset.vuSaleId;
+            const saleCode = button.dataset.vuSaleCode || `#${saleId}`;
+            const saleClient = button.dataset.vuSaleClient || "cliente seleccionado";
+
+            idInput.value = saleId;
+            reasonInput.value = "";
+            title.textContent = `Anular venta ${saleCode}`;
+            message.textContent = `Confirma la anulación de la venta de ${saleClient}. El inventario será restaurado.`;
+            frame.hidden = false;
+            frame.classList.add("is-visible");
+            reasonInput.focus();
+        });
+    });
+
+    close.addEventListener("click", () => {
+        idInput.value = "";
+        reasonInput.value = "";
         frame.classList.remove("is-visible");
         frame.hidden = true;
     });

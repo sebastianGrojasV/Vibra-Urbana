@@ -1,7 +1,4 @@
-using System;
-using System.Linq;
 using System.Security.Claims;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -44,6 +41,7 @@ public class VentaController : Controller
                 ViewBag.ClienteFiltrado = cliente.NombreCompleto;
                 ViewBag.ClienteIdentificacion = cliente.Identificacion;
             }
+
             ViewBag.ClienteId = clienteId.Value;
         }
 
@@ -86,7 +84,6 @@ public class VentaController : Controller
             return BadRequest(VentaOperacionResult.Failure($"Datos inválidos: {errors}"));
         }
 
-        // Obtener ID del usuario autenticado
         var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
         if (string.IsNullOrEmpty(userIdString) || !int.TryParse(userIdString, out var usuarioId))
         {
@@ -102,5 +99,35 @@ public class VentaController : Controller
         }
 
         return BadRequest(result);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Anular(AnularVentaViewModel model)
+    {
+        if (!ModelState.IsValid)
+        {
+            TempData["ErrorMessage"] = "Debes indicar un motivo de anulación válido.";
+            return RedirectToAction(nameof(Index));
+        }
+
+        var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (string.IsNullOrEmpty(userIdString) || !int.TryParse(userIdString, out var usuarioId))
+        {
+            return Unauthorized();
+        }
+
+        var result = await _ventaServicio.AnularVentaAsync(model.VentaId, model.Motivo, usuarioId);
+
+        if (result.EsExitoso)
+        {
+            TempData["SuccessMessage"] = result.Mensaje;
+        }
+        else
+        {
+            TempData["ErrorMessage"] = result.Mensaje;
+        }
+
+        return RedirectToAction(nameof(Index));
     }
 }

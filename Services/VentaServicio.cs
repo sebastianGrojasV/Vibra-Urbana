@@ -9,7 +9,9 @@ public class VentaServicio : IVentaServicio
 {
     private const decimal TarifaIva = 0.13m;
     private const string EstadoVentaAprobada = "Aprobada";
+    private const string EstadoVentaAnulada = "Anulada";
     private const string EstadoFacturaEmitida = "Emitida";
+    private const string EstadoFacturaAnulada = "Anulada";
     private readonly ApplicationDbContext _context;
 
     public VentaServicio(ApplicationDbContext context)
@@ -234,6 +236,95 @@ public class VentaServicio : IVentaServicio
         {
             await transaction.RollbackAsync();
             return VentaOperacionResult.Failure("No fue posible registrar la venta. Revisa los datos e inténtalo nuevamente.");
+        }
+    }
+
+    public async Task<AnularVentaResult> AnularVentaAsync(int ventaId, string motivo, int usuarioId)
+    {
+        var motivoLimpio = motivo?.Trim() ?? string.Empty;
+
+        if (motivoLimpio.Length < 5 || motivoLimpio.Length > 300)
+        {
+            return AnularVentaResult.Failure("El motivo de anulación debe tener entre 5 y 300 caracteres.");
+        }
+
+        await using var transaction = await _context.Database.BeginTransactionAsync();
+
+        try
+        {
+            var venta = await _context.Ventas
+                .Include(item => item.Factura)
+                .Include(item => item.DetalleVentas)
+                    .ThenInclude(detalle => detalle.Producto)
+                        .ThenInclude(producto => producto.Inventario)
+                .SingleOrDefaultAsync(item => item.Id == ventaId);
+
+            if (venta is null)
+            {
+                await transaction.RollbackAsync();
+                return AnularVentaResult.Failure("La venta seleccionada no existe.");
+            }
+
+            if (venta.Estado != EstadoVentaAprobada)
+            {
+                await transaction.RollbackAsync();
+                return AnularVentaResult.Failure("Solo se pueden anular ventas aprobadas.");
+            }
+
+            var fechaAnulacion = DateTime.UtcNow;
+
+            foreach (var detalle in venta.DetalleVentas)
+            {
+                var inventario = detalle.Producto.Inventario;
+
+                if (inventario is null)
+                {
+                    await transaction.RollbackAsync();
+                    return AnularVentaResult.Failure($"El producto '{detalle.Producto.Nombre}' no tiene inventario registrado.");
+                }
+
+                var cantidadAnterior = inventario.CantidadDisponible;
+                var motivoMovimiento = $"Anulación venta #{venta.Id}: {motivoLimpio}";
+                inventario.CantidadDisponible += detalle.Cantidad;
+                inventario.FechaActualizacion = fechaAnulacion;
+
+                _context.MovimientosInventario.Add(new MovimientoInventario
+                {
+                    ProductoId = detalle.ProductoId,
+                    TipoMovimiento = "Reversión",
+                    Cantidad = detalle.Cantidad,
+                    CantidadAnterior = cantidadAnterior,
+                    CantidadNueva = inventario.CantidadDisponible,
+                    Motivo = motivoMovimiento.Length > 300 ? motivoMovimiento[..300] : motivoMovimiento,
+                    FechaMovimiento = fechaAnulacion,
+                    UsuarioId = usuarioId
+                });
+            }
+
+            venta.Estado = EstadoVentaAnulada;
+            venta.MotivoAnulacion = motivoLimpio;
+            venta.FechaAnulacion = fechaAnulacion;
+            venta.UsuarioAnulacionId = usuarioId;
+
+            if (venta.Factura is not null)
+            {
+                venta.Factura.Estado = EstadoFacturaAnulada;
+            }
+
+            await _context.SaveChangesAsync();
+            await transaction.CommitAsync();
+
+            return AnularVentaResult.Success();
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            await transaction.RollbackAsync();
+            return AnularVentaResult.Failure("El inventario cambió mientras se anulaba la venta. Actualiza la página y vuelve a intentarlo.");
+        }
+        catch (DbUpdateException)
+        {
+            await transaction.RollbackAsync();
+            return AnularVentaResult.Failure("No fue posible anular la venta. Revisa los datos e inténtalo nuevamente.");
         }
     }
 
