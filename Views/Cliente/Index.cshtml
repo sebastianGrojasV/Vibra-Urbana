@@ -1,4 +1,4 @@
-@model VibraUrbana.ViewModels.ClientesIndexViewModel
+﻿@model VibraUrbana.ViewModels.ClientesIndexViewModel
 
 @{
     ViewData["Title"] = "Clientes";
@@ -7,29 +7,14 @@
 <section class="vu-admin-shell">
     <div class="container-fluid">
         <div class="row g-0">
-            <aside class="col-lg-3 col-xl-2 vu-admin-sidebar">
-                <div class="vu-sidebar-brand">Vibra Urbana</div>
-                <nav class="vu-sidebar-nav">
-                    <a asp-controller="Admin" asp-action="Index">Panel inicial</a>
-                    <a asp-controller="Admin" asp-action="Usuarios">Usuarios</a>
-                    <a asp-controller="Rol" asp-action="Index">Roles</a>
-                    <a class="active" asp-controller="Cliente" asp-action="Index">Clientes</a>
-                    <a asp-controller="Producto" asp-action="Index">Productos</a>
-                    <a asp-controller="Inventario" asp-action="Index">Inventario</a>
-                    <a asp-controller="Venta" asp-action="Index">Ventas</a>
-                    <a asp-controller="Factura" asp-action="Index">Facturación</a>
-                    <a asp-controller="Reporte" asp-action="Index">Reportes</a>
-                    <a asp-controller="Pedido" asp-action="Index">Pedidos</a>
-                    <a asp-controller="Categoria" asp-action="Index">Categorías</a>
-                </nav>
-            </aside>
+            @await Html.PartialAsync("_Sidebar")
 
             <div class="col-lg-9 col-xl-10 vu-admin-content">
                 <div class="vu-admin-header">
                     <div>
-                        <p class="vu-eyebrow">Gestión comercial</p>
+                        <p class="vu-eyebrow">GestiÃ³n comercial</p>
                         <h1>Clientes</h1>
-                        <p>Consulta, registra y actualiza la información de clientes de Vibra Urbana.</p>
+                        <p>Consulta, registra y actualiza la informaciÃ³n de clientes de Vibra Urbana.</p>
                     </div>
                     <a class="btn btn-primary" asp-controller="Cliente" asp-action="Crear">Registrar cliente</a>
                 </div>
@@ -53,10 +38,10 @@
                                 <thead>
                                     <tr>
                                         <th>Nombre</th>
-                                        <th>Identificación</th>
-                                        <th>Teléfono</th>
+                                        <th>IdentificaciÃ³n</th>
+                                        <th>TelÃ©fono</th>
                                         <th>Correo</th>
-                                        <th>Dirección</th>
+                                        <th>DirecciÃ³n</th>
                                         <th>Estado</th>
                                         <th class="text-end vu-actions-column">Acciones</th>
                                     </tr>
@@ -67,9 +52,9 @@
                                         <tr>
                                             <td>@cliente.NombreCompleto</td>
                                             <td>@cliente.Identificacion</td>
-                                            <td>@(string.IsNullOrWhiteSpace(cliente.Telefono) ? "Sin teléfono" : cliente.Telefono)</td>
+                                            <td>@(string.IsNullOrWhiteSpace(cliente.Telefono) ? "Sin telÃ©fono" : cliente.Telefono)</td>
                                             <td>@(string.IsNullOrWhiteSpace(cliente.Correo) ? "Sin correo" : cliente.Correo)</td>
-                                            <td>@(string.IsNullOrWhiteSpace(cliente.Direccion) ? "Sin dirección" : cliente.Direccion)</td>
+                                            <td>@(string.IsNullOrWhiteSpace(cliente.Direccion) ? "Sin direcciÃ³n" : cliente.Direccion)</td>
                                             <td>
                                                 @if (cliente.Activo)
                                                 {
@@ -94,7 +79,7 @@
                                                           class="d-inline"
                                                           data-vu-confirm
                                                           data-vu-confirm-title="@(cliente.Activo ? "Desactivar cliente" : "Activar cliente")"
-                                                          data-vu-confirm-message="@(cliente.Activo ? $"¿Deseas desactivar a {cliente.NombreCompleto}?" : $"¿Deseas activar a {cliente.NombreCompleto}?")"
+                                                          data-vu-confirm-message="@(cliente.Activo ? $"Â¿Deseas desactivar a {cliente.NombreCompleto}?" : $"Â¿Deseas activar a {cliente.NombreCompleto}?")"
                                                           data-vu-confirm-action="@(cliente.Activo ? "Desactivar" : "Activar")">
                                                         @Html.AntiForgeryToken()
                                                         <input name="id" type="hidden" value="@cliente.Id" />
@@ -123,3 +108,4 @@
         </div>
     </div>
 </section>
+

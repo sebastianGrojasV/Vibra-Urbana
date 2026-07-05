@@ -1,4 +1,4 @@
-@model VibraUrbana.ViewModels.ClienteHistorialComprasViewModel
+﻿@model VibraUrbana.ViewModels.ClienteHistorialComprasViewModel
 
 @{
     ViewData["Title"] = "Historial de compras";
@@ -7,29 +7,14 @@
 <section class="vu-admin-shell">
     <div class="container-fluid">
         <div class="row g-0">
-            <aside class="col-lg-3 col-xl-2 vu-admin-sidebar">
-                <div class="vu-sidebar-brand">Vibra Urbana</div>
-                <nav class="vu-sidebar-nav">
-                    <a asp-controller="Admin" asp-action="Index">Panel inicial</a>
-                    <a asp-controller="Admin" asp-action="Usuarios">Usuarios</a>
-                    <a asp-controller="Rol" asp-action="Index">Roles</a>
-                    <a class="active" asp-controller="Cliente" asp-action="Index">Clientes</a>
-                    <a asp-controller="Producto" asp-action="Index">Productos</a>
-                    <a asp-controller="Inventario" asp-action="Index">Inventario</a>
-                    <a asp-controller="Venta" asp-action="Index">Ventas</a>
-                    <a asp-controller="Factura" asp-action="Index">Facturación</a>
-                    <a asp-controller="Reporte" asp-action="Index">Reportes</a>
-                    <a asp-controller="Pedido" asp-action="Index">Pedidos</a>
-                    <a asp-controller="Categoria" asp-action="Index">Categorías</a>
-                </nav>
-            </aside>
+            @await Html.PartialAsync("_Sidebar")
 
             <div class="col-lg-9 col-xl-10 vu-admin-content">
                 <div class="vu-admin-header">
                     <div>
                         <p class="vu-eyebrow">Seguimiento comercial</p>
                         <h1>Historial de compras</h1>
-                        <p>@Model.NombreCompleto · @Model.Identificacion</p>
+                        <p>@Model.NombreCompleto Â· @Model.Identificacion</p>
                     </div>
                     <a class="btn btn-outline-primary" asp-controller="Cliente" asp-action="Index">Volver a clientes</a>
                 </div>
@@ -66,7 +51,7 @@
                                     <tr>
                                         <th>Compra</th>
                                         <th>Fecha</th>
-                                        <th>Número de comprobante</th>
+                                        <th>NÃºmero de comprobante</th>
                                         <th class="text-end">Monto total</th>
                                         <th class="text-center">Estado</th>
                                         <th class="text-end vu-actions-column">Acciones</th>
@@ -105,3 +90,4 @@
         </div>
     </div>
 </section>
+

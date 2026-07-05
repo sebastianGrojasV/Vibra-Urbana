@@ -8,8 +8,13 @@ public class VentaOperacionResult
 
     public int? VentaId { get; set; }
 
-    public static VentaOperacionResult Success(int ventaId, string mensaje = "Venta registrada con éxito.") =>
-        new() { EsExitoso = true, VentaId = ventaId, Mensaje = mensaje };
+    public string? NumeroFactura { get; set; }
+
+    public static VentaOperacionResult Success(
+        int ventaId,
+        string numeroFactura,
+        string mensaje = "Venta registrada con exito.") =>
+        new() { EsExitoso = true, VentaId = ventaId, NumeroFactura = numeroFactura, Mensaje = mensaje };
 
     public static VentaOperacionResult Failure(string mensaje) =>
         new() { EsExitoso = false, Mensaje = mensaje };

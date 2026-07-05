@@ -1,4 +1,4 @@
-@model IReadOnlyList<VibraUrbana.ViewModels.UsuarioListadoItemViewModel>
+﻿@model IReadOnlyList<VibraUrbana.ViewModels.UsuarioListadoItemViewModel>
 
 @{
     ViewData["Title"] = "Usuarios";
@@ -7,26 +7,12 @@
 <section class="vu-admin-shell">
     <div class="container-fluid">
         <div class="row g-0">
-            <aside class="col-lg-3 col-xl-2 vu-admin-sidebar">
-                <div class="vu-sidebar-brand">Vibra Urbana</div>
-                <nav class="vu-sidebar-nav">
-                    <a asp-controller="Admin" asp-action="Index">Panel inicial</a>
-                    <a class="active" asp-controller="Admin" asp-action="Usuarios">Usuarios</a>
-                    <a asp-controller="Rol" asp-action="Index">Roles</a>
-                    <a asp-controller="Cliente" asp-action="Index">Clientes</a>
-                    <a asp-controller="Producto" asp-action="Index">Productos</a>
-                    <a asp-controller="Inventario" asp-action="Index">Inventario</a>
-                    <a asp-controller="Venta" asp-action="Index">Ventas</a>
-                    <a asp-controller="Factura" asp-action="Index">Facturación</a>
-                    <a asp-controller="Reporte" asp-action="Index">Reportes</a>
-                    <a asp-controller="Pedido" asp-action="Index">Pedidos</a>
-                </nav>
-            </aside>
+            @await Html.PartialAsync("_Sidebar")
 
             <div class="col-lg-9 col-xl-10 vu-admin-content">
                 <div class="vu-admin-header">
                     <div>
-                        <p class="vu-eyebrow">Administración</p>
+                        <p class="vu-eyebrow">AdministraciÃ³n</p>
                         <h1>Usuarios</h1>
                         <p>Consulta los usuarios internos registrados y sus accesos.</p>
                     </div>
@@ -52,7 +38,7 @@
                                 <thead>
                                     <tr>
                                         <th>Nombre</th>
-                                        <th>Cédula</th>
+                                        <th>CÃ©dula</th>
                                         <th>Correo</th>
                                         <th>Rol</th>
                                         <th>Estado</th>
@@ -85,7 +71,7 @@
                                                     <a class="btn btn-sm vu-icon-btn vu-icon-edit" asp-controller="Admin" asp-action="ModificarUsuario" asp-route-id="@usuario.Id" title="Modificar" aria-label="Modificar usuario">
                                                         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h9"></path><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5Z"></path></svg>
                                                     </a>
-                                                    <a class="btn btn-sm vu-icon-btn vu-icon-reset" asp-controller="Admin" asp-action="RestablecerPasswordUsuario" asp-route-id="@usuario.Id" title="Restablecer contraseña" aria-label="Restablecer contraseña">
+                                                    <a class="btn btn-sm vu-icon-btn vu-icon-reset" asp-controller="Admin" asp-action="RestablecerPasswordUsuario" asp-route-id="@usuario.Id" title="Restablecer contraseÃ±a" aria-label="Restablecer contraseÃ±a">
                                                         <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="7.5" cy="15.5" r="5.5"></circle><path d="M12 12l8-8"></path><path d="M16 4h4v4"></path></svg>
                                                     </a>
                                                     <form asp-controller="Admin"
@@ -94,7 +80,7 @@
                                                           class="d-inline"
                                                           data-vu-confirm
                                                           data-vu-confirm-title="@(usuario.Activo ? "Desactivar usuario" : "Activar usuario")"
-                                                          data-vu-confirm-message="@(usuario.Activo ? $"¿Deseas desactivar a {usuario.NombreCompleto}?" : $"¿Deseas activar a {usuario.NombreCompleto}?")"
+                                                          data-vu-confirm-message="@(usuario.Activo ? $"Â¿Deseas desactivar a {usuario.NombreCompleto}?" : $"Â¿Deseas activar a {usuario.NombreCompleto}?")"
                                                           data-vu-confirm-action="@(usuario.Activo ? "Desactivar" : "Activar")">
                                                         @Html.AntiForgeryToken()
                                                         <input name="id" type="hidden" value="@usuario.Id" />
@@ -123,3 +109,4 @@
         </div>
     </div>
 </section>
+

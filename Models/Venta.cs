@@ -26,7 +26,7 @@ public class Venta
 
     public decimal Total { get; set; }
 
-    public string Estado { get; set; } = "Registrada";
+    public string Estado { get; set; } = "Aprobada";
 
     public string Observacion { get; set; } = string.Empty;
 

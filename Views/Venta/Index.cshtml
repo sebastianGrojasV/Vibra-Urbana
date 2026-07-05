@@ -1,4 +1,4 @@
-@model IReadOnlyList<VibraUrbana.Models.Venta>
+﻿@model IReadOnlyList<VibraUrbana.Models.Venta>
 
 @{
     ViewData["Title"] = "Historial de Ventas";
@@ -7,27 +7,12 @@
 <section class="vu-admin-shell">
     <div class="container-fluid">
         <div class="row g-0">
-            <aside class="col-lg-3 col-xl-2 vu-admin-sidebar">
-                <div class="vu-sidebar-brand">Vibra Urbana</div>
-                <nav class="vu-sidebar-nav">
-                    <a asp-controller="Admin" asp-action="Index">Panel inicial</a>
-                    <a asp-controller="Admin" asp-action="Usuarios">Usuarios</a>
-                    <a asp-controller="Rol" asp-action="Index">Roles</a>
-                    <a asp-controller="Cliente" asp-action="Index">Clientes</a>
-                    <a asp-controller="Producto" asp-action="Index">Productos</a>
-                    <a asp-controller="Inventario" asp-action="Index">Inventario</a>
-                    <a class="active" asp-controller="Venta" asp-action="Index">Ventas</a>
-                    <a asp-controller="Factura" asp-action="Index">Facturación</a>
-                    <a asp-controller="Reporte" asp-action="Index">Reportes</a>
-                    <a asp-controller="Pedido" asp-action="Index">Pedidos</a>
-                    <a asp-controller="Categoria" asp-action="Index">Categorías</a>
-                </nav>
-            </aside>
+            @await Html.PartialAsync("_Sidebar")
 
             <div class="col-lg-9 col-xl-10 vu-admin-content">
                 <div class="vu-admin-header">
                     <div>
-                        <p class="vu-eyebrow">Gestión comercial</p>
+                        <p class="vu-eyebrow">GestiÃ³n comercial</p>
                         <h1>Ventas</h1>
                         <p>Consulta el historial de ventas realizadas y registra nuevas transacciones comerciales.</p>
                     </div>
@@ -54,7 +39,7 @@
                     @if (!Model.Any())
                     {
                         <div class="alert alert-info" role="alert">
-                            No existen ventas registradas. ¡Comienza registrando una nueva venta!
+                            No existen ventas registradas. Â¡Comienza registrando una nueva venta!
                         </div>
                     }
                     else
@@ -63,11 +48,12 @@
                             <table class="table table-hover align-middle vu-data-table">
                                 <thead>
                                     <tr>
-                                        <th>Código</th>
+                                        <th>CÃ³digo</th>
                                         <th>Fecha</th>
                                         <th>Cliente</th>
                                         <th>Cajero</th>
-                                        <th>Método Pago</th>
+                                        <th>Comprobante</th>
+                                        <th>MÃ©todo Pago</th>
                                         <th class="text-end">Subtotal</th>
                                         <th class="text-end">Descuento</th>
                                         <th class="text-end">Impuesto</th>
@@ -89,6 +75,16 @@
                                             </td>
                                             <td>@venta.Usuario.NombreCompleto</td>
                                             <td>
+                                                @if (venta.Factura is null)
+                                                {
+                                                    <span class="text-muted">Pendiente</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-light text-dark border">@venta.Factura.NumeroFactura</span>
+                                                }
+                                            </td>
+                                            <td>
                                                 <span class="badge bg-secondary">@venta.MetodoPago.Nombre</span>
                                             </td>
                                             <td class="text-end">@venta.Subtotal.ToString("C2")</td>
@@ -96,7 +92,7 @@
                                             <td class="text-end">@venta.Impuesto.ToString("C2")</td>
                                             <td class="text-end font-weight-bold text-primary">@venta.Total.ToString("C2")</td>
                                             <td class="text-center">
-                                                @if (venta.Estado == "Registrada")
+                                                @if (venta.Estado == "Aprobada")
                                                 {
                                                     <span class="badge bg-success">@venta.Estado</span>
                                                 }
@@ -116,3 +112,4 @@
         </div>
     </div>
 </section>
+

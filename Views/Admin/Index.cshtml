@@ -1,33 +1,18 @@
-@{
+﻿@{
     ViewData["Title"] = "Panel Administrativo";
 }
 
 <section class="vu-admin-shell">
     <div class="container-fluid">
         <div class="row g-0">
-            <aside class="col-lg-3 col-xl-2 vu-admin-sidebar">
-                <div class="vu-sidebar-brand">Vibra Urbana</div>
-                <nav class="vu-sidebar-nav">
-                    <a class="active" asp-controller="Admin" asp-action="Index">Panel inicial</a>
-                    <a asp-controller="Admin" asp-action="Usuarios">Usuarios</a>
-                    <a asp-controller="Rol" asp-action="Index">Roles</a>
-                    <a asp-controller="Cliente" asp-action="Index">Clientes</a>
-                    <a asp-controller="Producto" asp-action="Index">Productos</a>
-                    <a asp-controller="Inventario" asp-action="Index">Inventario</a>
-                    <a asp-controller="Venta" asp-action="Index">Ventas</a>
-                    <a asp-controller="Factura" asp-action="Index">Facturación</a>
-                    <a asp-controller="Reporte" asp-action="Index">Reportes</a>
-                    <a asp-controller="Pedido" asp-action="Index">Pedidos</a>
-                    <a asp-controller="Categoria" asp-action="Index">Categorias</a>
-                </nav>
-            </aside>
+            @await Html.PartialAsync("_Sidebar")
 
             <div class="col-lg-9 col-xl-10 vu-admin-content">
                 <div class="vu-admin-header">
                     <div>
-                        <p class="vu-eyebrow">Administración</p>
+                        <p class="vu-eyebrow">AdministraciÃ³n</p>
                         <h1>Panel inicial</h1>
-                        <p>Centro de navegación para organizar los módulos comerciales de Vibra Urbana.</p>
+                        <p>Centro de navegaciÃ³n para organizar los mÃ³dulos comerciales de Vibra Urbana.</p>
                     </div>
                     <a class="btn btn-outline-primary" asp-controller="Account" asp-action="Login">Cerrar vista</a>
                 </div>
@@ -44,14 +29,14 @@
                         <a class="vu-dashboard-card vu-module-link" asp-controller="Rol" asp-action="Index">
                             <span>Roles</span>
                             <strong>Accesos</strong>
-                            <p>Gestión de perfiles y permisos internos.</p>
+                            <p>GestiÃ³n de perfiles y permisos internos.</p>
                         </a>
                     </div>
                     <div class="col-md-6 col-xl-3">
                         <div class="vu-dashboard-card">
                             <span>Productos</span>
-                            <strong>Catálogo</strong>
-                            <p>Catálogo listo para el siguiente sprint.</p>
+                            <strong>CatÃ¡logo</strong>
+                            <p>CatÃ¡logo listo para el siguiente sprint.</p>
                         </div>
                     </div>
                     <div class="col-md-6 col-xl-3">
@@ -64,8 +49,8 @@
                     <div class="col-md-6 col-xl-3">
                         <div class="vu-dashboard-card">
                             <span>Ventas</span>
-                            <strong>Operación</strong>
-                            <p>Preparado para operación comercial.</p>
+                            <strong>OperaciÃ³n</strong>
+                            <p>Preparado para operaciÃ³n comercial.</p>
                         </div>
                     </div>
                 </div>
@@ -75,7 +60,7 @@
                         <div class="vu-panel">
                             <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
                                 <div>
-                                    <h2>Módulos principales</h2>
+                                    <h2>MÃ³dulos principales</h2>
                                     <p>Accesos organizados para avanzar con las historias del Sprint 2.</p>
                                 </div>
                             </div>
@@ -87,7 +72,7 @@
                                 <a asp-controller="Producto" asp-action="Index">Productos</a>
                                 <a asp-controller="Inventario" asp-action="Index">Inventario</a>
                                 <a asp-controller="Venta" asp-action="Index">Ventas</a>
-                                <a asp-controller="Factura" asp-action="Index">Facturación</a>
+                                <a asp-controller="Factura" asp-action="Index">FacturaciÃ³n</a>
                                 <a asp-controller="Reporte" asp-action="Index">Reportes</a>
                                 <a asp-controller="Categoria" asp-action="Index">Categorias</a>
                             </div>
@@ -101,7 +86,7 @@
                                 <li><span></span> MVC base configurado</li>
                                 <li><span></span> EF Core preparado</li>
                                 <li><span></span> Seguridad inicial activa</li>
-                                <li><span></span> Módulos preparados</li>
+                                <li><span></span> MÃ³dulos preparados</li>
                             </ul>
                         </div>
                     </div>
@@ -110,3 +95,4 @@
         </div>
     </div>
 </section>
+

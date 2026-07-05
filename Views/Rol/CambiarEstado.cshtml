@@ -1,4 +1,4 @@
-@model VibraUrbana.ViewModels.EditarRolViewModel
+﻿@model VibraUrbana.ViewModels.EditarRolViewModel
 
 @{
     var activar = !Model.Activo;
@@ -6,33 +6,19 @@
     var accion = activar ? "activar" : "desactivar";
     var accionTitulo = activar ? "Activar rol" : "Desactivar rol";
     var mensaje = activar
-        ? "El rol quedará disponible para asignar acceso a usuarios."
-        : "El rol no podrá ser usado para acceso mientras permanezca inactivo.";
+        ? "El rol quedarÃ¡ disponible para asignar acceso a usuarios."
+        : "El rol no podrÃ¡ ser usado para acceso mientras permanezca inactivo.";
 }
 
 <section class="vu-admin-shell">
     <div class="container-fluid">
         <div class="row g-0">
-            <aside class="col-lg-3 col-xl-2 vu-admin-sidebar">
-                <div class="vu-sidebar-brand">Vibra Urbana</div>
-                <nav class="vu-sidebar-nav">
-                    <a asp-controller="Admin" asp-action="Index">Panel inicial</a>
-                    <a asp-controller="Admin" asp-action="Usuarios">Usuarios</a>
-                    <a class="active" asp-controller="Rol" asp-action="Index">Roles</a>
-                    <a asp-controller="Cliente" asp-action="Index">Clientes</a>
-                    <a asp-controller="Producto" asp-action="Index">Productos</a>
-                    <a asp-controller="Inventario" asp-action="Index">Inventario</a>
-                    <a asp-controller="Venta" asp-action="Index">Ventas</a>
-                    <a asp-controller="Factura" asp-action="Index">Facturación</a>
-                    <a asp-controller="Reporte" asp-action="Index">Reportes</a>
-                    <a asp-controller="Pedido" asp-action="Index">Pedidos</a>
-                </nav>
-            </aside>
+            @await Html.PartialAsync("_Sidebar")
 
             <div class="col-lg-9 col-xl-10 vu-admin-content">
                 <div class="vu-admin-header">
                     <div>
-                        <p class="vu-eyebrow">Administración</p>
+                        <p class="vu-eyebrow">AdministraciÃ³n</p>
                         <h1>@accionTitulo</h1>
                         <p>Confirma el cambio de estado sin eliminar el historial del rol.</p>
                     </div>
@@ -48,7 +34,7 @@
                         <dt class="col-md-3">Nombre</dt>
                         <dd class="col-md-9">@Model.Nombre</dd>
 
-                        <dt class="col-md-3">Descripción</dt>
+                        <dt class="col-md-3">DescripciÃ³n</dt>
                         <dd class="col-md-9">@Model.Descripcion</dd>
 
                         <dt class="col-md-3">Permisos</dt>
@@ -81,3 +67,4 @@
         </div>
     </div>
 </section>
+

@@ -1,4 +1,4 @@
-@model VibraUrbana.ViewModels.ClienteCompraDetalleViewModel
+﻿@model VibraUrbana.ViewModels.ClienteCompraDetalleViewModel
 
 @{
     ViewData["Title"] = "Detalle de compra";
@@ -7,29 +7,14 @@
 <section class="vu-admin-shell">
     <div class="container-fluid">
         <div class="row g-0">
-            <aside class="col-lg-3 col-xl-2 vu-admin-sidebar">
-                <div class="vu-sidebar-brand">Vibra Urbana</div>
-                <nav class="vu-sidebar-nav">
-                    <a asp-controller="Admin" asp-action="Index">Panel inicial</a>
-                    <a asp-controller="Admin" asp-action="Usuarios">Usuarios</a>
-                    <a asp-controller="Rol" asp-action="Index">Roles</a>
-                    <a class="active" asp-controller="Cliente" asp-action="Index">Clientes</a>
-                    <a asp-controller="Producto" asp-action="Index">Productos</a>
-                    <a asp-controller="Inventario" asp-action="Index">Inventario</a>
-                    <a asp-controller="Venta" asp-action="Index">Ventas</a>
-                    <a asp-controller="Factura" asp-action="Index">Facturación</a>
-                    <a asp-controller="Reporte" asp-action="Index">Reportes</a>
-                    <a asp-controller="Pedido" asp-action="Index">Pedidos</a>
-                    <a asp-controller="Categoria" asp-action="Index">Categorías</a>
-                </nav>
-            </aside>
+            @await Html.PartialAsync("_Sidebar")
 
             <div class="col-lg-9 col-xl-10 vu-admin-content">
                 <div class="vu-admin-header">
                     <div>
                         <p class="vu-eyebrow">Compra #@Model.VentaId.ToString("D5")</p>
                         <h1>Detalle de compra</h1>
-                        <p>@Model.Cliente · @Model.Identificacion</p>
+                        <p>@Model.Cliente Â· @Model.Identificacion</p>
                     </div>
                     <a class="btn btn-outline-primary"
                        asp-controller="Cliente"
@@ -50,7 +35,7 @@
                             <strong>@Model.Cajero</strong>
                         </div>
                         <div class="col-md-3">
-                            <span class="text-muted small d-block">Método de pago</span>
+                            <span class="text-muted small d-block">MÃ©todo de pago</span>
                             <strong>@Model.MetodoPago</strong>
                         </div>
                         <div class="col-md-3">
@@ -62,8 +47,8 @@
                             <span class="badge @(Model.Estado == "Registrada" ? "bg-success" : "bg-secondary")">@Model.Estado</span>
                         </div>
                         <div class="col-md-9">
-                            <span class="text-muted small d-block">Observación</span>
-                            <strong>@(string.IsNullOrWhiteSpace(Model.Observacion) ? "Sin observación" : Model.Observacion)</strong>
+                            <span class="text-muted small d-block">ObservaciÃ³n</span>
+                            <strong>@(string.IsNullOrWhiteSpace(Model.Observacion) ? "Sin observaciÃ³n" : Model.Observacion)</strong>
                         </div>
                     </div>
                 </div>
@@ -74,7 +59,7 @@
                             <thead>
                                 <tr>
                                     <th>Producto</th>
-                                    <th>Categoría</th>
+                                    <th>CategorÃ­a</th>
                                     <th>Talla</th>
                                     <th>Color</th>
                                     <th class="text-end">Cantidad</th>
@@ -121,3 +106,4 @@
         </div>
     </div>
 </section>
+
