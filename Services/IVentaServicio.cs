@@ -10,4 +10,6 @@ public interface IVentaServicio
     Task<IReadOnlyList<Venta>> ObtenerVentasAsync(int? clienteId = null);
 
     Task<VentaOperacionResult> RegistrarVentaAsync(RegistrarVentaViewModel model, int usuarioId);
+
+    Task<AnularVentaResult> AnularVentaAsync(int ventaId, string motivo, int usuarioId);
 }

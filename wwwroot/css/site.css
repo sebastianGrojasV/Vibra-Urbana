@@ -2212,6 +2212,46 @@ body.vu-sidebar-collapsed .vu-sidebar-brand {
     margin-top: .35rem;
 }
 
+.vu-cancel-sale-frame {
+    padding: 1rem;
+    background: #fff4e6;
+    border: 1px solid #ffd4a3;
+    border-left: 4px solid #f04a2f;
+    border-radius: 8px;
+    box-shadow: 0 16px 34px rgba(86, 42, 25, .10);
+}
+
+.vu-cancel-sale-frame[hidden] {
+    display: none;
+}
+
+.vu-cancel-sale-form {
+    display: grid;
+    grid-template-columns: minmax(12rem, .9fr) minmax(18rem, 1.6fr) auto;
+    gap: 1rem;
+    align-items: end;
+}
+
+.vu-cancel-sale-form strong {
+    display: block;
+    color: #7c2f19;
+    font-weight: 900;
+}
+
+.vu-cancel-sale-form p {
+    max-width: 34rem;
+    margin: .25rem 0 0;
+    color: #5f514b;
+    font-weight: 700;
+}
+
+.vu-cancel-sale-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .5rem;
+    justify-content: flex-end;
+}
+
 .vu-invoice-meta {
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -2285,6 +2325,14 @@ body.vu-sidebar-collapsed .vu-sidebar-brand {
 @media (max-width: 991.98px) {
     .vu-invoice-meta {
         grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .vu-cancel-sale-form {
+        grid-template-columns: 1fr;
+    }
+
+    .vu-cancel-sale-actions {
+        justify-content: flex-start;
     }
 }
 

@@ -30,6 +30,14 @@ public class Venta
 
     public string Observacion { get; set; } = string.Empty;
 
+    public string MotivoAnulacion { get; set; } = string.Empty;
+
+    public DateTime? FechaAnulacion { get; set; }
+
+    public int? UsuarioAnulacionId { get; set; }
+
+    public Usuario? UsuarioAnulacion { get; set; }
+
     public int? CierreCajaId { get; set; }
 
     public CierreCaja? CierreCaja { get; set; }

@@ -25,6 +25,39 @@
                         <div class="alert alert-success" role="alert">@successMessage</div>
                     }
 
+                    @if (TempData["ErrorMessage"] is string errorMessage)
+                    {
+                        <div class="alert alert-danger" role="alert">@errorMessage</div>
+                    }
+
+                    <div class="vu-cancel-sale-frame mb-4" data-vu-cancel-sale-frame hidden>
+                        <form asp-controller="Venta" asp-action="Anular" method="post" class="vu-cancel-sale-form">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="VentaId" data-vu-cancel-sale-id />
+                            <div>
+                                <strong data-vu-cancel-sale-title>Anular venta</strong>
+                                <p data-vu-cancel-sale-message>Indica el motivo de anulación para continuar.</p>
+                            </div>
+                            <div>
+                                <label class="form-label" for="motivoAnulacion">Motivo de anulación</label>
+                                <textarea id="motivoAnulacion"
+                                          name="Motivo"
+                                          class="form-control"
+                                          rows="2"
+                                          maxlength="300"
+                                          minlength="5"
+                                          required
+                                          data-vu-cancel-sale-reason
+                                          placeholder="Ejemplo: error operativo en la selección de productos."></textarea>
+                                <small class="text-muted">Entre 5 y 300 caracteres.</small>
+                            </div>
+                            <div class="vu-cancel-sale-actions">
+                                <button class="btn btn-primary" type="submit">Confirmar anulación</button>
+                                <button class="btn btn-outline-primary" type="button" data-vu-cancel-sale-close>Cancelar</button>
+                            </div>
+                        </form>
+                    </div>
+
                     @if (ViewBag.ClienteFiltrado != null)
                     {
                         <div class="alert alert-info d-flex justify-content-between align-items-center mb-3" role="alert">
@@ -59,6 +92,7 @@
                                         <th class="text-end">Impuesto</th>
                                         <th class="text-end">Total</th>
                                         <th class="text-center">Estado</th>
+                                        <th class="text-end vu-actions-column">Acciones</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -96,10 +130,38 @@
                                                 {
                                                     <span class="badge bg-success">@venta.Estado</span>
                                                 }
+                                                else if (venta.Estado == "Anulada")
+                                                {
+                                                    <div class="d-flex flex-column align-items-center gap-1">
+                                                        <span class="badge bg-danger">@venta.Estado</span>
+                                                        <small class="text-muted">@(string.IsNullOrWhiteSpace(venta.MotivoAnulacion) ? "Sin motivo registrado" : venta.MotivoAnulacion)</small>
+                                                    </div>
+                                                }
                                                 else
                                                 {
                                                     <span class="badge bg-secondary">@venta.Estado</span>
                                                 }
+                                            </td>
+                                            <td class="text-end">
+                                                <div class="vu-actions">
+                                                    @if (venta.Estado == "Aprobada")
+                                                    {
+                                                        <button class="btn btn-sm vu-icon-btn vu-icon-disable"
+                                                                type="button"
+                                                                title="Anular"
+                                                                aria-label="Anular venta"
+                                                                data-vu-cancel-sale
+                                                                data-vu-sale-id="@venta.Id"
+                                                                data-vu-sale-code="#@venta.Id.ToString("D5")"
+                                                                data-vu-sale-client="@venta.Cliente.NombreCompleto">
+                                                            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18.4 6.6a9 9 0 1 1-12.8 0"></path><path d="M12 2v10"></path></svg>
+                                                        </button>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="text-muted small">Sin acciones</span>
+                                                    }
+                                                </div>
                                             </td>
                                         </tr>
                                     }
