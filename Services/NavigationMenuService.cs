@@ -1,4 +1,4 @@
-using System.Security.Claims;
+﻿using System.Security.Claims;
 using Microsoft.EntityFrameworkCore;
 using VibraUrbana.Data;
 
@@ -63,6 +63,7 @@ public class NavigationMenuService : INavigationMenuService
         if (permisos.Contains(PermisosSistema.FacturacionGestionar))
         {
             items.Add(new MenuItemViewModel { Texto = "Facturación", Controller = "Factura" });
+            items.Add(new MenuItemViewModel { Texto = "Cierre de caja", Controller = "Factura", Action = "CierreCaja" });
         }
 
         if (permisos.Contains(PermisosSistema.ReportesVer))

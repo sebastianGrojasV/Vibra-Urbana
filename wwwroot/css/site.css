@@ -2211,3 +2211,85 @@ body.vu-sidebar-collapsed .vu-sidebar-brand {
     display: inline-block;
     margin-top: .35rem;
 }
+
+.vu-invoice-meta {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 1.15rem 1.75rem;
+    align-items: start;
+}
+
+.vu-invoice-meta-item {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    gap: .18rem;
+}
+
+.vu-invoice-meta-item span {
+    color: var(--vu-muted);
+    font-size: .86rem;
+    font-weight: 750;
+}
+
+.vu-invoice-meta-item strong {
+    color: var(--vu-ink);
+    font-weight: 900;
+    line-height: 1.25;
+}
+
+.vu-invoice-meta-item small {
+    color: var(--vu-muted);
+    font-weight: 700;
+    line-height: 1.35;
+}
+
+.vu-invoice-meta-wide {
+    grid-column: 1 / -1;
+}
+
+.vu-panel .vu-invoice-table {
+    overflow: hidden;
+    border-color: #d9e6e3;
+    border-radius: 8px;
+}
+
+.vu-panel .vu-invoice-table thead th {
+    color: #ffffff;
+    background: #145a5a !important;
+    border-color: #145a5a !important;
+}
+
+.vu-panel .vu-invoice-table thead th:first-child {
+    border-top-left-radius: 8px;
+}
+
+.vu-panel .vu-invoice-table thead th:last-child {
+    border-top-right-radius: 8px;
+}
+
+.vu-panel .vu-invoice-table tbody td,
+.vu-panel .vu-invoice-table tfoot th {
+    border-color: #d9e6e3;
+}
+
+.vu-panel .vu-invoice-table tbody tr:hover > * {
+    background: #f3faf8;
+}
+
+.vu-invoice-total {
+    color: #145a5a !important;
+    font-weight: 900;
+}
+
+@media (max-width: 991.98px) {
+    .vu-invoice-meta {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 575.98px) {
+    .vu-invoice-meta {
+        grid-template-columns: 1fr;
+    }
+}

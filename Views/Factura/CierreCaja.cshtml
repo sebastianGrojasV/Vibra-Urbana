@@ -1,0 +1,146 @@
+@model VibraUrbana.ViewModels.CierreCajaViewModel
+
+@{
+    ViewData["Title"] = "Cierre de caja";
+}
+
+<section class="vu-admin-shell">
+    <div class="container-fluid">
+        <div class="row g-0">
+            @await Html.PartialAsync("_Sidebar")
+
+            <div class="col-lg-9 col-xl-10 vu-admin-content">
+                <div class="vu-admin-header">
+                    <div>
+                        <p class="vu-eyebrow">Facturación</p>
+                        <h1>Cierre de caja</h1>
+                        <p>Resumen diario de ventas y totales por método de pago.</p>
+                    </div>
+                    <a class="btn btn-outline-primary" asp-controller="Factura" asp-action="Index">Ver facturas</a>
+                </div>
+
+                <div class="vu-panel mb-4">
+                    <form asp-controller="Factura" asp-action="CierreCaja" method="get" class="row g-3 align-items-end">
+                        <div class="col-md-4">
+                            <label class="form-label" for="fecha">Fecha de cierre</label>
+                            <input class="form-control" id="fecha" name="fecha" type="date" value="@Model.Fecha.ToString("yyyy-MM-dd")" />
+                        </div>
+                        <div class="col-md-8 d-flex flex-wrap gap-2">
+                            <button class="btn btn-outline-primary" type="submit">Consultar</button>
+                            <a class="btn btn-outline-secondary" asp-controller="Factura" asp-action="CierreCaja">Hoy</a>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="row g-3 mb-4">
+                    <div class="col-md-3">
+                        <div class="vu-panel h-100">
+                            <span class="text-muted small d-block">Ventas del día</span>
+                            <strong class="fs-3">@Model.CantidadVentas</strong>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="vu-panel h-100">
+                            <span class="text-muted small d-block">Total vendido</span>
+                            <strong class="fs-3">@Model.TotalVentas.ToString("C0")</strong>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="vu-panel h-100">
+                            <span class="text-muted small d-block">Efectivo</span>
+                            <strong>@Model.TotalEfectivo.ToString("C0")</strong>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="vu-panel h-100">
+                            <span class="text-muted small d-block">SINPE</span>
+                            <strong>@Model.TotalSinpe.ToString("C0")</strong>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="vu-panel h-100">
+                            <span class="text-muted small d-block">Tarjeta</span>
+                            <strong>@Model.TotalTarjeta.ToString("C0")</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row g-4">
+                    <div class="col-lg-4">
+                        <div class="vu-panel h-100">
+                            <h2 class="h5 mb-3">Totales por método de pago</h2>
+                            @if (!Model.TotalesPorMetodoPago.Any())
+                            {
+                                <div class="alert alert-info mb-0" role="alert">No hay ventas para esta fecha.</div>
+                            }
+                            else
+                            {
+                                <div class="list-group list-group-flush">
+                                    @foreach (var metodo in Model.TotalesPorMetodoPago)
+                                    {
+                                        <div class="list-group-item px-0 d-flex justify-content-between align-items-center">
+                                            <span>
+                                                <strong>@metodo.MetodoPago</strong>
+                                                <small class="d-block text-muted">@metodo.CantidadVentas venta(s)</small>
+                                            </span>
+                                            <strong>@metodo.Total.ToString("C0")</strong>
+                                        </div>
+                                    }
+                                </div>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="col-lg-8">
+                        <div class="vu-panel">
+                            <h2 class="h5 mb-3">Ventas incluidas</h2>
+                            @if (!Model.Ventas.Any())
+                            {
+                                <div class="alert alert-info mb-0" role="alert">No existen ventas registradas en la fecha seleccionada.</div>
+                            }
+                            else
+                            {
+                                <div class="table-responsive">
+                                    <table class="table table-hover align-middle vu-data-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Venta</th>
+                                                <th>Factura</th>
+                                                <th>Hora</th>
+                                                <th>Cliente</th>
+                                                <th>Método</th>
+                                                <th class="text-end">Total</th>
+                                                <th class="text-center">Estado</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var venta in Model.Ventas)
+                                            {
+                                                <tr>
+                                                    <td><strong>#@venta.VentaId.ToString("D5")</strong></td>
+                                                    <td>@venta.NumeroFactura</td>
+                                                    <td>@venta.FechaVenta.ToLocalTime().ToString("hh:mm tt")</td>
+                                                    <td>
+                                                        <div class="d-flex flex-column">
+                                                            <span>@venta.Cliente</span>
+                                                            <small class="text-muted">@venta.Cajero</small>
+                                                        </div>
+                                                    </td>
+                                                    <td><span class="badge bg-secondary">@venta.MetodoPago</span></td>
+                                                    <td class="text-end fw-bold">@venta.Total.ToString("C0")</td>
+                                                    <td class="text-center">
+                                                        <span class="badge @(venta.Estado == "Aprobada" ? "bg-success" : "bg-secondary")">@venta.Estado</span>
+                                                    </td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
