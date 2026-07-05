@@ -1,4 +1,4 @@
-@model VibraUrbana.ViewModels.ReporteInventarioViewModel
+﻿@model VibraUrbana.ViewModels.ReporteInventarioViewModel
 
 @{
     ViewData["Title"] = "Reporte de inventario";
@@ -7,29 +7,14 @@
 <section class="vu-admin-shell">
     <div class="container-fluid">
         <div class="row g-0">
-            <aside class="col-lg-3 col-xl-2 vu-admin-sidebar">
-                <div class="vu-sidebar-brand">Vibra Urbana</div>
-                <nav class="vu-sidebar-nav">
-                    <a asp-controller="Admin" asp-action="Index">Panel inicial</a>
-                    <a asp-controller="Admin" asp-action="Usuarios">Usuarios</a>
-                    <a asp-controller="Rol" asp-action="Index">Roles</a>
-                    <a asp-controller="Cliente" asp-action="Index">Clientes</a>
-                    <a asp-controller="Producto" asp-action="Index">Productos</a>
-                    <a asp-controller="Inventario" asp-action="Index">Inventario</a>
-                    <a asp-controller="Venta" asp-action="Index">Ventas</a>
-                    <a asp-controller="Factura" asp-action="Index">Facturación</a>
-                    <a class="active" asp-controller="Reporte" asp-action="Index">Reportes</a>
-                    <a asp-controller="Pedido" asp-action="Index">Pedidos</a>
-                    <a asp-controller="Categoria" asp-action="Index">Categorías</a>
-                </nav>
-            </aside>
+            @await Html.PartialAsync("_Sidebar")
 
             <div class="col-lg-9 col-xl-10 vu-admin-content">
                 <div class="vu-admin-header">
                     <div>
-                        <p class="vu-eyebrow">Análisis de existencias</p>
+                        <p class="vu-eyebrow">AnÃ¡lisis de existencias</p>
                         <h1>Reporte de inventario</h1>
-                        <p>Consulta la disponibilidad actual y detecta productos que requieren reposición.</p>
+                        <p>Consulta la disponibilidad actual y detecta productos que requieren reposiciÃ³n.</p>
                     </div>
                     <a class="btn btn-outline-primary" asp-controller="Inventario" asp-action="Index">
                         Ver inventario
@@ -41,7 +26,7 @@
                         <div class="vu-dashboard-card h-100">
                             <span class="vu-card-label">Productos encontrados</span>
                             <strong class="vu-card-value">@Model.TotalProductos</strong>
-                            <span class="text-muted small">Según los filtros aplicados</span>
+                            <span class="text-muted small">SegÃºn los filtros aplicados</span>
                         </div>
                     </div>
                     <div class="col-md-4">
@@ -63,9 +48,9 @@
                 <div class="vu-panel mb-4">
                     <form asp-controller="Reporte" asp-action="Index" method="get" class="row g-3 align-items-end">
                         <div class="col-md-4">
-                            <label class="form-label" for="categoriaId">Categoría</label>
+                            <label class="form-label" for="categoriaId">CategorÃ­a</label>
                             <select id="categoriaId" name="categoriaId" asp-items="Model.Categorias" class="form-select">
-                                <option value="">Todas las categorías</option>
+                                <option value="">Todas las categorÃ­as</option>
                             </select>
                         </div>
                         <div class="col-md-4">
@@ -107,11 +92,11 @@
                                 <thead>
                                     <tr>
                                         <th>Producto</th>
-                                        <th>Categoría</th>
+                                        <th>CategorÃ­a</th>
                                         <th>Talla</th>
                                         <th>Color</th>
                                         <th>Disponible</th>
-                                        <th>Stock mínimo</th>
+                                        <th>Stock mÃ­nimo</th>
                                         <th>Estado de stock</th>
                                     </tr>
                                 </thead>
@@ -151,3 +136,4 @@
         </div>
     </div>
 </section>
+

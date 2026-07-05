@@ -59,7 +59,9 @@ public class VentaController : Controller
 
         var model = new CrearVentaViewModel
         {
-            Clientes = clientes.Where(c => c.Activo).ToList(),
+            Clientes = clientes
+                .Where(c => c.Activo && c.Identificacion != "000000000")
+                .ToList(),
             Productos = productosResult.Productos.Where(p => p.Activo && p.CantidadDisponible > 0).ToList(),
             MetodosPago = metodosPago
         };

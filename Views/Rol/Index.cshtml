@@ -1,4 +1,4 @@
-@model IReadOnlyList<VibraUrbana.ViewModels.RolListadoItemViewModel>
+﻿@model IReadOnlyList<VibraUrbana.ViewModels.RolListadoItemViewModel>
 
 @{
     ViewData["Title"] = "Roles";
@@ -7,27 +7,12 @@
 <section class="vu-admin-shell">
     <div class="container-fluid">
         <div class="row g-0">
-            <aside class="col-lg-3 col-xl-2 vu-admin-sidebar">
-                <div class="vu-sidebar-brand">Vibra Urbana</div>
-                <nav class="vu-sidebar-nav">
-                    <a asp-controller="Admin" asp-action="Index">Panel inicial</a>
-                    <a asp-controller="Admin" asp-action="Usuarios">Usuarios</a>
-                    <a class="active" asp-controller="Rol" asp-action="Index">Roles</a>
-                    <a asp-controller="Cliente" asp-action="Index">Clientes</a>
-                    <a asp-controller="Producto" asp-action="Index">Productos</a>
-                    <a asp-controller="Inventario" asp-action="Index">Inventario</a>
-                    <a asp-controller="Venta" asp-action="Index">Ventas</a>
-                    <a asp-controller="Factura" asp-action="Index">Facturación</a>
-                    <a asp-controller="Reporte" asp-action="Index">Reportes</a>
-                    <a asp-controller="Pedido" asp-action="Index">Pedidos</a>
-                    <a class="active" asp-controller="Categoria" asp-action="Index">Categorías</a>
-                </nav>
-            </aside>
+            @await Html.PartialAsync("_Sidebar")
 
             <div class="col-lg-9 col-xl-10 vu-admin-content">
                 <div class="vu-admin-header">
                     <div>
-                        <p class="vu-eyebrow">Administración</p>
+                        <p class="vu-eyebrow">AdministraciÃ³n</p>
                         <h1>Roles</h1>
                         <p>Consulta y crea roles disponibles para asignar a usuarios internos.</p>
                     </div>
@@ -53,7 +38,7 @@
                                 <thead>
                                     <tr>
                                         <th>Nombre</th>
-                                        <th>Descripción</th>
+                                        <th>DescripciÃ³n</th>
                                         <th>Estado</th>
                                         <th class="text-end vu-actions-column">Acciones</th>
                                     </tr>
@@ -85,7 +70,7 @@
                                                           class="d-inline"
                                                           data-vu-confirm
                                                           data-vu-confirm-title="@(rol.Activo ? "Desactivar rol" : "Activar rol")"
-                                                          data-vu-confirm-message="@(rol.Activo ? $"¿Deseas desactivar el rol {rol.Nombre}?" : $"¿Deseas activar el rol {rol.Nombre}?")"
+                                                          data-vu-confirm-message="@(rol.Activo ? $"Â¿Deseas desactivar el rol {rol.Nombre}?" : $"Â¿Deseas activar el rol {rol.Nombre}?")"
                                                           data-vu-confirm-action="@(rol.Activo ? "Desactivar" : "Activar")">
                                                         @Html.AntiForgeryToken()
                                                         <input name="id" type="hidden" value="@rol.Id" />
@@ -114,3 +99,4 @@
         </div>
     </div>
 </section>
+

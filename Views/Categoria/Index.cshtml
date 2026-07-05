@@ -8,22 +8,7 @@
     <div class="container-fluid">
         <div class="row g-0">
             <!-- 🔹 Sidebar -->
-            <aside class="col-lg-3 col-xl-2 vu-admin-sidebar">
-                <div class="vu-sidebar-brand">Vibra Urbana</div>
-                <nav class="vu-sidebar-nav">
-                    <a asp-controller="Admin" asp-action="Index">Panel inicial</a>
-                    <a asp-controller="Admin" asp-action="Usuarios">Usuarios</a>
-                    <a asp-controller="Rol" asp-action="Index">Roles</a>
-                    <a asp-controller="Cliente" asp-action="Index">Clientes</a>
-                    <a asp-controller="Producto" asp-action="Index">Productos</a>
-                    <a asp-controller="Inventario" asp-action="Index">Inventario</a>
-                    <a asp-controller="Venta" asp-action="Index">Ventas</a>
-                    <a asp-controller="Factura" asp-action="Index">Facturación</a>
-                    <a asp-controller="Reporte" asp-action="Index">Reportes</a>
-                    <a asp-controller="Pedido" asp-action="Index">Pedidos</a>
-                    <a class="active" asp-controller="Categoria" asp-action="Index">Categoría</a>
-                </nav>
-            </aside>
+            @await Html.PartialAsync("_Sidebar")
 
             <!-- 🔹 Contenido principal -->
             <div class="col-lg-9 col-xl-10 vu-admin-content">
@@ -208,3 +193,4 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
 
 }
+

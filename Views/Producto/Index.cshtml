@@ -1,4 +1,4 @@
-@model VibraUrbana.ViewModels.ProductosIndexViewModel
+﻿@model VibraUrbana.ViewModels.ProductosIndexViewModel
 
 @{
     ViewData["Title"] = "Productos";
@@ -7,29 +7,14 @@
 <section class="vu-admin-shell">
     <div class="container-fluid">
         <div class="row g-0">
-            <aside class="col-lg-3 col-xl-2 vu-admin-sidebar">
-                <div class="vu-sidebar-brand">Vibra Urbana</div>
-                <nav class="vu-sidebar-nav">
-                    <a asp-controller="Admin" asp-action="Index">Panel inicial</a>
-                    <a asp-controller="Admin" asp-action="Usuarios">Usuarios</a>
-                    <a asp-controller="Rol" asp-action="Index">Roles</a>
-                    <a asp-controller="Cliente" asp-action="Index">Clientes</a>
-                    <a class="active" asp-controller="Producto" asp-action="Index">Productos</a>
-                    <a asp-controller="Inventario" asp-action="Index">Inventario</a>
-                    <a asp-controller="Venta" asp-action="Index">Ventas</a>
-                    <a asp-controller="Factura" asp-action="Index">Facturación</a>
-                    <a asp-controller="Reporte" asp-action="Index">Reportes</a>
-                    <a asp-controller="Pedido" asp-action="Index">Pedidos</a>
-                    <a asp-controller="Categoria" asp-action="Index">Categorías</a>
-                </nav>
-            </aside>
+            @await Html.PartialAsync("_Sidebar")
 
             <div class="col-lg-9 col-xl-10 vu-admin-content">
                 <div class="vu-admin-header">
                     <div>
-                        <p class="vu-eyebrow">Catálogo</p>
+                        <p class="vu-eyebrow">CatÃ¡logo</p>
                         <h1>Productos</h1>
-                        <p>Administra prendas, precios, variantes, descripción e imagen comercial del catálogo.</p>
+                        <p>Administra prendas, precios, variantes, descripciÃ³n e imagen comercial del catÃ¡logo.</p>
                     </div>
                     <a class="btn btn-primary" asp-controller="Producto" asp-action="Crear">Registrar producto</a>
                 </div>
@@ -37,7 +22,7 @@
                 <div class="vu-panel mb-4">
                     <form asp-controller="Producto" asp-action="Index" method="get" class="row g-3 align-items-end">
                         <div class="col-md-3">
-                            <label class="form-label" for="categoriaId">Categoría</label>
+                            <label class="form-label" for="categoriaId">CategorÃ­a</label>
                             <select id="categoriaId" name="categoriaId" asp-items="Model.Categorias" class="form-select">
                                 <option value="">Todas</option>
                             </select>
@@ -88,7 +73,7 @@
                                 <thead>
                                     <tr>
                                         <th>Producto</th>
-                                        <th>Categoría</th>
+                                        <th>CategorÃ­a</th>
                                         <th>Precio</th>
                                         <th>Talla</th>
                                         <th>Color</th>
@@ -113,7 +98,7 @@
                                                     }
                                                     <span>
                                                         <strong>@producto.Nombre</strong>
-                                                        <small>@(string.IsNullOrWhiteSpace(producto.Descripcion) ? "Sin descripción" : producto.Descripcion)</small>
+                                                        <small>@(string.IsNullOrWhiteSpace(producto.Descripcion) ? "Sin descripciÃ³n" : producto.Descripcion)</small>
                                                     </span>
                                                 </div>
                                             </td>
@@ -123,7 +108,7 @@
                                             <td>@(string.IsNullOrWhiteSpace(producto.Color) ? "Sin color" : producto.Color)</td>
                                             <td>
                                                 <span class="badge @(producto.StockBajo ? "bg-warning text-dark" : "bg-success")">
-                                                    @producto.CantidadDisponible / mín. @producto.StockMinimo
+                                                    @producto.CantidadDisponible / mÃ­n. @producto.StockMinimo
                                                 </span>
                                             </td>
                                             <td>
@@ -147,7 +132,7 @@
                                                           class="d-inline"
                                                           data-vu-confirm
                                                           data-vu-confirm-title="@(producto.Activo ? "Desactivar producto" : "Activar producto")"
-                                                          data-vu-confirm-message="@(producto.Activo ? $"¿Deseas desactivar el producto {producto.Nombre}?" : $"¿Deseas activar el producto {producto.Nombre}?")"
+                                                          data-vu-confirm-message="@(producto.Activo ? $"Â¿Deseas desactivar el producto {producto.Nombre}?" : $"Â¿Deseas activar el producto {producto.Nombre}?")"
                                                           data-vu-confirm-action="@(producto.Activo ? "Desactivar" : "Activar")">
                                                         @Html.AntiForgeryToken()
                                                         <input name="id" type="hidden" value="@producto.Id" />
@@ -179,3 +164,4 @@
         </div>
     </div>
 </section>
+
