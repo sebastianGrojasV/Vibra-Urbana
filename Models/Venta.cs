@@ -26,9 +26,17 @@ public class Venta
 
     public decimal Total { get; set; }
 
-    public string Estado { get; set; } = "Registrada";
+    public string Estado { get; set; } = "Aprobada";
 
     public string Observacion { get; set; } = string.Empty;
+
+    public string MotivoAnulacion { get; set; } = string.Empty;
+
+    public DateTime? FechaAnulacion { get; set; }
+
+    public int? UsuarioAnulacionId { get; set; }
+
+    public Usuario? UsuarioAnulacion { get; set; }
 
     public int? CierreCajaId { get; set; }
 

@@ -1,0 +1,36 @@
+@inject VibraUrbana.Services.INavigationMenuService NavigationMenuService
+
+@{
+    var sidebarItems = (await NavigationMenuService.GetItemsAsync(User))
+        .Where(item => item.Controller != "Home")
+        .ToList();
+    var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
+    var currentAction = ViewContext.RouteData.Values["action"]?.ToString();
+    var userActions = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+    {
+        "Usuarios",
+        "CrearUsuario",
+        "ModificarUsuario",
+        "VerUsuario",
+        "RestablecerPasswordUsuario",
+        "CambiarEstadoUsuario"
+    };
+}
+
+<aside class="col-lg-3 col-xl-2 vu-admin-sidebar">
+    <div class="vu-sidebar-brand">Vibra Urbana</div>
+    <nav class="vu-sidebar-nav">
+        @foreach (var item in sidebarItems)
+        {
+            var sameController = string.Equals(item.Controller, currentController, StringComparison.OrdinalIgnoreCase);
+            var controllerItems = sidebarItems.Count(menuItem =>
+                string.Equals(menuItem.Controller, item.Controller, StringComparison.OrdinalIgnoreCase));
+            var isActive = sameController
+                && (string.Equals(item.Action, currentAction, StringComparison.OrdinalIgnoreCase)
+                    || (controllerItems == 1 && item.Action == "Index")
+                    || (item.Controller == "Admin" && item.Action == "Usuarios" && currentAction is not null && userActions.Contains(currentAction)));
+
+            <a class="@(isActive ? "active" : null)" asp-controller="@item.Controller" asp-action="@item.Action">@item.Texto</a>
+        }
+    </nav>
+</aside>

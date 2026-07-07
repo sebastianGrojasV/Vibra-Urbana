@@ -1,4 +1,4 @@
-@model VibraUrbana.ViewModels.CrearVentaViewModel
+﻿@model VibraUrbana.ViewModels.CrearVentaViewModel
 
 @{
     ViewData["Title"] = "Registrar Nueva Venta";
@@ -8,22 +8,7 @@
     <div class="container-fluid">
         <div class="row g-0">
             <!-- Sidebar -->
-            <aside class="col-lg-3 col-xl-2 vu-admin-sidebar">
-                <div class="vu-sidebar-brand">Vibra Urbana</div>
-                <nav class="vu-sidebar-nav">
-                    <a asp-controller="Admin" asp-action="Index">Panel inicial</a>
-                    <a asp-controller="Admin" asp-action="Usuarios">Usuarios</a>
-                    <a asp-controller="Rol" asp-action="Index">Roles</a>
-                    <a asp-controller="Cliente" asp-action="Index">Clientes</a>
-                    <a asp-controller="Producto" asp-action="Index">Productos</a>
-                    <a asp-controller="Inventario" asp-action="Index">Inventario</a>
-                    <a class="active" asp-controller="Venta" asp-action="Index">Ventas</a>
-                    <a asp-controller="Factura" asp-action="Index">Facturación</a>
-                    <a asp-controller="Reporte" asp-action="Index">Reportes</a>
-                    <a asp-controller="Pedido" asp-action="Index">Pedidos</a>
-                    <a asp-controller="Categoria" asp-action="Index">Categorías</a>
-                </nav>
-            </aside>
+            @await Html.PartialAsync("_Sidebar")
 
             <!-- Main Content -->
             <div class="col-lg-9 col-xl-10 vu-admin-content">
@@ -40,25 +25,30 @@
                     @Html.AntiForgeryToken()
                 </form>
 
+                <div id="ventaNotice" class="vu-sale-notice d-none" role="alert" aria-live="polite"></div>
+
                 <div class="row">
                     <!-- Formulario de venta y carrito -->
                     <div class="col-lg-8">
                         <!-- Card 1: Datos Generales -->
-                        <div class="card mb-4 shadow-soft">
-                            <div class="card-header bg-primary text-white">
+                        <div class="vu-panel vu-sale-panel mb-4">
+                            <div class="vu-sale-panel-header">
                                 <span class="align-middle">Datos Generales de la Venta</span>
                             </div>
-                            <div class="card-body">
+                            <div class="vu-sale-panel-body">
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
-                                        <label for="clienteSelect" class="form-label font-weight-bold">Cliente <span class="text-danger">*</span></label>
-                                        <select id="clienteSelect" class="form-select" required>
-                                            <option value="">-- Seleccione un cliente --</option>
-                                            @foreach (var cliente in Model.Clientes)
-                                            {
-                                                <option value="@cliente.Id">@cliente.NombreCompleto (@cliente.Identificacion)</option>
-                                            }
-                                        </select>
+                                        <label for="clienteSearchInput" class="form-label font-weight-bold">Cliente <span class="text-danger">*</span></label>
+                                        <div class="vu-sale-search">
+                                            <input type="search"
+                                                   id="clienteSearchInput"
+                                                   class="form-control"
+                                                   placeholder="Buscar por nombre o identificación"
+                                                   autocomplete="off" />
+                                            <input type="hidden" id="clienteIdInput" value="" />
+                                            <div id="clienteResults" class="vu-sale-search-results d-none" role="listbox"></div>
+                                        </div>
+                                        <small id="clienteSeleccionado" class="vu-sale-selected-client text-muted">Sin cliente seleccionado.</small>
                                     </div>
                                     <div class="col-md-6 mb-3">
                                         <label for="metodoPagoSelect" class="form-label font-weight-bold">Método de Pago <span class="text-danger">*</span></label>
@@ -80,12 +70,12 @@
                             </div>
                         </div>
 
-                        <!-- Card 2: Selección de Productos -->
-                        <div class="card mb-4 shadow-soft">
-                            <div class="card-header bg-primary text-white">
+                        <!-- Card 2: Seleccion de Productos -->
+                        <div class="vu-panel vu-sale-panel mb-4">
+                            <div class="vu-sale-panel-header">
                                 <span>Agregar Productos</span>
                             </div>
-                            <div class="card-body">
+                            <div class="vu-sale-panel-body">
                                 <div class="row align-items-end">
                                     <div class="col-md-6 mb-3">
                                         <label for="productoSelect" class="form-label font-weight-bold">Producto</label>
@@ -109,10 +99,10 @@
                                 </div>
 
                                 <!-- Detalles del producto seleccionado -->
-                                <div id="detalleProductoSeleccionado" class="alert alert-info py-2 px-3 mb-0 d-none" role="alert">
+                                <div id="detalleProductoSeleccionado" class="vu-sale-product-summary d-none" role="status">
                                     <div class="row text-center text-md-start">
                                         <div class="col-md-4"><strong>Precio Unitario:</strong> <span id="lblPrecioUnitario">₡0.00</span></div>
-                                        <div class="col-md-4"><strong>Stock Disponible:</strong> <span id="lblStockDisponible" class="badge bg-success">0</span></div>
+                                        <div class="col-md-4"><strong>Stock Disponible:</strong> <span id="lblStockDisponible" class="badge vu-stock-badge vu-stock-ok">0</span></div>
                                         <div class="col-md-4"><strong>Categoría:</strong> <span id="lblCategoria">N/A</span></div>
                                     </div>
                                 </div>
@@ -120,13 +110,13 @@
                         </div>
 
                         <!-- Card 3: Tabla de Detalles -->
-                        <div class="card mb-4 shadow-soft">
-                            <div class="card-header bg-primary text-white">
+                        <div class="vu-panel vu-sale-panel mb-4">
+                            <div class="vu-sale-panel-header">
                                 <span>Detalle de la Venta</span>
                             </div>
-                            <div class="card-body p-0">
+                            <div class="vu-sale-panel-body p-0">
                                 <div class="table-responsive">
-                                    <table id="tablaDetalles" class="table table-hover align-middle mb-0">
+                                    <table id="tablaDetalles" class="table table-hover align-middle mb-0 vu-sale-detail-table">
                                         <thead>
                                             <tr>
                                                 <th class="ps-3">Producto</th>
@@ -150,13 +140,13 @@
                         </div>
                     </div>
 
-                    <!-- Panel de Totales y Confirmación -->
+                    <!-- Panel de Totales y Confirmacion -->
                     <div class="col-lg-4">
-                        <div class="card shadow-soft sticky-top" style="top: 80px; z-index: 100;">
-                            <div class="card-header bg-primary text-white text-center py-3">
+                        <div class="vu-panel vu-sale-summary sticky-top" style="top: 80px; z-index: 100;">
+                            <div class="vu-sale-panel-header text-center py-3">
                                 <h5 class="mb-0">Resumen y Cómputo</h5>
                             </div>
-                            <div class="card-body">
+                            <div class="vu-sale-panel-body">
                                 <div class="d-flex justify-content-between mb-2">
                                     <span class="text-muted">Subtotal:</span>
                                     <strong id="lblResumenSubtotal">₡0.00</strong>
@@ -185,9 +175,9 @@
                                     <span class="h4 mb-0 text-primary font-weight-bold" id="lblResumenTotal">₡0.00</span>
                                 </div>
 
-                                <div id="errorSubmitAlert" class="alert alert-danger d-none py-2" role="alert"></div>
+                                <div id="errorSubmitAlert" class="vu-sale-notice vu-sale-notice-danger d-none py-2" role="alert"></div>
 
-                                <button type="button" id="btnGuardarVenta" class="btn btn-success btn-lg w-100 py-3 rounded-custom shadow-soft" disabled>
+                                <button type="button" id="btnGuardarVenta" class="btn btn-primary btn-lg w-100 py-3 rounded-custom shadow-soft" disabled>
                                     Registrar Venta
                                 </button>
                             </div>
@@ -201,9 +191,10 @@
 
 @section Scripts {
     <script>
-        // Serialización de productos y clientes para uso interactivo en el cliente
+        // Serializacion de productos y clientes para uso interactivo en el cliente
         const productosDisponibles = @Html.Raw(Json.Serialize(Model.Productos));
-        const clientesDisponibles = @Html.Raw(Json.Serialize(Model.Clientes));
+        const clientesDisponibles = @Html.Raw(Json.Serialize(Model.Clientes))
+            .filter(c => (c.identificacion ?? c.Identificacion) !== "000000000");
 
         // Carrito en memoria
         let carrito = [];
@@ -227,18 +218,107 @@
         const lblResumenTotal = document.getElementById("lblResumenTotal");
         
         // Formulario y Submit
-        const clienteSelect = document.getElementById("clienteSelect");
+        const clienteSearchInput = document.getElementById("clienteSearchInput");
+        const clienteIdInput = document.getElementById("clienteIdInput");
+        const clienteResults = document.getElementById("clienteResults");
+        const clienteSeleccionado = document.getElementById("clienteSeleccionado");
         const metodoPagoSelect = document.getElementById("metodoPagoSelect");
         const observacionText = document.getElementById("observacionText");
         const btnGuardarVenta = document.getElementById("btnGuardarVenta");
         const errorSubmitAlert = document.getElementById("errorSubmitAlert");
+        const ventaNotice = document.getElementById("ventaNotice");
+        let ventaNoticeTimer = null;
 
         // Formatear moneda de Costa Rica (Colon)
         const formatMoneda = (valor) => {
             return new Intl.NumberFormat('es-CR', { style: 'currency', currency: 'CRC' }).format(valor);
         };
 
-        // Escuchar cambio en selección de producto
+        const normalizarTexto = (valor) => {
+            return (valor || "")
+                .toString()
+                .normalize("NFD")
+                .replace(/[\u0300-\u036f]/g, "")
+                .toLocaleLowerCase("es");
+        };
+
+        function limpiarClienteSeleccionado() {
+            clienteIdInput.value = "";
+            clienteSeleccionado.textContent = "Sin cliente seleccionado.";
+        }
+
+        function seleccionarCliente(cliente) {
+            const id = cliente.id ?? cliente.Id;
+            const nombre = cliente.nombreCompleto ?? cliente.NombreCompleto;
+            const identificacion = cliente.identificacion ?? cliente.Identificacion;
+
+            clienteIdInput.value = id;
+            clienteSearchInput.value = `${nombre} (${identificacion})`;
+            clienteSeleccionado.textContent = `Cliente seleccionado: ${nombre}`;
+            clienteResults.classList.add("d-none");
+            clienteResults.innerHTML = "";
+        }
+
+        function renderizarClientes(filtro) {
+            const filtroNormalizado = normalizarTexto(filtro);
+
+            if (filtroNormalizado.length < 2) {
+                clienteResults.classList.add("d-none");
+                clienteResults.innerHTML = "";
+                return;
+            }
+
+            const resultados = clientesDisponibles
+                .filter(cliente => {
+                    const nombre = cliente.nombreCompleto ?? cliente.NombreCompleto;
+                    const identificacion = cliente.identificacion ?? cliente.Identificacion;
+                    return normalizarTexto(`${nombre} ${identificacion}`).includes(filtroNormalizado);
+                })
+                .slice(0, 8);
+
+            clienteResults.innerHTML = "";
+
+            if (resultados.length === 0) {
+                const empty = document.createElement("div");
+                empty.className = "vu-sale-search-empty";
+                empty.textContent = "No se encontraron clientes.";
+                clienteResults.appendChild(empty);
+                clienteResults.classList.remove("d-none");
+                return;
+            }
+
+            resultados.forEach(cliente => {
+                const nombre = cliente.nombreCompleto ?? cliente.NombreCompleto;
+                const identificacion = cliente.identificacion ?? cliente.Identificacion;
+                const telefono = cliente.telefono ?? cliente.Telefono;
+                const button = document.createElement("button");
+                button.type = "button";
+                button.className = "vu-sale-search-item";
+                button.setAttribute("role", "option");
+                button.innerHTML = `<strong>${nombre}</strong><span>${identificacion}${telefono ? ` · ${telefono}` : ""}</span>`;
+                button.addEventListener("click", () => seleccionarCliente(cliente));
+                clienteResults.appendChild(button);
+            });
+
+            clienteResults.classList.remove("d-none");
+        }
+
+        clienteSearchInput.addEventListener("input", () => {
+            limpiarClienteSeleccionado();
+            renderizarClientes(clienteSearchInput.value);
+        });
+
+        clienteSearchInput.addEventListener("focus", () => {
+            renderizarClientes(clienteSearchInput.value);
+        });
+
+        document.addEventListener("click", (event) => {
+            if (!event.target.closest(".vu-sale-search")) {
+                clienteResults.classList.add("d-none");
+            }
+        });
+
+        // Escuchar cambio en seleccion de producto
         productoSelect.addEventListener("change", () => {
             const prodId = parseInt(productoSelect.value);
             const producto = productosDisponibles.find(p => (p.id ?? p.Id) === prodId);
@@ -253,19 +333,26 @@
                 lblCategoria.textContent = categoria;
 
                 if (stock <= (producto.stockMinimo ?? producto.StockMinimo)) {
-                    lblStockDisponible.className = "badge bg-warning text-dark";
+                    lblStockDisponible.className = "badge vu-stock-badge vu-stock-low";
                 } else {
-                    lblStockDisponible.className = "badge bg-success";
+                    lblStockDisponible.className = "badge vu-stock-badge vu-stock-ok";
                 }
 
-                // Habilitar controles
-                cantidadInput.disabled = false;
+                const productoActivo = producto.activo ?? producto.Activo;
+                const puedeVenderse = productoActivo && stock > 0;
+
+                cantidadInput.disabled = !puedeVenderse;
                 cantidadInput.max = stock;
-                cantidadInput.value = 1;
-                btnAgregarProducto.disabled = false;
+                cantidadInput.value = puedeVenderse ? 1 : 0;
+                btnAgregarProducto.disabled = !puedeVenderse;
                 detalleProductoSeleccionado.classList.remove("d-none");
+
+                if (!productoActivo) {
+                    mostrarAviso("Este producto está inactivo y no puede agregarse a la venta.", "warning");
+                } else if (stock <= 0) {
+                    mostrarAviso("Este producto no tiene existencias disponibles.", "warning");
+                }
             } else {
-                // Deshabilitar controles
                 cantidadInput.disabled = true;
                 cantidadInput.value = 1;
                 btnAgregarProducto.disabled = true;
@@ -283,12 +370,13 @@
             let val = parseInt(cantidadInput.value);
 
             if (isNaN(val) || val < 1) {
-                cantidadInput.value = 1;
-                val = 1;
+                mostrarAviso("La cantidad debe ser mayor a cero.", "warning");
+                cantidadInput.value = "";
+                return;
             }
 
             if (val > maxStock) {
-                alert(`Atención: Solo quedan ${maxStock} unidades disponibles en inventario.`);
+                mostrarAviso(`Atención: solo quedan ${maxStock} unidades disponibles en inventario.`, "warning");
                 cantidadInput.value = maxStock;
             }
         });
@@ -301,13 +389,36 @@
 
             const cantidadToAdd = parseInt(cantidadInput.value);
             const stockMax = producto.cantidadDisponible ?? producto.CantidadDisponible;
+            const productoActivo = producto.activo ?? producto.Activo;
+
+            if (!productoActivo) {
+                mostrarAviso("Este producto está inactivo y no puede agregarse a la venta.", "warning");
+                return;
+            }
+
+            if (stockMax <= 0) {
+                mostrarAviso("Este producto no tiene existencias disponibles.", "warning");
+                return;
+            }
+
+            if (Number.isNaN(cantidadToAdd) || cantidadToAdd <= 0) {
+                mostrarAviso("La cantidad debe ser mayor a cero.", "warning");
+                cantidadInput.focus();
+                return;
+            }
+
+            if (cantidadToAdd > stockMax) {
+                mostrarAviso(`Stock insuficiente. Disponible: ${stockMax}, solicitado: ${cantidadToAdd}.`, "warning");
+                cantidadInput.focus();
+                return;
+            }
             
             // Verificar si ya existe en el carrito
             const itemExistente = carrito.find(item => item.productoId === prodId);
             if (itemExistente) {
                 const nuevaCantidad = itemExistente.cantidad + cantidadToAdd;
                 if (nuevaCantidad > stockMax) {
-                    alert(`No puedes agregar esa cantidad. Ya tienes ${itemExistente.cantidad} en el carrito y el stock máximo es ${stockMax}.`);
+                    mostrarAviso(`No puedes agregar esa cantidad. Ya tienes ${itemExistente.cantidad} en el carrito y el stock máximo es ${stockMax}.`, "warning");
                     return;
                 }
                 itemExistente.cantidad = nuevaCantidad;
@@ -353,7 +464,7 @@
             carrito.forEach((item, index) => {
                 const tr = document.createElement("tr");
 
-                // Nombre Producto
+                // Nombre producto
                 const tdNombre = document.createElement("td");
                 tdNombre.className = "ps-3";
                 tdNombre.innerHTML = `<strong>${item.nombre}</strong>`;
@@ -410,7 +521,7 @@
                 tdSubtotal.textContent = formatMoneda(item.precioUnitario * item.cantidad);
                 tr.appendChild(tdSubtotal);
 
-                // Botón Quitar
+                // Boton quitar
                 const tdAcciones = document.createElement("td");
                 tdAcciones.className = "text-center";
                 const btnQuitar = document.createElement("button");
@@ -439,7 +550,7 @@
             }
 
             if (nuevaCant > item.stockMax) {
-                alert(`No es posible agregar más de este producto. El stock máximo disponible es ${item.stockMax}.`);
+                mostrarAviso(`No es posible agregar más de este producto. El stock máximo disponible es ${item.stockMax}.`, "warning");
                 return;
             }
 
@@ -490,26 +601,51 @@
 
         descuentoInput.addEventListener("input", actualizarTotales);
 
+        function mostrarAviso(mensaje, tipo = "danger", destino = ventaNotice) {
+            if (!destino) {
+                return;
+            }
+
+            window.clearTimeout(ventaNoticeTimer);
+            destino.textContent = mensaje;
+            destino.classList.remove("d-none", "vu-sale-notice-danger", "vu-sale-notice-warning", "vu-sale-notice-dismissing");
+            destino.classList.add(tipo === "warning" ? "vu-sale-notice-warning" : "vu-sale-notice-danger");
+            destino.scrollIntoView({ behavior: "smooth", block: "nearest" });
+
+            ventaNoticeTimer = window.setTimeout(() => {
+                destino.classList.add("vu-sale-notice-dismissing");
+                window.setTimeout(() => {
+                    destino.classList.add("d-none");
+                    destino.classList.remove("vu-sale-notice-dismissing");
+                    destino.textContent = "";
+                }, 240);
+            }, 3000);
+        }
+
+        function mostrarErrorSubmit(mensaje) {
+            mostrarAviso(mensaje, "danger", errorSubmitAlert);
+        }
+
         // Guardar Venta
         btnGuardarVenta.addEventListener("click", async () => {
-            const clienteId = parseInt(clienteSelect.value);
+            const clienteId = parseInt(clienteIdInput.value);
             const metodoPagoId = parseInt(metodoPagoSelect.value);
             const observacion = observacionText.value;
 
-            if (!clienteId) {
-                alert("Debes seleccionar un cliente obligatoriamente.");
-                clienteSelect.focus();
+            if (!clienteId || Number.isNaN(clienteId)) {
+                mostrarAviso("Debes seleccionar un cliente.", "warning");
+                clienteSearchInput.focus();
                 return;
             }
 
             if (!metodoPagoId) {
-                alert("Debes seleccionar un método de pago obligatoriamente.");
+                mostrarAviso("Debes seleccionar un método de pago.", "warning");
                 metodoPagoSelect.focus();
                 return;
             }
 
             if (carrito.length === 0) {
-                alert("El detalle de la venta no puede estar vacío.");
+                mostrarAviso("El detalle de la venta no puede estar vacío.", "warning");
                 return;
             }
 
@@ -547,17 +683,15 @@
                 const data = await response.json();
 
                 if (response.ok && data.esExitoso) {
-                    // Redireccionar con éxito
+                    // Redireccionar con exito
                     window.location.href = '/Venta';
                 } else {
-                    errorSubmitAlert.textContent = data.mensaje || "Error desconocido al registrar la venta.";
-                    errorSubmitAlert.classList.remove("d-none");
+                    mostrarErrorSubmit(data.mensaje || "Error desconocido al registrar la venta.");
                     btnGuardarVenta.disabled = false;
                     btnGuardarVenta.textContent = "Registrar Venta";
                 }
             } catch (err) {
-                errorSubmitAlert.textContent = "Error de red o conexión al servidor. Intente nuevamente.";
-                errorSubmitAlert.classList.remove("d-none");
+                mostrarErrorSubmit("Error de red o conexión al servidor. Intenta nuevamente.");
                 btnGuardarVenta.disabled = false;
                 btnGuardarVenta.textContent = "Registrar Venta";
                 console.error(err);
@@ -565,3 +699,4 @@
         });
     </script>
 }
+

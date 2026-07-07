@@ -1,30 +1,18 @@
-
+﻿
 window.addEventListener("DOMContentLoaded", () => {
     enhanceSidebar();
     enhanceModulePlaceholders();
     setupInlineConfirmations();
+    setupSaleCancellation();
     setupAutoDismissAlerts();
 
     if (!window.jQuery || !jQuery.fn.DataTable) {
         return;
     }
 
-    jQuery(".vu-data-table").DataTable({
-        dom: 'Bfrtip', //  espacio para los botones
-        buttons: [
-            {
-                extend: 'excelHtml5',
-                text: '📊 Exportar a Excel',
-                title: 'Reporte'
-            },
-            {
-                extend: 'pdfHtml5',
-                text: '📄 Exportar a PDF',
-                title: 'Reporte',
-                orientation: 'landscape', // horizontal
-                pageSize: 'A4'
-            }
-        ],
+    const hasDataTableButtons = Boolean(jQuery.fn.dataTable?.Buttons);
+    const dataTableOptions = {
+        dom: hasDataTableButtons ? 'Bfrtip' : 'frtip',
         pageLength: 8,
         lengthMenu: [5, 8, 10, 25],
         order: [],
@@ -49,7 +37,26 @@ window.addEventListener("DOMContentLoaded", () => {
                 targets: "vu-actions-column"
             }
         ]
-    });
+    };
+
+    if (hasDataTableButtons) {
+        dataTableOptions.buttons = [
+            {
+                extend: 'excelHtml5',
+                text: 'Exportar a Excel',
+                title: 'Reporte'
+            },
+            {
+                extend: 'pdfHtml5',
+                text: 'Exportar a PDF',
+                title: 'Reporte',
+                orientation: 'landscape',
+                pageSize: 'A4'
+            }
+        ];
+    }
+
+    jQuery(".vu-data-table").DataTable(dataTableOptions);
 });
 
 function enhanceSidebar() {
@@ -70,6 +77,7 @@ function enhanceSidebar() {
         "ventas": "cart",
         "facturación": "file",
         "facturacion": "file",
+        "cierre de caja": "file",
         "reportes": "chart",
         "pedidos": "bag"
     };
@@ -146,6 +154,43 @@ function setupInlineConfirmations() {
 
     cancel.addEventListener("click", () => {
         pendingForm = null;
+        frame.classList.remove("is-visible");
+        frame.hidden = true;
+    });
+}
+
+function setupSaleCancellation() {
+    const frame = document.querySelector("[data-vu-cancel-sale-frame]");
+
+    if (!frame) {
+        return;
+    }
+
+    const idInput = frame.querySelector("[data-vu-cancel-sale-id]");
+    const reasonInput = frame.querySelector("[data-vu-cancel-sale-reason]");
+    const title = frame.querySelector("[data-vu-cancel-sale-title]");
+    const message = frame.querySelector("[data-vu-cancel-sale-message]");
+    const close = frame.querySelector("[data-vu-cancel-sale-close]");
+
+    document.querySelectorAll("[data-vu-cancel-sale]").forEach((button) => {
+        button.addEventListener("click", () => {
+            const saleId = button.dataset.vuSaleId;
+            const saleCode = button.dataset.vuSaleCode || `#${saleId}`;
+            const saleClient = button.dataset.vuSaleClient || "cliente seleccionado";
+
+            idInput.value = saleId;
+            reasonInput.value = "";
+            title.textContent = `Anular venta ${saleCode}`;
+            message.textContent = `Confirma la anulación de la venta de ${saleClient}. El inventario será restaurado.`;
+            frame.hidden = false;
+            frame.classList.add("is-visible");
+            reasonInput.focus();
+        });
+    });
+
+    close.addEventListener("click", () => {
+        idInput.value = "";
+        reasonInput.value = "";
         frame.classList.remove("is-visible");
         frame.hidden = true;
     });

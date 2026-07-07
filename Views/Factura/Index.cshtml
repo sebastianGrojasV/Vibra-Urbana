@@ -1,17 +1,100 @@
+@model IReadOnlyList<VibraUrbana.ViewModels.FacturaListadoItemViewModel>
+
 @{
     ViewData["Title"] = "Facturación";
 }
 
-<section class="vu-module-placeholder-page">
-    <div class="container">
-        <div class="vu-module-placeholder">
-            <span class="vu-module-placeholder-icon" data-vu-module-icon="facturacion"></span>
-            <p class="vu-eyebrow">Módulo en preparación</p>
-            <h1>Facturación</h1>
-            <p>Este módulo gestionará comprobantes, números de factura, totales, estados y emisión de documentos.</p>
-            <div class="vu-placeholder-actions">
-                <a class="btn btn-primary" asp-controller="Admin" asp-action="Index">Volver al panel</a>
-                <a class="btn btn-outline-primary" asp-controller="Venta" asp-action="Index">Ver ventas</a>
+<section class="vu-admin-shell">
+    <div class="container-fluid">
+        <div class="row g-0">
+            @await Html.PartialAsync("_Sidebar")
+
+            <div class="col-lg-9 col-xl-10 vu-admin-content">
+                <div class="vu-admin-header">
+                    <div>
+                        <p class="vu-eyebrow">Facturación</p>
+                        <h1>Facturas</h1>
+                        <p>Consulta comprobantes emitidos, totales de venta y estado de facturación.</p>
+                    </div>
+                    <div class="d-flex flex-wrap gap-2">
+                        <a class="btn btn-outline-primary" asp-controller="Factura" asp-action="CierreCaja">Cierre de caja</a>
+                        <a class="btn btn-primary" asp-controller="Venta" asp-action="Crear">Registrar venta</a>
+                    </div>
+                </div>
+
+                <div class="vu-panel">
+                    @if (!Model.Any())
+                    {
+                        <div class="alert alert-info" role="alert">
+                            No existen facturas registradas todavía.
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle vu-data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Factura</th>
+                                        <th>Fecha</th>
+                                        <th>Cliente</th>
+                                        <th>Cajero</th>
+                                        <th>Método de pago</th>
+                                        <th class="text-end">Total</th>
+                                        <th class="text-center">Estado</th>
+                                        <th class="text-end vu-actions-column">Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var factura in Model)
+                                    {
+                                        <tr>
+                                            <td>
+                                                <div class="d-flex flex-column">
+                                                    <strong>@factura.NumeroFactura</strong>
+                                                    <small class="text-muted">Venta #@factura.VentaId.ToString("D5")</small>
+                                                </div>
+                                            </td>
+                                            <td>@factura.FechaEmision.ToLocalTime().ToString("dd/MM/yyyy hh:mm tt")</td>
+                                            <td>
+                                                <div class="d-flex flex-column">
+                                                    <span>@factura.Cliente</span>
+                                                    <small class="text-muted">@factura.IdentificacionCliente</small>
+                                                </div>
+                                            </td>
+                                            <td>@factura.Cajero</td>
+                                            <td><span class="badge bg-secondary">@factura.MetodoPago</span></td>
+                                            <td class="text-end fw-bold">@factura.Total.ToString("C0")</td>
+                                            <td class="text-center">
+                                                <span class="badge @(factura.Estado == "Emitida" ? "bg-success" : "bg-secondary")">@factura.Estado</span>
+                                            </td>
+                                            <td class="text-end">
+                                                <div class="vu-actions">
+                                                    <a class="btn btn-sm vu-icon-btn vu-icon-view"
+                                                       asp-controller="Factura"
+                                                       asp-action="Detalle"
+                                                       asp-route-id="@factura.Id"
+                                                       title="Ver detalle"
+                                                       aria-label="Ver detalle de factura">
+                                                        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6Z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                                                    </a>
+                                                    <a class="btn btn-sm vu-icon-btn vu-icon-history"
+                                                       asp-controller="Factura"
+                                                       asp-action="Comprobante"
+                                                       asp-route-id="@factura.Id"
+                                                       title="Comprobante"
+                                                       aria-label="Ver comprobante imprimible">
+                                                        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9V2h12v7"></path><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><path d="M6 14h12v8H6z"></path></svg>
+                                                    </a>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                </div>
             </div>
         </div>
     </div>
