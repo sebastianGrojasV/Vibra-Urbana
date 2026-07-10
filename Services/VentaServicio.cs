@@ -205,7 +205,7 @@ public class VentaServicio : IVentaServicio
                 });
             }
 
-            var numeroFactura = GenerarNumeroFactura(venta.Id, fechaVenta);
+            var numeroFactura = await GenerarNumeroFacturaUnicoAsync(venta.Id, fechaVenta);
 
             _context.Facturas.Add(new Factura
             {
@@ -242,7 +242,7 @@ public class VentaServicio : IVentaServicio
         catch (DbUpdateException)
         {
             await transaction.RollbackAsync();
-            return VentaOperacionResult.Failure("No fue posible registrar la venta. Revisa los datos e inténtalo nuevamente.");
+            return VentaOperacionResult.Failure("No fue posible registrar la venta o generar un número único de factura. Revisa los datos e inténtalo nuevamente.");
         }
     }
 
@@ -437,8 +437,27 @@ public class VentaServicio : IVentaServicio
         return null;
     }
 
-    private static string GenerarNumeroFactura(int ventaId, DateTime fechaVenta) =>
-        $"FAC-{fechaVenta:yyyyMMdd}-{ventaId:D6}";
+    private async Task<string> GenerarNumeroFacturaUnicoAsync(int ventaId, DateTime fechaVenta)
+    {
+        var numeroBase = $"FAC-{fechaVenta:yyyyMMdd}-{ventaId:D6}";
+
+        if (!await _context.Facturas.AnyAsync(factura => factura.NumeroFactura == numeroBase))
+        {
+            return numeroBase;
+        }
+
+        for (var intento = 1; intento <= 20; intento++)
+        {
+            var numeroAlterno = $"{numeroBase}-{intento:D2}";
+
+            if (!await _context.Facturas.AnyAsync(factura => factura.NumeroFactura == numeroAlterno))
+            {
+                return numeroAlterno;
+            }
+        }
+
+        throw new InvalidOperationException("No fue posible generar un número único de factura.");
+    }
 
     private static string? NormalizarEstado(string estado)
     {
