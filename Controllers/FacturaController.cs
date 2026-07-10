@@ -1,7 +1,9 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 using VibraUrbana.Data;
+using VibraUrbana.Models;
 using VibraUrbana.Services;
 using VibraUrbana.ViewModels;
 
@@ -73,6 +75,85 @@ public class FacturaController : Controller
     public async Task<IActionResult> CierreCaja(DateTime? fecha)
     {
         var fechaSeleccionada = fecha?.Date ?? DateTime.Today;
+        var model = await ConstruirCierreCajaViewModelAsync(fechaSeleccionada);
+
+        return View(model);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> RegistrarCierreCaja(DateTime fecha)
+    {
+        if (!TryGetUsuarioId(out var usuarioId))
+        {
+            return Unauthorized();
+        }
+
+        var fechaSeleccionada = fecha.Date;
+        var fechaSiguiente = fechaSeleccionada.AddDays(1);
+
+        await using var transaction = await _context.Database.BeginTransactionAsync();
+
+        var ventasParaCierre = await _context.Ventas
+            .Include(venta => venta.MetodoPago)
+            .Where(venta => venta.FechaVenta >= fechaSeleccionada && venta.FechaVenta < fechaSiguiente)
+            .Where(venta => venta.CierreCajaId == null)
+            .Where(venta => venta.Estado == "Aprobada" || venta.Estado == "Anulada")
+            .ToListAsync();
+
+        if (!ventasParaCierre.Any())
+        {
+            TempData["ErrorMessage"] = "No hay ventas aprobadas o anuladas pendientes para cerrar en la fecha seleccionada.";
+            return RedirectToAction(nameof(CierreCaja), new { fecha = fechaSeleccionada.ToString("yyyy-MM-dd") });
+        }
+
+        var ventasAprobadas = ventasParaCierre
+            .Where(venta => venta.Estado == "Aprobada")
+            .ToList();
+        var cantidadAnuladas = ventasParaCierre.Count(venta => venta.Estado == "Anulada");
+        var totalEfectivo = ventasAprobadas.Where(venta => venta.MetodoPago.Nombre == "Efectivo").Sum(venta => venta.Total);
+        var totalSinpe = ventasAprobadas.Where(venta => venta.MetodoPago.Nombre == "SINPE").Sum(venta => venta.Total);
+        var totalTarjeta = ventasAprobadas.Where(venta => venta.MetodoPago.Nombre == "Tarjeta").Sum(venta => venta.Total);
+
+        var cierre = new CierreCaja
+        {
+            UsuarioId = usuarioId,
+            FechaCierre = DateTime.UtcNow,
+            TotalVentas = ventasAprobadas.Sum(venta => venta.Total),
+            TotalEfectivo = totalEfectivo,
+            TotalSinpe = totalSinpe,
+            TotalTarjeta = totalTarjeta,
+            CantidadVentas = ventasParaCierre.Count,
+            Observacion = $"Cierre del {fechaSeleccionada:dd/MM/yyyy}. Aprobadas: {ventasAprobadas.Count}. Anuladas: {cantidadAnuladas}."
+        };
+
+        _context.CierresCaja.Add(cierre);
+        await _context.SaveChangesAsync();
+
+        foreach (var venta in ventasParaCierre)
+        {
+            venta.CierreCajaId = cierre.Id;
+        }
+
+        _context.Bitacora.Add(new Bitacora
+        {
+            UsuarioId = usuarioId,
+            Modulo = "Caja",
+            Accion = "Cierre de caja",
+            Descripcion = $"Cierre #{cierre.Id} registrado para {fechaSeleccionada:dd/MM/yyyy}. Ventas: {ventasParaCierre.Count}. Total: {cierre.TotalVentas:C0}.",
+            FechaRegistro = DateTime.UtcNow
+        });
+
+        await _context.SaveChangesAsync();
+        await transaction.CommitAsync();
+
+        TempData["SuccessMessage"] = $"Cierre de caja registrado correctamente. Total: {cierre.TotalVentas:C0}.";
+
+        return RedirectToAction(nameof(CierreCaja), new { fecha = fechaSeleccionada.ToString("yyyy-MM-dd") });
+    }
+
+    private async Task<CierreCajaViewModel> ConstruirCierreCajaViewModelAsync(DateTime fechaSeleccionada)
+    {
         var fechaSiguiente = fechaSeleccionada.AddDays(1);
 
         var ventas = await _context.Ventas
@@ -82,11 +163,16 @@ public class FacturaController : Controller
             .Include(venta => venta.MetodoPago)
             .Include(venta => venta.Factura)
             .Where(venta => venta.FechaVenta >= fechaSeleccionada && venta.FechaVenta < fechaSiguiente)
-            .Where(venta => venta.Estado == "Aprobada")
             .OrderByDescending(venta => venta.FechaVenta)
             .ToListAsync();
 
-        var totalesPorMetodo = ventas
+        var ventasAprobadas = ventas.Where(venta => venta.Estado == "Aprobada").ToList();
+        var ventasCerrables = ventas
+            .Where(venta => venta.CierreCajaId == null)
+            .Where(venta => venta.Estado == "Aprobada" || venta.Estado == "Anulada")
+            .ToList();
+
+        var totalesPorMetodo = ventasAprobadas
             .GroupBy(venta => venta.MetodoPago.Nombre)
             .OrderBy(grupo => grupo.Key)
             .Select(grupo => new CierreCajaMetodoPagoViewModel
@@ -97,14 +183,18 @@ public class FacturaController : Controller
             })
             .ToList();
 
-        var model = new CierreCajaViewModel
+        return new CierreCajaViewModel
         {
             Fecha = fechaSeleccionada,
             CantidadVentas = ventas.Count,
-            TotalVentas = ventas.Sum(venta => venta.Total),
-            TotalEfectivo = ventas.Where(venta => venta.MetodoPago.Nombre == "Efectivo").Sum(venta => venta.Total),
-            TotalSinpe = ventas.Where(venta => venta.MetodoPago.Nombre == "SINPE").Sum(venta => venta.Total),
-            TotalTarjeta = ventas.Where(venta => venta.MetodoPago.Nombre == "Tarjeta").Sum(venta => venta.Total),
+            CantidadVentasAprobadas = ventasAprobadas.Count,
+            CantidadVentasAnuladas = ventas.Count(venta => venta.Estado == "Anulada"),
+            CantidadVentasPendientes = ventas.Count(venta => venta.Estado == "Pendiente"),
+            VentasDisponiblesParaCierre = ventasCerrables.Count,
+            TotalVentas = ventasAprobadas.Sum(venta => venta.Total),
+            TotalEfectivo = ventasAprobadas.Where(venta => venta.MetodoPago.Nombre == "Efectivo").Sum(venta => venta.Total),
+            TotalSinpe = ventasAprobadas.Where(venta => venta.MetodoPago.Nombre == "SINPE").Sum(venta => venta.Total),
+            TotalTarjeta = ventasAprobadas.Where(venta => venta.MetodoPago.Nombre == "Tarjeta").Sum(venta => venta.Total),
             TotalesPorMetodoPago = totalesPorMetodo,
             Ventas = ventas.Select(venta => new CierreCajaVentaItemViewModel
             {
@@ -115,11 +205,10 @@ public class FacturaController : Controller
                 Cajero = venta.Usuario.NombreCompleto,
                 MetodoPago = venta.MetodoPago.Nombre,
                 Total = venta.Total,
-                Estado = venta.Estado
+                Estado = venta.Estado,
+                IncluidaEnCierre = venta.CierreCajaId.HasValue
             }).ToList()
         };
-
-        return View(model);
     }
 
     private async Task<FacturaDetalleViewModel?> ObtenerFacturaDetalleAsync(int id)
@@ -172,5 +261,11 @@ public class FacturaController : Controller
                     .ToList()
             })
             .FirstOrDefaultAsync();
+    }
+
+    private bool TryGetUsuarioId(out int usuarioId)
+    {
+        var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        return int.TryParse(userIdString, out usuarioId);
     }
 }

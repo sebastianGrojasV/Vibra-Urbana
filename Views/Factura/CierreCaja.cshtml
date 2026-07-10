@@ -14,12 +14,37 @@
                     <div>
                         <p class="vu-eyebrow">Facturación</p>
                         <h1>Cierre de caja</h1>
-                        <p>Resumen diario de ventas y totales por método de pago.</p>
+                        <p>Resumen diario de ventas, estados y montos por método de pago.</p>
                     </div>
-                    <a class="btn btn-outline-primary" asp-controller="Factura" asp-action="Index">Ver facturas</a>
+                    <div class="d-flex flex-wrap gap-2">
+                        <a class="btn btn-outline-primary" asp-controller="Factura" asp-action="Index">Ver facturas</a>
+                        <form asp-controller="Factura"
+                              asp-action="RegistrarCierreCaja"
+                              method="post"
+                              data-vu-confirm
+                              data-vu-confirm-title="Registrar cierre de caja"
+                              data-vu-confirm-message="Se registrará el cierre con las ventas aprobadas y anuladas pendientes de la fecha seleccionada."
+                              data-vu-confirm-action="Registrar cierre">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="fecha" value="@Model.Fecha.ToString("yyyy-MM-dd")" />
+                            <button class="btn btn-primary" type="submit" disabled="@(Model.PuedeRegistrarCierre ? null : "disabled")">
+                                Registrar cierre
+                            </button>
+                        </form>
+                    </div>
                 </div>
 
                 <div class="vu-panel mb-4">
+                    @if (TempData["SuccessMessage"] is string successMessage)
+                    {
+                        <div class="alert alert-success" role="alert">@successMessage</div>
+                    }
+
+                    @if (TempData["ErrorMessage"] is string errorMessage)
+                    {
+                        <div class="alert alert-danger" role="alert">@errorMessage</div>
+                    }
+
                     <form asp-controller="Factura" asp-action="CierreCaja" method="get" class="row g-3 align-items-end">
                         <div class="col-md-4">
                             <label class="form-label" for="fecha">Fecha de cierre</label>
@@ -31,6 +56,19 @@
                         </div>
                     </form>
                 </div>
+
+                @if (Model.CantidadVentas == 0)
+                {
+                    <div class="alert alert-info" role="alert">
+                        No existen ventas registradas en la fecha seleccionada.
+                    </div>
+                }
+                else if (!Model.PuedeRegistrarCierre)
+                {
+                    <div class="alert alert-info" role="alert">
+                        No hay ventas aprobadas o anuladas pendientes de cierre para esta fecha.
+                    </div>
+                }
 
                 <div class="row g-3 mb-4">
                     <div class="col-md-3">
@@ -47,20 +85,47 @@
                     </div>
                     <div class="col-md-2">
                         <div class="vu-panel h-100">
+                            <span class="text-muted small d-block">Aprobadas</span>
+                            <strong>@Model.CantidadVentasAprobadas</strong>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="vu-panel h-100">
+                            <span class="text-muted small d-block">Anuladas</span>
+                            <strong>@Model.CantidadVentasAnuladas</strong>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="vu-panel h-100">
+                            <span class="text-muted small d-block">Pendientes</span>
+                            <strong>@Model.CantidadVentasPendientes</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row g-3 mb-4">
+                    <div class="col-md-3">
+                        <div class="vu-panel h-100">
                             <span class="text-muted small d-block">Efectivo</span>
                             <strong>@Model.TotalEfectivo.ToString("C0")</strong>
                         </div>
                     </div>
-                    <div class="col-md-2">
+                    <div class="col-md-3">
                         <div class="vu-panel h-100">
                             <span class="text-muted small d-block">SINPE</span>
                             <strong>@Model.TotalSinpe.ToString("C0")</strong>
                         </div>
                     </div>
-                    <div class="col-md-2">
+                    <div class="col-md-3">
                         <div class="vu-panel h-100">
                             <span class="text-muted small d-block">Tarjeta</span>
                             <strong>@Model.TotalTarjeta.ToString("C0")</strong>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="vu-panel h-100">
+                            <span class="text-muted small d-block">Pendientes de cierre</span>
+                            <strong>@Model.VentasDisponiblesParaCierre</strong>
                         </div>
                     </div>
                 </div>
@@ -71,7 +136,7 @@
                             <h2 class="h5 mb-3">Totales por método de pago</h2>
                             @if (!Model.TotalesPorMetodoPago.Any())
                             {
-                                <div class="alert alert-info mb-0" role="alert">No hay ventas para esta fecha.</div>
+                                <div class="alert alert-info mb-0" role="alert">No hay ventas aprobadas para totalizar.</div>
                             }
                             else
                             {
@@ -93,7 +158,7 @@
 
                     <div class="col-lg-8">
                         <div class="vu-panel">
-                            <h2 class="h5 mb-3">Ventas incluidas</h2>
+                            <h2 class="h5 mb-3">Ventas del día</h2>
                             @if (!Model.Ventas.Any())
                             {
                                 <div class="alert alert-info mb-0" role="alert">No existen ventas registradas en la fecha seleccionada.</div>
@@ -111,6 +176,7 @@
                                                 <th>Método</th>
                                                 <th class="text-end">Total</th>
                                                 <th class="text-center">Estado</th>
+                                                <th class="text-center">Cierre</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -129,7 +195,32 @@
                                                     <td><span class="badge bg-secondary">@venta.MetodoPago</span></td>
                                                     <td class="text-end fw-bold">@venta.Total.ToString("C0")</td>
                                                     <td class="text-center">
-                                                        <span class="badge @(venta.Estado == "Aprobada" ? "bg-success" : "bg-secondary")">@venta.Estado</span>
+                                                        @if (venta.Estado == "Aprobada")
+                                                        {
+                                                            <span class="badge bg-success">@venta.Estado</span>
+                                                        }
+                                                        else if (venta.Estado == "Anulada")
+                                                        {
+                                                            <span class="badge bg-danger">@venta.Estado</span>
+                                                        }
+                                                        else if (venta.Estado == "Pendiente")
+                                                        {
+                                                            <span class="badge bg-warning text-dark">@venta.Estado</span>
+                                                        }
+                                                        else
+                                                        {
+                                                            <span class="badge bg-secondary">@venta.Estado</span>
+                                                        }
+                                                    </td>
+                                                    <td class="text-center">
+                                                        @if (venta.IncluidaEnCierre)
+                                                        {
+                                                            <span class="badge bg-success">Cerrada</span>
+                                                        }
+                                                        else
+                                                        {
+                                                            <span class="badge bg-light text-dark border">Pendiente</span>
+                                                        }
                                                     </td>
                                                 </tr>
                                             }
