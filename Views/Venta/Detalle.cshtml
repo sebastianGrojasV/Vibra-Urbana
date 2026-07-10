@@ -1,0 +1,139 @@
+@model VibraUrbana.Models.Venta
+
+@{
+    ViewData["Title"] = "Detalle de venta";
+}
+
+<section class="vu-admin-shell">
+    <div class="container-fluid">
+        <div class="row g-0">
+            @await Html.PartialAsync("_Sidebar")
+
+            <div class="col-lg-9 col-xl-10 vu-admin-content">
+                <div class="vu-admin-header">
+                    <div>
+                        <p class="vu-eyebrow">Venta #@Model.Id.ToString("D5")</p>
+                        <h1>Detalle de venta</h1>
+                        <p>Consulta la transacción, sus productos y el comprobante asociado.</p>
+                    </div>
+                    <div class="d-flex flex-wrap gap-2">
+                        <a class="btn btn-outline-primary" asp-controller="Venta" asp-action="Index">Volver</a>
+                        @if (Model.Factura is not null)
+                        {
+                            <a class="btn btn-primary" asp-controller="Factura" asp-action="Detalle" asp-route-id="@Model.Factura.Id">Ver factura</a>
+                            <a class="btn btn-outline-primary" asp-controller="Factura" asp-action="Comprobante" asp-route-id="@Model.Factura.Id">Comprobante</a>
+                        }
+                    </div>
+                </div>
+
+                <div class="vu-panel mb-4">
+                    <div class="vu-invoice-meta">
+                        <div class="vu-invoice-meta-item">
+                            <span>Fecha de venta</span>
+                            <strong>@Model.FechaVenta.ToLocalTime().ToString("dd/MM/yyyy hh:mm tt")</strong>
+                        </div>
+                        <div class="vu-invoice-meta-item">
+                            <span>Estado</span>
+                            @if (Model.Estado == "Aprobada")
+                            {
+                                <span class="badge bg-success">@Model.Estado</span>
+                            }
+                            else if (Model.Estado == "Pendiente")
+                            {
+                                <span class="badge bg-warning text-dark">@Model.Estado</span>
+                            }
+                            else if (Model.Estado == "Anulada")
+                            {
+                                <span class="badge bg-danger">@Model.Estado</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary">@Model.Estado</span>
+                            }
+                        </div>
+                        <div class="vu-invoice-meta-item">
+                            <span>Comprobante</span>
+                            <strong>@(Model.Factura is null ? "Sin factura asociada" : Model.Factura.NumeroFactura)</strong>
+                            <small>@(Model.Factura is null ? "No se generó comprobante para esta venta." : Model.Factura.Estado)</small>
+                        </div>
+                        <div class="vu-invoice-meta-item">
+                            <span>Método de pago</span>
+                            <strong>@Model.MetodoPago.Nombre</strong>
+                        </div>
+                        <div class="vu-invoice-meta-item">
+                            <span>Cliente</span>
+                            <strong>@Model.Cliente.NombreCompleto</strong>
+                            <small>@Model.Cliente.Identificacion</small>
+                        </div>
+                        <div class="vu-invoice-meta-item">
+                            <span>Cajero</span>
+                            <strong>@Model.Usuario.NombreCompleto</strong>
+                            <small>@Model.Usuario.Correo</small>
+                        </div>
+                        <div class="vu-invoice-meta-item vu-invoice-meta-wide">
+                            <span>Observación</span>
+                            <strong>@(string.IsNullOrWhiteSpace(Model.Observacion) ? "Sin observación" : Model.Observacion)</strong>
+                        </div>
+                        @if (Model.Estado == "Anulada")
+                        {
+                            <div class="vu-invoice-meta-item vu-invoice-meta-wide">
+                                <span>Motivo de anulación</span>
+                                <strong>@(string.IsNullOrWhiteSpace(Model.MotivoAnulacion) ? "Sin motivo registrado" : Model.MotivoAnulacion)</strong>
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                <div class="vu-panel">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle vu-invoice-table">
+                            <thead>
+                                <tr>
+                                    <th>Producto</th>
+                                    <th>Categoría</th>
+                                    <th>Talla</th>
+                                    <th>Color</th>
+                                    <th class="text-end">Cantidad</th>
+                                    <th class="text-end">Precio unitario</th>
+                                    <th class="text-end">Subtotal</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model.DetalleVentas)
+                                {
+                                    <tr>
+                                        <td><strong>@item.Producto.Nombre</strong></td>
+                                        <td>@item.Producto.Categoria.Nombre</td>
+                                        <td>@(string.IsNullOrWhiteSpace(item.Producto.Talla) ? "Sin talla" : item.Producto.Talla)</td>
+                                        <td>@(string.IsNullOrWhiteSpace(item.Producto.Color) ? "Sin color" : item.Producto.Color)</td>
+                                        <td class="text-end">@item.Cantidad</td>
+                                        <td class="text-end">@item.PrecioUnitario.ToString("C0")</td>
+                                        <td class="text-end">@item.Subtotal.ToString("C0")</td>
+                                    </tr>
+                                }
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <th colspan="6" class="text-end">Subtotal</th>
+                                    <th class="text-end">@Model.Subtotal.ToString("C0")</th>
+                                </tr>
+                                <tr>
+                                    <th colspan="6" class="text-end">Descuento</th>
+                                    <th class="text-end text-danger">-@Model.Descuento.ToString("C0")</th>
+                                </tr>
+                                <tr>
+                                    <th colspan="6" class="text-end">Impuesto</th>
+                                    <th class="text-end">@Model.Impuesto.ToString("C0")</th>
+                                </tr>
+                                <tr>
+                                    <th colspan="6" class="text-end">Total</th>
+                                    <th class="text-end vu-invoice-total">@Model.Total.ToString("C0")</th>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

@@ -12,4 +12,6 @@ public interface IVentaServicio
     Task<VentaOperacionResult> RegistrarVentaAsync(RegistrarVentaViewModel model, int usuarioId);
 
     Task<AnularVentaResult> AnularVentaAsync(int ventaId, string motivo, int usuarioId);
+
+    Task<CambiarEstadoVentaResult> CambiarEstadoVentaAsync(int ventaId, string nuevoEstado, string motivo, int usuarioId);
 }

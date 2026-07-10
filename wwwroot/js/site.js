@@ -4,6 +4,7 @@ window.addEventListener("DOMContentLoaded", () => {
     enhanceModulePlaceholders();
     setupInlineConfirmations();
     setupSaleCancellation();
+    setupSaleStatusChange();
     setupAutoDismissAlerts();
 
     if (!window.jQuery || !jQuery.fn.DataTable) {
@@ -190,6 +191,49 @@ function setupSaleCancellation() {
 
     close.addEventListener("click", () => {
         idInput.value = "";
+        reasonInput.value = "";
+        frame.classList.remove("is-visible");
+        frame.hidden = true;
+    });
+}
+
+function setupSaleStatusChange() {
+    const frame = document.querySelector("[data-vu-state-sale-frame]");
+
+    if (!frame) {
+        return;
+    }
+
+    const idInput = frame.querySelector("[data-vu-state-sale-id]");
+    const statusInput = frame.querySelector("[data-vu-state-sale-status]");
+    const reasonInput = frame.querySelector("[data-vu-state-sale-reason]");
+    const title = frame.querySelector("[data-vu-state-sale-title]");
+    const message = frame.querySelector("[data-vu-state-sale-message]");
+    const submit = frame.querySelector("[data-vu-state-sale-submit]");
+    const close = frame.querySelector("[data-vu-state-sale-close]");
+
+    document.querySelectorAll("[data-vu-state-sale]").forEach((button) => {
+        button.addEventListener("click", () => {
+            const saleId = button.dataset.vuSaleId;
+            const saleCode = button.dataset.vuSaleCode || `#${saleId}`;
+            const saleClient = button.dataset.vuSaleClient || "cliente seleccionado";
+            const targetStatus = button.dataset.vuTargetStatus;
+
+            idInput.value = saleId;
+            statusInput.value = targetStatus;
+            reasonInput.value = "";
+            title.textContent = `Cambiar venta ${saleCode} a ${targetStatus}`;
+            message.textContent = `Registra el motivo del cambio para la venta de ${saleClient}.`;
+            submit.textContent = `Marcar como ${targetStatus}`;
+            frame.hidden = false;
+            frame.classList.add("is-visible");
+            reasonInput.focus();
+        });
+    });
+
+    close.addEventListener("click", () => {
+        idInput.value = "";
+        statusInput.value = "";
         reasonInput.value = "";
         frame.classList.remove("is-visible");
         frame.hidden = true;

@@ -58,6 +58,35 @@
                         </form>
                     </div>
 
+                    <div class="vu-cancel-sale-frame mb-4" data-vu-state-sale-frame hidden>
+                        <form asp-controller="Venta" asp-action="CambiarEstado" method="post" class="vu-cancel-sale-form">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="VentaId" data-vu-state-sale-id />
+                            <input type="hidden" name="NuevoEstado" data-vu-state-sale-status />
+                            <div>
+                                <strong data-vu-state-sale-title>Cambiar estado de venta</strong>
+                                <p data-vu-state-sale-message>Indica el motivo del cambio para continuar.</p>
+                            </div>
+                            <div>
+                                <label class="form-label" for="motivoCambioEstado">Motivo del cambio</label>
+                                <textarea id="motivoCambioEstado"
+                                          name="Motivo"
+                                          class="form-control"
+                                          rows="2"
+                                          maxlength="300"
+                                          minlength="5"
+                                          required
+                                          data-vu-state-sale-reason
+                                          placeholder="Ejemplo: venta requiere revisión administrativa."></textarea>
+                                <small class="text-muted">Entre 5 y 300 caracteres.</small>
+                            </div>
+                            <div class="vu-cancel-sale-actions">
+                                <button class="btn btn-primary" type="submit" data-vu-state-sale-submit>Confirmar cambio</button>
+                                <button class="btn btn-outline-primary" type="button" data-vu-state-sale-close>Cancelar</button>
+                            </div>
+                        </form>
+                    </div>
+
                     @if (ViewBag.ClienteFiltrado != null)
                     {
                         <div class="alert alert-info d-flex justify-content-between align-items-center mb-3" role="alert">
@@ -130,6 +159,10 @@
                                                 {
                                                     <span class="badge bg-success">@venta.Estado</span>
                                                 }
+                                                else if (venta.Estado == "Pendiente")
+                                                {
+                                                    <span class="badge bg-warning text-dark">@venta.Estado</span>
+                                                }
                                                 else if (venta.Estado == "Anulada")
                                                 {
                                                     <div class="d-flex flex-column align-items-center gap-1">
@@ -144,8 +177,27 @@
                                             </td>
                                             <td class="text-end">
                                                 <div class="vu-actions">
+                                                    <a class="btn btn-sm vu-icon-btn vu-icon-view"
+                                                       asp-controller="Venta"
+                                                       asp-action="Detalle"
+                                                       asp-route-id="@venta.Id"
+                                                       title="Ver detalle"
+                                                       aria-label="Ver detalle de venta">
+                                                        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6Z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                                                    </a>
                                                     @if (venta.Estado == "Aprobada")
                                                     {
+                                                        <button class="btn btn-sm vu-icon-btn vu-icon-reset"
+                                                                type="button"
+                                                                title="Marcar como pendiente"
+                                                                aria-label="Marcar venta como pendiente"
+                                                                data-vu-state-sale
+                                                                data-vu-sale-id="@venta.Id"
+                                                                data-vu-sale-code="#@venta.Id.ToString("D5")"
+                                                                data-vu-sale-client="@venta.Cliente.NombreCompleto"
+                                                                data-vu-target-status="Pendiente">
+                                                            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8v5l3 3"></path><circle cx="12" cy="12" r="10"></circle></svg>
+                                                        </button>
                                                         <button class="btn btn-sm vu-icon-btn vu-icon-disable"
                                                                 type="button"
                                                                 title="Anular"
@@ -155,6 +207,20 @@
                                                                 data-vu-sale-code="#@venta.Id.ToString("D5")"
                                                                 data-vu-sale-client="@venta.Cliente.NombreCompleto">
                                                             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18.4 6.6a9 9 0 1 1-12.8 0"></path><path d="M12 2v10"></path></svg>
+                                                        </button>
+                                                    }
+                                                    else if (venta.Estado == "Pendiente")
+                                                    {
+                                                        <button class="btn btn-sm vu-icon-btn vu-icon-enable"
+                                                                type="button"
+                                                                title="Marcar como aprobada"
+                                                                aria-label="Marcar venta como aprobada"
+                                                                data-vu-state-sale
+                                                                data-vu-sale-id="@venta.Id"
+                                                                data-vu-sale-code="#@venta.Id.ToString("D5")"
+                                                                data-vu-sale-client="@venta.Cliente.NombreCompleto"
+                                                                data-vu-target-status="Aprobada">
+                                                            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"></path></svg>
                                                         </button>
                                                     }
                                                     else
