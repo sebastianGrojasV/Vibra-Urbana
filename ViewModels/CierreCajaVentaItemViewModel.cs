@@ -17,4 +17,6 @@ public class CierreCajaVentaItemViewModel
     public decimal Total { get; set; }
 
     public string Estado { get; set; } = string.Empty;
+
+    public bool IncluidaEnCierre { get; set; }
 }

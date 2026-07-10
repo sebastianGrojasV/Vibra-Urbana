@@ -6,6 +6,14 @@ public class CierreCajaViewModel
 
     public int CantidadVentas { get; set; }
 
+    public int CantidadVentasAprobadas { get; set; }
+
+    public int CantidadVentasAnuladas { get; set; }
+
+    public int CantidadVentasPendientes { get; set; }
+
+    public int VentasDisponiblesParaCierre { get; set; }
+
     public decimal TotalVentas { get; set; }
 
     public decimal TotalEfectivo { get; set; }
@@ -13,6 +21,8 @@ public class CierreCajaViewModel
     public decimal TotalSinpe { get; set; }
 
     public decimal TotalTarjeta { get; set; }
+
+    public bool PuedeRegistrarCierre => VentasDisponiblesParaCierre > 0;
 
     public IReadOnlyList<CierreCajaMetodoPagoViewModel> TotalesPorMetodoPago { get; set; } = new List<CierreCajaMetodoPagoViewModel>();
 
