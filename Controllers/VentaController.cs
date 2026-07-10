@@ -1,4 +1,4 @@
-using System.Security.Claims;
+﻿using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -67,6 +67,28 @@ public class VentaController : Controller
         return View(model);
     }
 
+    [HttpGet]
+    public async Task<IActionResult> Detalle(int id)
+    {
+        var venta = await _context.Ventas
+            .AsNoTracking()
+            .Include(item => item.Cliente)
+            .Include(item => item.Usuario)
+            .Include(item => item.MetodoPago)
+            .Include(item => item.Factura)
+            .Include(item => item.DetalleVentas)
+                .ThenInclude(detalle => detalle.Producto)
+                    .ThenInclude(producto => producto.Categoria)
+            .SingleOrDefaultAsync(item => item.Id == id);
+
+        if (venta is null)
+        {
+            return NotFound();
+        }
+
+        return View(venta);
+    }
+
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Crear([FromBody] RegistrarVentaViewModel model)
@@ -103,6 +125,39 @@ public class VentaController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
+    public async Task<IActionResult> CambiarEstado(CambiarEstadoVentaViewModel model)
+    {
+        if (!ModelState.IsValid)
+        {
+            TempData["ErrorMessage"] = "Debes indicar un estado y motivo válidos.";
+            return RedirectToAction(nameof(Index));
+        }
+
+        if (!TryGetUsuarioId(out var usuarioId))
+        {
+            return Unauthorized();
+        }
+
+        var result = await _ventaServicio.CambiarEstadoVentaAsync(
+            model.VentaId,
+            model.NuevoEstado,
+            model.Motivo,
+            usuarioId);
+
+        if (result.EsExitoso)
+        {
+            TempData["SuccessMessage"] = result.Mensaje;
+        }
+        else
+        {
+            TempData["ErrorMessage"] = result.Mensaje;
+        }
+
+        return RedirectToAction(nameof(Index));
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> Anular(AnularVentaViewModel model)
     {
         if (!ModelState.IsValid)
@@ -111,8 +166,7 @@ public class VentaController : Controller
             return RedirectToAction(nameof(Index));
         }
 
-        var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        if (string.IsNullOrEmpty(userIdString) || !int.TryParse(userIdString, out var usuarioId))
+        if (!TryGetUsuarioId(out var usuarioId))
         {
             return Unauthorized();
         }
@@ -129,5 +183,11 @@ public class VentaController : Controller
         }
 
         return RedirectToAction(nameof(Index));
+    }
+
+    private bool TryGetUsuarioId(out int usuarioId)
+    {
+        var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        return int.TryParse(userIdString, out usuarioId);
     }
 }
