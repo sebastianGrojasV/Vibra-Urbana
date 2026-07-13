@@ -1,6 +1,11 @@
+using System;
+using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
+using VibraUrbana.Data;
 using VibraUrbana.Services;
 using VibraUrbana.ViewModels;
 
@@ -10,15 +15,47 @@ namespace VibraUrbana.Controllers;
 public class AdminController : Controller
 {
     private readonly IUsuarioRegistrationService _usuarioRegistrationService;
+    private readonly ApplicationDbContext _context;
 
-    public AdminController(IUsuarioRegistrationService usuarioRegistrationService)
+    public AdminController(IUsuarioRegistrationService usuarioRegistrationService, ApplicationDbContext context)
     {
         _usuarioRegistrationService = usuarioRegistrationService;
+        _context = context;
     }
 
-    public IActionResult Index()
+    public async Task<IActionResult> Index()
     {
-        return View();
+        var model = new AdminDashboardViewModel();
+
+        // 1. Calcular fechas locales y UTC para "Ventas del Día" (Costa Rica UTC-6)
+        var costaRicaOffset = TimeSpan.FromHours(-6);
+        var todayLocalStart = DateTime.Today;
+        var todayLocalEnd = todayLocalStart.AddDays(1).AddTicks(-1);
+        var todayUtcStart = new DateTimeOffset(todayLocalStart, costaRicaOffset).UtcDateTime;
+        var todayUtcEnd = new DateTimeOffset(todayLocalEnd, costaRicaOffset).UtcDateTime;
+
+        // 2. Ventas e ingresos de hoy (excluyendo anuladas)
+        var ventasHoy = await _context.Ventas
+            .Where(v => v.FechaVenta >= todayUtcStart && v.FechaVenta <= todayUtcEnd && v.Estado != "Anulada")
+            .ToListAsync();
+
+        model.VentasDelDia = ventasHoy.Count;
+        model.IngresosDelDia = ventasHoy.Sum(v => v.Total);
+
+        // 3. Total vendido histórico (excluyendo anuladas)
+        model.TotalVendido = await _context.Ventas
+            .Where(v => v.Estado != "Anulada")
+            .SumAsync(v => v.Total);
+
+        // 4. Productos con stock bajo (CantidadDisponible <= StockMinimo de productos activos)
+        model.ProductosStockBajo = await _context.Inventario
+            .Include(i => i.Producto)
+            .CountAsync(i => i.Producto.Activo && i.CantidadDisponible <= i.StockMinimo);
+
+        // 5. Cantidad de clientes registrados
+        model.ClientesRegistrados = await _context.Clientes.CountAsync();
+
+        return View(model);
     }
 
     [HttpGet]

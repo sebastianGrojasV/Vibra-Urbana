@@ -1,3 +1,5 @@
+@model VibraUrbana.ViewModels.AdminDashboardViewModel
+
 @{
     ViewData["Title"] = "Panel Administrativo";
 }
@@ -5,6 +7,7 @@
 <section class="vu-admin-shell">
     <div class="container-fluid">
         <div class="row g-0">
+            <!-- Sidebar Administrativo -->
             <aside class="col-lg-3 col-xl-2 vu-admin-sidebar">
                 <div class="vu-sidebar-brand">Vibra Urbana</div>
                 <nav class="vu-sidebar-nav">
@@ -22,61 +25,89 @@
                 </nav>
             </aside>
 
+            <!-- Contenido Principal -->
             <div class="col-lg-9 col-xl-10 vu-admin-content">
-                <div class="vu-admin-header">
+                <div class="vu-admin-header mb-4">
                     <div>
-                        <p class="vu-eyebrow">Administración</p>
+                        <p class="vu-eyebrow">Administración General</p>
                         <h1>Panel inicial</h1>
-                        <p>Centro de navegación para organizar los módulos comerciales de Vibra Urbana.</p>
+                        <p>Estado del negocio en tiempo real y centro de navegación de Vibra Urbana.</p>
                     </div>
                     <a class="btn btn-outline-primary" asp-controller="Account" asp-action="Login">Cerrar vista</a>
                 </div>
 
+                <!-- Tarjetas de Indicadores (KPIs) -->
                 <div class="row g-3 mb-4">
+                    <!-- Ventas del Día -->
                     <div class="col-md-6 col-xl-3">
-                        <a class="vu-dashboard-card vu-module-link" asp-controller="Admin" asp-action="Usuarios">
-                            <span>Usuarios</span>
-                            <strong>Registro</strong>
-                            <p>Consulta, registro y control de accesos.</p>
-                        </a>
-                    </div>
-                    <div class="col-md-6 col-xl-3">
-                        <a class="vu-dashboard-card vu-module-link" asp-controller="Rol" asp-action="Index">
-                            <span>Roles</span>
-                            <strong>Accesos</strong>
-                            <p>Gestión de perfiles y permisos internos.</p>
-                        </a>
-                    </div>
-                    <div class="col-md-6 col-xl-3">
-                        <div class="vu-dashboard-card">
-                            <span>Productos</span>
-                            <strong>Catálogo</strong>
-                            <p>Catálogo listo para el siguiente sprint.</p>
+                        <div class="kpi-card shadow-soft p-4 text-white" style="background: linear-gradient(135deg, #6f42c1, #4b0a7a); position: relative; overflow: hidden; border-radius: 16px;">
+                            <div style="position: absolute; right: -10px; bottom: -10px; opacity: 0.15;">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 80px; height: 80px;"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
+                            </div>
+                            <h6 class="text-uppercase tracking-wider opacity-75 mb-1" style="font-size: 0.8rem; font-weight: bold; letter-spacing: 1px;">Ventas de Hoy</h6>
+                            <h2 class="mb-0 text-white" style="font-size: 2rem; font-weight: 800;">@Model.VentasDelDia</h2>
+                            <small class="d-block mt-2 opacity-90">Ingresos: <strong>@Model.IngresosDelDia.ToString("C2")</strong></small>
                         </div>
                     </div>
+
+                    <!-- Total Vendido -->
                     <div class="col-md-6 col-xl-3">
-                        <div class="vu-dashboard-card">
-                            <span>Inventario</span>
-                            <strong>Control</strong>
-                            <p>Preparado para existencias y movimientos.</p>
+                        <div class="kpi-card shadow-soft p-4 text-white" style="background: linear-gradient(135deg, #0d9488, #0f766e); position: relative; overflow: hidden; border-radius: 16px;">
+                            <div style="position: absolute; right: -10px; bottom: -10px; opacity: 0.15;">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 80px; height: 80px;"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+                            </div>
+                            <h6 class="text-uppercase tracking-wider opacity-75 mb-1" style="font-size: 0.8rem; font-weight: bold; letter-spacing: 1px;">Total Vendido</h6>
+                            <h2 class="mb-0 text-white" style="font-size: 2rem; font-weight: 800;">@Model.TotalVendido.ToString("C2")</h2>
+                            <small class="d-block mt-2 opacity-90">Histórico de ingresos netos</small>
                         </div>
                     </div>
+
+                    <!-- Stock Bajo -->
                     <div class="col-md-6 col-xl-3">
-                        <div class="vu-dashboard-card">
-                            <span>Ventas</span>
-                            <strong>Operación</strong>
-                            <p>Preparado para operación comercial.</p>
+                        @if (Model.ProductosStockBajo > 0)
+                        {
+                            <div class="kpi-card shadow-soft p-4 text-white" style="background: linear-gradient(135deg, #f43f5e, #be123c); position: relative; overflow: hidden; border-radius: 16px;">
+                                <div style="position: absolute; right: -10px; bottom: -10px; opacity: 0.15;">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 80px; height: 80px;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+                                </div>
+                                <h6 class="text-uppercase tracking-wider opacity-75 mb-1" style="font-size: 0.8rem; font-weight: bold; letter-spacing: 1px;">Stock Crítico</h6>
+                                <h2 class="mb-0 text-white" style="font-size: 2rem; font-weight: 800;">@Model.ProductosStockBajo</h2>
+                                <small class="d-block mt-2 opacity-90 text-warning" style="font-weight: bold;">Requiere reabastecimiento</small>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="kpi-card shadow-soft p-4 text-white" style="background: linear-gradient(135deg, #10b981, #047857); position: relative; overflow: hidden; border-radius: 16px;">
+                                <div style="position: absolute; right: -10px; bottom: -10px; opacity: 0.15;">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 80px; height: 80px;"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                                </div>
+                                <h6 class="text-uppercase tracking-wider opacity-75 mb-1" style="font-size: 0.8rem; font-weight: bold; letter-spacing: 1px;">Stock Crítico</h6>
+                                <h2 class="mb-0 text-white" style="font-size: 2rem; font-weight: 800;">0</h2>
+                                <small class="d-block mt-2 opacity-90" style="font-weight: bold;">Inventario óptimo</small>
+                            </div>
+                        }
+                    </div>
+
+                    <!-- Clientes Registrados -->
+                    <div class="col-md-6 col-xl-3">
+                        <div class="kpi-card shadow-soft p-4 text-white" style="background: linear-gradient(135deg, #3b82f6, #1d4ed8); position: relative; overflow: hidden; border-radius: 16px;">
+                            <div style="position: absolute; right: -10px; bottom: -10px; opacity: 0.15;">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 80px; height: 80px;"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                            </div>
+                            <h6 class="text-uppercase tracking-wider opacity-75 mb-1" style="font-size: 0.8rem; font-weight: bold; letter-spacing: 1px;">Clientes</h6>
+                            <h2 class="mb-0 text-white" style="font-size: 2rem; font-weight: 800;">@Model.ClientesRegistrados</h2>
+                            <small class="d-block mt-2 opacity-90">Clientes registrados en total</small>
                         </div>
                     </div>
                 </div>
 
                 <div class="row g-4">
                     <div class="col-xl-8">
-                        <div class="vu-panel">
+                        <div class="vu-panel shadow-soft">
                             <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
                                 <div>
                                     <h2>Módulos principales</h2>
-                                    <p>Accesos organizados para avanzar con las historias del Sprint 2.</p>
+                                    <p>Accesos directos para la gestión del sistema administrativo.</p>
                                 </div>
                             </div>
                             <div class="vu-module-grid">
@@ -95,13 +126,13 @@
                     </div>
 
                     <div class="col-xl-4">
-                        <div class="vu-panel">
-                            <h2>Base lista</h2>
+                        <div class="vu-panel shadow-soft">
+                            <h2>Estado del Sistema</h2>
                             <ul class="vu-status-list">
                                 <li><span></span> MVC base configurado</li>
-                                <li><span></span> EF Core preparado</li>
-                                <li><span></span> Seguridad inicial activa</li>
-                                <li><span></span> Módulos preparados</li>
+                                <li><span></span> Base de Datos en Línea</li>
+                                <li><span></span> Seguridad y Roles Activos</li>
+                                <li><span></span> Reportes de Ventas Listos</li>
                             </ul>
                         </div>
                     </div>
@@ -110,3 +141,14 @@
         </div>
     </div>
 </section>
+
+<style>
+    /* Efecto interactivo para tarjetas KPI del Panel Principal */
+    .kpi-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .kpi-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15) !important;
+    }
+</style>
