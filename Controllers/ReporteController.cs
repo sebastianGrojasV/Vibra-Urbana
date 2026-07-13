@@ -19,4 +19,10 @@ public class ReporteController : Controller
     {
         return View(await _reporteServicio.ObtenerInventarioAsync(categoriaId, estadoStock));
     }
+
+    [HttpGet]
+    public async Task<IActionResult> Ventas(string? periodo, DateTime? fechaInicio, DateTime? fechaFin)
+    {
+        return View(await _reporteServicio.ObtenerVentasAsync(periodo, fechaInicio, fechaFin));
+    }
 }
