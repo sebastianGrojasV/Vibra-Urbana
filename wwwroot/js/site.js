@@ -44,21 +44,51 @@ window.addEventListener("DOMContentLoaded", () => {
         dataTableOptions.buttons = [
             {
                 extend: 'excelHtml5',
-                text: 'Exportar a Excel',
-                title: 'Reporte'
+                text: `${iconSvg("file")}<span>Excel</span>`,
+                title: document.title.replace(" - Vibra Urbana", ""),
+                filename: exportFileName("excel"),
+                className: "vu-export-btn vu-export-excel",
+                exportOptions: {
+                    columns: ":visible:not(.vu-actions-column)"
+                }
             },
             {
                 extend: 'pdfHtml5',
-                text: 'Exportar a PDF',
-                title: 'Reporte',
+                text: `${iconSvg("file")}<span>PDF</span>`,
+                title: document.title.replace(" - Vibra Urbana", ""),
+                filename: exportFileName("pdf"),
+                className: "vu-export-btn vu-export-pdf",
                 orientation: 'landscape',
-                pageSize: 'A4'
+                pageSize: 'A4',
+                exportOptions: {
+                    columns: ":visible:not(.vu-actions-column)"
+                },
+                customize: (doc) => {
+                    doc.defaultStyle.fontSize = 9;
+                    doc.styles.tableHeader.fillColor = "#145a5a";
+                    doc.styles.tableHeader.color = "#ffffff";
+                    doc.styles.title.color = "#181311";
+                    doc.pageMargins = [24, 32, 24, 32];
+                }
             }
         ];
     }
 
     jQuery(".vu-data-table").DataTable(dataTableOptions);
 });
+
+function exportFileName(type) {
+    const title = document.title
+        .replace(" - Vibra Urbana", "")
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/[^a-zA-Z0-9]+/g, "-")
+        .replace(/^-|-$/g, "")
+        .toLowerCase();
+    const today = new Date().toISOString().slice(0, 10);
+
+    return `vibra-urbana-${title || "reporte"}-${today}-${type}`;
+}
 
 function enhanceSidebar() {
     const sidebar = document.querySelector(".vu-admin-sidebar");

@@ -1477,6 +1477,51 @@ body,
     border-color: #0e4545 !important;
 }
 
+.vu-panel .dt-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .5rem;
+    margin-bottom: .85rem;
+}
+
+.vu-panel .dt-buttons .dt-button.vu-export-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: .45rem;
+    padding: .52rem .8rem;
+    color: #145a5a !important;
+    font-weight: 850;
+    background: #eef8f5 !important;
+    border: 1px solid #a8d8d4 !important;
+    border-radius: 8px;
+    box-shadow: none;
+    transition: background-color .2s ease, border-color .2s ease, color .2s ease, transform .2s ease;
+}
+
+.vu-panel .dt-buttons .dt-button.vu-export-pdf {
+    color: #8a2d16 !important;
+    background: #fff0e8 !important;
+    border-color: #ffb199 !important;
+}
+
+.vu-panel .dt-buttons .dt-button.vu-export-btn:hover,
+.vu-panel .dt-buttons .dt-button.vu-export-btn:focus {
+    color: #ffffff !important;
+    background: #145a5a !important;
+    border-color: #145a5a !important;
+    transform: translateY(-1px);
+}
+
+.vu-panel .dt-buttons .dt-button.vu-export-btn svg {
+    width: 1rem;
+    height: 1rem;
+    fill: none;
+    stroke: currentColor;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 2.2;
+}
+
 .vu-actions {
     display: inline-flex;
     flex-wrap: nowrap;
