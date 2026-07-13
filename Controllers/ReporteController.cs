@@ -71,8 +71,24 @@ public class ReporteController : Controller
         var aprobadas = ventas.Where(v => v.Estado != "Anulada").ToList();
         model.VentasAprobadas = aprobadas.Count;
         model.MontoTotal = aprobadas.Sum(v => v.Total);
+        model.TotalDescuentos = aprobadas.Sum(v => v.Descuento);
 
         model.VentasAnuladas = ventas.Count(v => v.Estado == "Anulada");
+
+        // Inicializar métodos de pago comunes con 0
+        var metodosComunes = new[] { "Efectivo", "SINPE", "Tarjeta" };
+        foreach (var m in metodosComunes)
+        {
+            model.MontoPorMetodoPago[m] = 0;
+            model.CantidadPorMetodoPago[m] = 0;
+        }
+
+        // Agrupar y sobreescribir con valores reales
+        foreach (var g in aprobadas.GroupBy(v => v.MetodoPago.Nombre))
+        {
+            model.MontoPorMetodoPago[g.Key] = g.Sum(v => v.Total);
+            model.CantidadPorMetodoPago[g.Key] = g.Count();
+        }
 
         return View(model);
     }

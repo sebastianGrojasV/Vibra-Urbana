@@ -83,7 +83,7 @@
                 <!-- KPI Cards Section -->
                 <div class="row g-3 mb-4">
                     <!-- Cantidad Total -->
-                    <div class="col-sm-6 col-xl-3">
+                    <div class="col-md-4 col-xl">
                         <div class="kpi-card shadow-soft p-4 rounded-custom text-white" style="background: linear-gradient(135deg, #6f42c1, #4b0a7a); position: relative; overflow: hidden; border-radius: 16px;">
                             <div style="position: absolute; right: -10px; bottom: -10px; opacity: 0.15;">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 100px; height: 100px;"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
@@ -95,31 +95,31 @@
                     </div>
 
                     <!-- Monto Recaudado -->
-                    <div class="col-sm-6 col-xl-3">
+                    <div class="col-md-4 col-xl">
                         <div class="kpi-card shadow-soft p-4 rounded-custom text-white" style="background: linear-gradient(135deg, #0d9488, #0f766e); position: relative; overflow: hidden; border-radius: 16px;">
                             <div style="position: absolute; right: -10px; bottom: -10px; opacity: 0.15;">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 100px; height: 100px;"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
                             </div>
-                            <h6 class="text-uppercase tracking-wider opacity-75 mb-1" style="font-size: 0.8rem; font-weight: bold; letter-spacing: 1px;">Monto Total</h6>
+                            <h6 class="text-uppercase tracking-wider opacity-75 mb-1" style="font-size: 0.8rem; font-weight: bold; letter-spacing: 1px;">Ingresos Totales</h6>
                             <h2 class="mb-0 text-white" style="font-size: 2.2rem; font-weight: 800;">@Model.MontoTotal.ToString("C2")</h2>
                             <small class="d-block mt-2 opacity-75">Ventas aprobadas netas</small>
                         </div>
                     </div>
 
                     <!-- Ventas Aprobadas -->
-                    <div class="col-sm-6 col-xl-3">
+                    <div class="col-md-4 col-xl">
                         <div class="kpi-card shadow-soft p-4 rounded-custom text-white" style="background: linear-gradient(135deg, #10b981, #047857); position: relative; overflow: hidden; border-radius: 16px;">
                             <div style="position: absolute; right: -10px; bottom: -10px; opacity: 0.15;">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 100px; height: 100px;"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
                             </div>
-                            <h6 class="text-uppercase tracking-wider opacity-75 mb-1" style="font-size: 0.8rem; font-weight: bold; letter-spacing: 1px;">Aprobadas / Activas</h6>
+                            <h6 class="text-uppercase tracking-wider opacity-75 mb-1" style="font-size: 0.8rem; font-weight: bold; letter-spacing: 1px;">Ventas Aprobadas</h6>
                             <h2 class="mb-0 text-white" style="font-size: 2.2rem; font-weight: 800;">@Model.VentasAprobadas</h2>
-                            <small class="d-block mt-2 opacity-75">Listas para facturación</small>
+                            <small class="d-block mt-2 opacity-75">Transacciones exitosas</small>
                         </div>
                     </div>
 
                     <!-- Ventas Anuladas -->
-                    <div class="col-sm-6 col-xl-3">
+                    <div class="col-md-6 col-xl">
                         <div class="kpi-card shadow-soft p-4 rounded-custom text-white" style="background: linear-gradient(135deg, #f43f5e, #be123c); position: relative; overflow: hidden; border-radius: 16px;">
                             <div style="position: absolute; right: -10px; bottom: -10px; opacity: 0.15;">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 100px; height: 100px;"><circle cx="12" cy="12" r="10"></circle><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"></line></svg>
@@ -129,18 +129,70 @@
                             <small class="d-block mt-2 opacity-75">Transacciones canceladas</small>
                         </div>
                     </div>
+
+                    <!-- Descuentos Aplicados -->
+                    <div class="col-md-6 col-xl">
+                        <div class="kpi-card shadow-soft p-4 rounded-custom text-white" style="background: linear-gradient(135deg, #f59e0b, #d97706); position: relative; overflow: hidden; border-radius: 16px;">
+                            <div style="position: absolute; right: -10px; bottom: -10px; opacity: 0.15;">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 100px; height: 100px;"><line x1="19" y1="5" x2="5" y2="19"></line><circle cx="6.5" cy="6.5" r="2.5"></circle><circle cx="17.5" cy="17.5" r="2.5"></circle></svg>
+                            </div>
+                            <h6 class="text-uppercase tracking-wider opacity-75 mb-1" style="font-size: 0.8rem; font-weight: bold; letter-spacing: 1px;">Descuentos Totales</h6>
+                            <h2 class="mb-0 text-white" style="font-size: 2.2rem; font-weight: 800;">@Model.TotalDescuentos.ToString("C2")</h2>
+                            <small class="d-block mt-2 opacity-75">Suma de rebajos aplicados</small>
+                        </div>
+                    </div>
                 </div>
 
-                <!-- Gráficos y Tendencias -->
+                <!-- Gráficos y Tendencias Financieras -->
                 @if (Model.Ventas.Any())
                 {
-                    <div class="card mb-4 shadow-soft">
-                        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-                            <span>Tendencia de Ventas Diarias</span>
+                    <div class="row g-4 mb-4">
+                        <!-- Tendencia de Ventas -->
+                        <div class="col-lg-8">
+                            <div class="card h-100 shadow-soft">
+                                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center" style="border-top-left-radius: 15px; border-top-right-radius: 15px;">
+                                    <span>Tendencia de Ventas Diarias</span>
+                                </div>
+                                <div class="card-body">
+                                    <div style="height: 300px; position: relative;">
+                                        <canvas id="chartTendenciaVentas"></canvas>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                        <div class="card-body">
-                            <div style="height: 300px; position: relative;">
-                                <canvas id="chartTendenciaVentas"></canvas>
+
+                        <!-- Distribución por Método de Pago -->
+                        <div class="col-lg-4">
+                            <div class="card h-100 shadow-soft">
+                                <div class="card-header bg-primary text-white" style="border-top-left-radius: 15px; border-top-right-radius: 15px;">
+                                    <span>Ingresos por Método de Pago</span>
+                                </div>
+                                <div class="card-body d-flex flex-column justify-content-between">
+                                    <div style="height: 180px; position: relative; margin-bottom: 15px;">
+                                        <canvas id="chartMetodoPago"></canvas>
+                                    </div>
+                                    <div class="table-responsive">
+                                        <table class="table table-sm table-bordered align-middle text-center mb-0">
+                                            <thead>
+                                                <tr class="table-dark">
+                                                    <th>Método</th>
+                                                    <th>Ventas</th>
+                                                    <th class="text-end">Ingreso</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @foreach (var key in Model.MontoPorMetodoPago.Keys)
+                                                {
+                                                    <tr>
+                                                        <td><strong>@key</strong></td>
+                                                        <td>@Model.CantidadPorMetodoPago[key]</td>
+                                                        <td class="text-end text-primary font-weight-bold">@Model.MontoPorMetodoPago[key].ToString("C2")</td>
+                                                    </tr>
+                                                }
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -310,6 +362,40 @@
                                 ticks: {
                                     callback: function(value) {
                                         return '₡' + value.toLocaleString();
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+
+                // Inicializar Gráfico de Métodos de Pago
+                const metodosLabels = @Html.Raw(Json.Serialize(Model.MontoPorMetodoPago.Keys));
+                const metodosMontos = @Html.Raw(Json.Serialize(Model.MontoPorMetodoPago.Values));
+
+                const ctxMetodo = document.getElementById('chartMetodoPago').getContext('2d');
+                new Chart(ctxMetodo, {
+                    type: 'doughnut',
+                    data: {
+                        labels: metodosLabels,
+                        datasets: [{
+                            data: metodosMontos,
+                            backgroundColor: ['#6f42c1', '#10b981', '#f59e0b', '#3b82f6', '#ec4899'],
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: true,
+                                position: 'bottom',
+                                labels: {
+                                    boxWidth: 12,
+                                    font: {
+                                        family: 'Segoe UI',
+                                        size: 10
                                     }
                                 }
                             }

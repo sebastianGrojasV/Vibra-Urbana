@@ -14,6 +14,10 @@ public class ReporteVentasViewModel
     public decimal MontoTotal { get; set; }
     public int VentasAprobadas { get; set; }
     public int VentasAnuladas { get; set; }
+    public decimal TotalDescuentos { get; set; }
+
+    public Dictionary<string, decimal> MontoPorMetodoPago { get; set; } = new();
+    public Dictionary<string, int> CantidadPorMetodoPago { get; set; } = new();
 
     public IReadOnlyList<Venta> Ventas { get; set; } = new List<Venta>();
 }
