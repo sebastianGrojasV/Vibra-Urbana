@@ -1,18 +1,442 @@
+@model VibraUrbana.ViewModels.ReporteVentasViewModel
+
 @{
-    ViewData["Title"] = "Reportes";
+    ViewData["Title"] = "Informe de Ventas";
 }
 
-<section class="vu-module-placeholder-page">
-    <div class="container">
-        <div class="vu-module-placeholder">
-            <span class="vu-module-placeholder-icon" data-vu-module-icon="reportes"></span>
-            <p class="vu-eyebrow">Módulo en preparación</p>
-            <h1>Reportes</h1>
-            <p>Próximamente se mostrarán indicadores de ventas, inventario, facturación y actividad administrativa.</p>
-            <div class="vu-placeholder-actions">
-                <a class="btn btn-primary" asp-controller="Admin" asp-action="Index">Volver al panel</a>
-                <a class="btn btn-outline-primary" asp-controller="Venta" asp-action="Index">Ver ventas</a>
+<section class="vu-admin-shell">
+    <div class="container-fluid">
+        <div class="row g-0">
+            <!-- Sidebar Administrativo -->
+            <aside class="col-lg-3 col-xl-2 vu-admin-sidebar">
+                <div class="vu-sidebar-brand">Vibra Urbana</div>
+                <nav class="vu-sidebar-nav">
+                    <a asp-controller="Admin" asp-action="Index">Panel inicial</a>
+                    <a asp-controller="Admin" asp-action="Usuarios">Usuarios</a>
+                    <a asp-controller="Rol" asp-action="Index">Roles</a>
+                    <a asp-controller="Cliente" asp-action="Index">Clientes</a>
+                    <a asp-controller="Producto" asp-action="Index">Productos</a>
+                    <a asp-controller="Inventario" asp-action="Index">Inventario</a>
+                    <a asp-controller="Venta" asp-action="Index">Ventas</a>
+                    <a asp-controller="Factura" asp-action="Index">Facturación</a>
+                    <a class="active" asp-controller="Reporte" asp-action="Index">Reportes</a>
+                    <a asp-controller="Pedido" asp-action="Index">Pedidos</a>
+                    <a asp-controller="Categoria" asp-action="Index">Categorías</a>
+                </nav>
+            </aside>
+
+            <!-- Contenido Principal -->
+            <div class="col-lg-9 col-xl-10 vu-admin-content">
+                <div class="vu-admin-header d-flex flex-wrap justify-content-between align-items-center mb-4">
+                    <div>
+                        <p class="vu-eyebrow">Análisis de Rendimiento</p>
+                        <h1>Informe de Ventas</h1>
+                        <p>Analiza el comportamiento comercial, cantidad de ventas, montos y estados en periodos específicos.</p>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-danger text-white" onclick="exportarPDF()" style="background-color: #e11d48; border: none;">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 18px; height: 18px; vertical-align: middle; margin-right: 4px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+                            Exportar a PDF
+                        </button>
+                        <button class="btn btn-success text-white" onclick="exportarExcel()" style="background-color: #16a34a; border: none;">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 18px; height: 18px; vertical-align: middle; margin-right: 4px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+                            Exportar a Excel
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Card de Filtros -->
+                <div class="card mb-4 filter-box shadow-soft">
+                    <div class="card-body">
+                        <form method="get" asp-controller="Reporte" asp-action="Index" class="row align-items-end g-3" id="formFiltros">
+                            <div class="col-md-3">
+                                <label class="form-label font-weight-bold" for="filtroPeriodo">Periodo del Reporte</label>
+                                <select class="form-select" id="filtroPeriodo" name="filtro">
+                                    <option value="dia" selected="@(Model.Filtro == "dia")">Hoy</option>
+                                    <option value="semana" selected="@(Model.Filtro == "semana")">Esta Semana</option>
+                                    <option value="mes" selected="@(Model.Filtro == "mes")">Este Mes</option>
+                                    <option value="personalizado" selected="@(Model.Filtro == "personalizado")">Rango Personalizado</option>
+                                </select>
+                            </div>
+                            
+                            <div class="col-md-3 date-range-picker" id="divFechaInicio" style="display: @(Model.Filtro == "personalizado" ? "block" : "none");">
+                                <label class="form-label font-weight-bold" for="fechaInicioInput">Fecha de Inicio</label>
+                                <input type="date" class="form-input form-control" id="fechaInicioInput" name="fechaInicio" 
+                                       value="@(Model.FechaInicio?.ToString("yyyy-MM-dd"))" />
+                            </div>
+
+                            <div class="col-md-3 date-range-picker" id="divFechaFin" style="display: @(Model.Filtro == "personalizado" ? "block" : "none");">
+                                <label class="form-label font-weight-bold" for="fechaFinInput">Fecha de Fin</label>
+                                <input type="date" class="form-input form-control" id="fechaFinInput" name="fechaFin" 
+                                       value="@(Model.FechaFin?.ToString("yyyy-MM-dd"))" />
+                            </div>
+
+                            <div class="col-md-3">
+                                <button type="submit" class="btn btn-primary w-100 py-2">
+                                    Generar Reporte
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- KPI Cards Section -->
+                <div class="row g-3 mb-4">
+                    <!-- Cantidad Total -->
+                    <div class="col-sm-6 col-xl-3">
+                        <div class="kpi-card shadow-soft p-4 rounded-custom text-white" style="background: linear-gradient(135deg, #6f42c1, #4b0a7a); position: relative; overflow: hidden; border-radius: 16px;">
+                            <div style="position: absolute; right: -10px; bottom: -10px; opacity: 0.15;">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 100px; height: 100px;"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
+                            </div>
+                            <h6 class="text-uppercase tracking-wider opacity-75 mb-1" style="font-size: 0.8rem; font-weight: bold; letter-spacing: 1px;">Ventas Totales</h6>
+                            <h2 class="mb-0 text-white" style="font-size: 2.2rem; font-weight: 800;">@Model.TotalVentas</h2>
+                            <small class="d-block mt-2 opacity-75">Transacciones registradas</small>
+                        </div>
+                    </div>
+
+                    <!-- Monto Recaudado -->
+                    <div class="col-sm-6 col-xl-3">
+                        <div class="kpi-card shadow-soft p-4 rounded-custom text-white" style="background: linear-gradient(135deg, #0d9488, #0f766e); position: relative; overflow: hidden; border-radius: 16px;">
+                            <div style="position: absolute; right: -10px; bottom: -10px; opacity: 0.15;">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 100px; height: 100px;"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+                            </div>
+                            <h6 class="text-uppercase tracking-wider opacity-75 mb-1" style="font-size: 0.8rem; font-weight: bold; letter-spacing: 1px;">Monto Total</h6>
+                            <h2 class="mb-0 text-white" style="font-size: 2.2rem; font-weight: 800;">@Model.MontoTotal.ToString("C2")</h2>
+                            <small class="d-block mt-2 opacity-75">Ventas aprobadas netas</small>
+                        </div>
+                    </div>
+
+                    <!-- Ventas Aprobadas -->
+                    <div class="col-sm-6 col-xl-3">
+                        <div class="kpi-card shadow-soft p-4 rounded-custom text-white" style="background: linear-gradient(135deg, #10b981, #047857); position: relative; overflow: hidden; border-radius: 16px;">
+                            <div style="position: absolute; right: -10px; bottom: -10px; opacity: 0.15;">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 100px; height: 100px;"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                            </div>
+                            <h6 class="text-uppercase tracking-wider opacity-75 mb-1" style="font-size: 0.8rem; font-weight: bold; letter-spacing: 1px;">Aprobadas / Activas</h6>
+                            <h2 class="mb-0 text-white" style="font-size: 2.2rem; font-weight: 800;">@Model.VentasAprobadas</h2>
+                            <small class="d-block mt-2 opacity-75">Listas para facturación</small>
+                        </div>
+                    </div>
+
+                    <!-- Ventas Anuladas -->
+                    <div class="col-sm-6 col-xl-3">
+                        <div class="kpi-card shadow-soft p-4 rounded-custom text-white" style="background: linear-gradient(135deg, #f43f5e, #be123c); position: relative; overflow: hidden; border-radius: 16px;">
+                            <div style="position: absolute; right: -10px; bottom: -10px; opacity: 0.15;">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 100px; height: 100px;"><circle cx="12" cy="12" r="10"></circle><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"></line></svg>
+                            </div>
+                            <h6 class="text-uppercase tracking-wider opacity-75 mb-1" style="font-size: 0.8rem; font-weight: bold; letter-spacing: 1px;">Ventas Anuladas</h6>
+                            <h2 class="mb-0 text-white" style="font-size: 2.2rem; font-weight: 800;">@Model.VentasAnuladas</h2>
+                            <small class="d-block mt-2 opacity-75">Transacciones canceladas</small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Gráficos y Tendencias -->
+                @if (Model.Ventas.Any())
+                {
+                    <div class="card mb-4 shadow-soft">
+                        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                            <span>Tendencia de Ventas Diarias</span>
+                        </div>
+                        <div class="card-body">
+                            <div style="height: 300px; position: relative;">
+                                <canvas id="chartTendenciaVentas"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                }
+
+                <!-- Tabla de Detalle -->
+                <div class="vu-panel shadow-soft">
+                    <h3 class="mb-3">Detalle de Ventas en el Periodo</h3>
+                    
+                    @if (!Model.Ventas.Any())
+                    {
+                        <div class="alert alert-info py-4 text-center rounded-custom" role="alert" style="border: 1px dashed #6f42c1; background-color: #f1ebff; color: #2d0247;">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 48px; height: 48px; margin-bottom: 12px; opacity: 0.7;"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                            <h4>Sin Ventas Registradas</h4>
+                            <p class="mb-0">No se encontraron ventas para el periodo seleccionado (@(Model.FechaInicio?.ToString("dd/MM/yyyy")) al @(Model.FechaFin?.ToString("dd/MM/yyyy"))).</p>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle vu-report-table" id="tablaReporteVentas">
+                                <thead>
+                                    <tr>
+                                        <th>Código</th>
+                                        <th>Fecha / Hora (CR)</th>
+                                        <th>Cliente</th>
+                                        <th>Cajero</th>
+                                        <th>Método Pago</th>
+                                        <th class="text-end">Total</th>
+                                        <th class="text-center">Estado</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var venta in Model.Ventas)
+                                    {
+                                        <tr>
+                                            <td><strong>#@venta.Id.ToString("D5")</strong></td>
+                                            <td>@venta.FechaVenta.ToLocalTime().ToString("dd/MM/yyyy hh:mm tt")</td>
+                                            <td>
+                                                <div class="d-flex flex-column">
+                                                    <span>@venta.Cliente.NombreCompleto</span>
+                                                    <small class="text-muted">@venta.Cliente.Identificacion</small>
+                                                </div>
+                                            </td>
+                                            <td>@venta.Usuario.NombreCompleto</td>
+                                            <td>
+                                                <span class="badge bg-secondary">@venta.MetodoPago.Nombre</span>
+                                            </td>
+                                            <td class="text-end font-weight-bold text-primary">@venta.Total.ToString("C2")</td>
+                                            <td class="text-center">
+                                                @if (venta.Estado == "Registrada")
+                                                {
+                                                    <span class="badge bg-success">Aprobada</span>
+                                                }
+                                                else if (venta.Estado == "Anulada")
+                                                {
+                                                    <span class="badge bg-danger">Anulada</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-secondary">@venta.Estado</span>
+                                                }
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                </div>
             </div>
         </div>
     </div>
 </section>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            // Manejar la visibilidad de los inputs de fechas según el periodo
+            $('#filtroPeriodo').change(function() {
+                if ($(this).val() === 'personalizado') {
+                    $('#divFechaInicio, #divFechaFin').fadeIn();
+                } else {
+                    $('#divFechaInicio, #divFechaFin').fadeOut();
+                }
+            });
+
+            // Inicializar DataTable
+            if ($('#tablaReporteVentas').length) {
+                $('#tablaReporteVentas').DataTable({
+                    language: {
+                        url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json'
+                    },
+                    order: [[0, 'desc']],
+                    pageLength: 10,
+                    lengthMenu: [5, 10, 25, 50]
+                });
+            }
+
+            // Inicializar Gráfico si hay datos
+            @if (Model.Ventas.Any())
+            {
+                <text>
+                // Serializar ventas para procesar en JS
+                const ventasJs = @Html.Raw(Json.Serialize(Model.Ventas.Select(v => new {
+                    fecha = v.FechaVenta.ToLocalTime().ToString("yyyy-MM-dd"),
+                    total = v.Total,
+                    aprobada = v.Estado != "Anulada"
+                })));
+
+                // Agrupar ventas aprobadas por día
+                const agrupados = {};
+                ventasJs.forEach(v => {
+                    if (v.aprobada) {
+                        agrupados[v.fecha] = (agrupados[v.fecha] || 0) + v.total;
+                    }
+                });
+
+                // Ordenar por fecha cronológicamente
+                const fechasOrdenadas = Object.keys(agrupados).sort();
+                const montosOrdenados = fechasOrdenadas.map(f => agrupados[f]);
+
+                // Formatear fechas para mostrar en el gráfico (DD/MM)
+                const labelsGrafico = fechasOrdenadas.map(f => {
+                    const partes = f.split('-');
+                    return `${partes[2]}/${partes[1]}`;
+                });
+
+                const ctx = document.getElementById('chartTendenciaVentas').getContext('2d');
+                new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: labelsGrafico,
+                        datasets: [{
+                            label: 'Ventas Diarias (CRC)',
+                            data: montosOrdenados,
+                            borderColor: '#6f42c1',
+                            backgroundColor: 'rgba(111, 66, 193, 0.1)',
+                            borderWidth: 3,
+                            fill: true,
+                            tension: 0.3,
+                            pointBackgroundColor: '#2d0247',
+                            pointRadius: 5
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: true,
+                                position: 'top',
+                                labels: {
+                                    font: {
+                                        family: 'Segoe UI',
+                                        weight: 'bold'
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    callback: function(value) {
+                                        return '₡' + value.toLocaleString();
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+                </text>
+            }
+        });
+
+        // Exportar a Excel usando SheetJS
+        function exportarExcel() {
+            @if (!Model.Ventas.Any())
+            {
+                <text>
+                alert("No hay datos para exportar.");
+                return;
+                </text>
+            }
+            else
+            {
+                <text>
+                const data = [];
+                // Encabezados
+                data.push(["Código", "Fecha/Hora (CR)", "Cliente", "Identificación", "Cajero", "Método de Pago", "Subtotal", "Descuento", "Impuesto", "Total", "Estado"]);
+
+                @foreach (var venta in Model.Ventas)
+                {
+                    <text>
+                    data.push([
+                        "#@venta.Id.ToString("D5")",
+                        "@venta.FechaVenta.ToLocalTime().ToString("dd/MM/yyyy hh:mm tt")",
+                        "@venta.Cliente.NombreCompleto",
+                        "@venta.Cliente.Identificacion",
+                        "@venta.Usuario.NombreCompleto",
+                        "@venta.MetodoPago.Nombre",
+                        @venta.Subtotal,
+                        @venta.Descuento,
+                        @venta.Impuesto,
+                        @venta.Total,
+                        "@(venta.Estado == "Registrada" ? "Aprobada" : venta.Estado)"
+                    ]);
+                    </text>
+                }
+
+                const ws = XLSX.utils.aoa_to_sheet(data);
+                const wb = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(wb, ws, "Reporte de Ventas");
+                XLSX.writeFile(wb, `Reporte_Ventas_${new Date().toISOString().slice(0,10)}.xlsx`);
+                </text>
+            }
+        }
+
+        // Exportar a PDF usando html2pdf.js
+        function exportarPDF() {
+            @if (!Model.Ventas.Any())
+            {
+                <text>
+                alert("No hay datos para exportar.");
+                return;
+                </text>
+            }
+            else
+            {
+                <text>
+                const element = document.querySelector('.vu-admin-content');
+                const opt = {
+                    margin:       8,
+                    filename:     `Reporte_Ventas_${new Date().toISOString().slice(0,10)}.pdf`,
+                    image:        { type: 'jpeg', quality: 0.98 },
+                    html2canvas:  { scale: 2, useCORS: true },
+                    jsPDF:        { unit: 'mm', format: 'a4', orientation: 'landscape' }
+                };
+
+                // Ocultar botones y formularios temporalmente para el PDF limpio
+                const style = document.createElement('style');
+                style.innerHTML = `
+                    .filter-box, .vu-admin-header .d-flex, .vu-sidebar-toggle, .dataTables_length, .dataTables_filter, .dataTables_info, .dataTables_paginate { display: none !important; }
+                    .vu-admin-content { width: 100% !important; padding: 0 !important; margin: 0 !important; }
+                    .vu-panel { box-shadow: none !important; border: 1px solid #eee !important; }
+                `;
+                document.head.appendChild(style);
+
+                html2pdf().set(opt).from(element).save().then(() => {
+                    document.head.removeChild(style);
+                });
+                </text>
+            }
+        }
+    </script>
+
+    <style>
+        /* Ajustes específicos para impresión */
+        @@media print {
+            .vu-admin-sidebar, 
+            .filter-box,
+            .vu-admin-header .d-flex,
+            footer,
+            header,
+            .dataTables_length,
+            .dataTables_filter,
+            .dataTables_info,
+            .dataTables_paginate {
+                display: none !important;
+            }
+            .vu-admin-content {
+                width: 100% !important;
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+            body {
+                background: white !important;
+                color: black !important;
+            }
+            .card, .vu-panel {
+                box-shadow: none !important;
+                border: 1px solid #ccc !important;
+            }
+        }
+
+        /* Estilo interactivo para las tarjetas KPI */
+        .kpi-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .kpi-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15) !important;
+        }
+    </style>
+}

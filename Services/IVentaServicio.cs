@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using VibraUrbana.Models;
@@ -10,4 +11,6 @@ public interface IVentaServicio
     Task<IReadOnlyList<Venta>> ObtenerVentasAsync(int? clienteId = null);
 
     Task<VentaOperacionResult> RegistrarVentaAsync(RegistrarVentaViewModel model, int usuarioId);
+
+    Task<IReadOnlyList<Venta>> ObtenerVentasPorRangoFechaAsync(DateTime fechaInicioUtc, DateTime fechaFinUtc);
 }

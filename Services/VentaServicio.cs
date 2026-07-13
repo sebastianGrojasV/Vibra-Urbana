@@ -187,4 +187,15 @@ public class VentaServicio : IVentaServicio
             return VentaOperacionResult.Failure($"Error al registrar la venta: {ex.Message}");
         }
     }
+
+    public async Task<IReadOnlyList<Venta>> ObtenerVentasPorRangoFechaAsync(DateTime fechaInicioUtc, DateTime fechaFinUtc)
+    {
+        return await _context.Ventas
+            .Include(v => v.Cliente)
+            .Include(v => v.Usuario)
+            .Include(v => v.MetodoPago)
+            .Where(v => v.FechaVenta >= fechaInicioUtc && v.FechaVenta <= fechaFinUtc)
+            .OrderByDescending(v => v.FechaVenta)
+            .ToListAsync();
+    }
 }
