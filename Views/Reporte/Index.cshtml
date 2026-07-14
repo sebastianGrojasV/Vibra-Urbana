@@ -16,9 +16,14 @@
                         <h1>Reporte de inventario</h1>
                         <p>Consulta la disponibilidad actual y detecta productos que requieren reposición.</p>
                     </div>
-                    <a class="btn btn-outline-primary" asp-controller="Inventario" asp-action="Index">
-                        Ver inventario
-                    </a>
+                    <div class="d-flex flex-wrap gap-2">
+                        <a class="btn btn-outline-primary" asp-controller="Reporte" asp-action="Ventas">
+                            Reporte de ventas
+                        </a>
+                        <a class="btn btn-outline-primary" asp-controller="Inventario" asp-action="Index">
+                            Ver inventario
+                        </a>
+                    </div>
                 </div>
 
                 <div class="row g-3 mb-4">

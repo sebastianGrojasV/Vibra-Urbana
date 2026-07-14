@@ -1,4 +1,4 @@
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using VibraUrbana.Data;
 using VibraUrbana.Models;
 using VibraUrbana.ViewModels;
@@ -9,6 +9,7 @@ public class VentaServicio : IVentaServicio
 {
     private const decimal TarifaIva = 0.13m;
     private const string EstadoVentaAprobada = "Aprobada";
+    private const string EstadoVentaPendiente = "Pendiente";
     private const string EstadoVentaAnulada = "Anulada";
     private const string EstadoFacturaEmitida = "Emitida";
     private const string EstadoFacturaAnulada = "Anulada";
@@ -204,7 +205,7 @@ public class VentaServicio : IVentaServicio
                 });
             }
 
-            var numeroFactura = GenerarNumeroFactura(venta.Id, fechaVenta);
+            var numeroFactura = await GenerarNumeroFacturaUnicoAsync(venta.Id, fechaVenta);
 
             _context.Facturas.Add(new Factura
             {
@@ -217,6 +218,12 @@ public class VentaServicio : IVentaServicio
                 Total = total,
                 Estado = EstadoFacturaEmitida
             });
+
+            RegistrarBitacora(
+                usuarioId,
+                "Ventas",
+                "Estado inicial",
+                $"Venta #{venta.Id:D5} registrada con estado {EstadoVentaAprobada}.");
 
             await _context.SaveChangesAsync();
             await transaction.CommitAsync();
@@ -235,7 +242,7 @@ public class VentaServicio : IVentaServicio
         catch (DbUpdateException)
         {
             await transaction.RollbackAsync();
-            return VentaOperacionResult.Failure("No fue posible registrar la venta. Revisa los datos e inténtalo nuevamente.");
+            return VentaOperacionResult.Failure("No fue posible registrar la venta o generar un número único de factura. Revisa los datos e inténtalo nuevamente.");
         }
     }
 
@@ -311,6 +318,12 @@ public class VentaServicio : IVentaServicio
                 venta.Factura.Estado = EstadoFacturaAnulada;
             }
 
+            RegistrarBitacora(
+                usuarioId,
+                "Ventas",
+                "Anulación",
+                $"Venta #{venta.Id:D5} cambió de {EstadoVentaAprobada} a {EstadoVentaAnulada}. Motivo: {motivoLimpio}");
+
             await _context.SaveChangesAsync();
             await transaction.CommitAsync();
 
@@ -326,6 +339,62 @@ public class VentaServicio : IVentaServicio
             await transaction.RollbackAsync();
             return AnularVentaResult.Failure("No fue posible anular la venta. Revisa los datos e inténtalo nuevamente.");
         }
+    }
+
+    public async Task<CambiarEstadoVentaResult> CambiarEstadoVentaAsync(int ventaId, string nuevoEstado, string motivo, int usuarioId)
+    {
+        var estadoNormalizado = NormalizarEstado(nuevoEstado);
+        var motivoLimpio = motivo?.Trim() ?? string.Empty;
+
+        if (estadoNormalizado is null)
+        {
+            return CambiarEstadoVentaResult.Failure("El estado seleccionado no es válido.");
+        }
+
+        if (estadoNormalizado == EstadoVentaAnulada)
+        {
+            return CambiarEstadoVentaResult.Failure("Para anular una venta usa la acción Anular.");
+        }
+
+        if (motivoLimpio.Length < 5 || motivoLimpio.Length > 300)
+        {
+            return CambiarEstadoVentaResult.Failure("El motivo del cambio debe tener entre 5 y 300 caracteres.");
+        }
+
+        var venta = await _context.Ventas.SingleOrDefaultAsync(item => item.Id == ventaId);
+
+        if (venta is null)
+        {
+            return CambiarEstadoVentaResult.Failure("La venta seleccionada no existe.");
+        }
+
+        if (venta.Estado == EstadoVentaAnulada)
+        {
+            return CambiarEstadoVentaResult.Failure("No se puede cambiar el estado de una venta anulada.");
+        }
+
+        if (venta.Estado == estadoNormalizado)
+        {
+            return CambiarEstadoVentaResult.Failure("La venta ya tiene el estado seleccionado.");
+        }
+
+        if (!EsTransicionPermitida(venta.Estado, estadoNormalizado))
+        {
+            return CambiarEstadoVentaResult.Failure("La transición de estado seleccionada no está permitida.");
+        }
+
+        var estadoAnterior = venta.Estado;
+        venta.Estado = estadoNormalizado;
+
+        RegistrarBitacora(
+            usuarioId,
+            "Ventas",
+            "Cambio de estado",
+            $"Venta #{venta.Id:D5} cambió de {estadoAnterior} a {estadoNormalizado}. Motivo: {motivoLimpio}");
+
+        await _context.SaveChangesAsync();
+
+        return CambiarEstadoVentaResult.Success($"Venta marcada como {estadoNormalizado} correctamente.");
     }
 
     private static string? ValidarDatosMinimos(RegistrarVentaViewModel model)
@@ -368,8 +437,66 @@ public class VentaServicio : IVentaServicio
         return null;
     }
 
-    private static string GenerarNumeroFactura(int ventaId, DateTime fechaVenta) =>
-        $"FAC-{fechaVenta:yyyyMMdd}-{ventaId:D6}";
+    private async Task<string> GenerarNumeroFacturaUnicoAsync(int ventaId, DateTime fechaVenta)
+    {
+        var numeroBase = $"FAC-{fechaVenta:yyyyMMdd}-{ventaId:D6}";
+
+        if (!await _context.Facturas.AnyAsync(factura => factura.NumeroFactura == numeroBase))
+        {
+            return numeroBase;
+        }
+
+        for (var intento = 1; intento <= 20; intento++)
+        {
+            var numeroAlterno = $"{numeroBase}-{intento:D2}";
+
+            if (!await _context.Facturas.AnyAsync(factura => factura.NumeroFactura == numeroAlterno))
+            {
+                return numeroAlterno;
+            }
+        }
+
+        throw new InvalidOperationException("No fue posible generar un número único de factura.");
+    }
+
+    private static string? NormalizarEstado(string estado)
+    {
+        if (string.Equals(estado, EstadoVentaAprobada, StringComparison.OrdinalIgnoreCase))
+        {
+            return EstadoVentaAprobada;
+        }
+
+        if (string.Equals(estado, EstadoVentaPendiente, StringComparison.OrdinalIgnoreCase))
+        {
+            return EstadoVentaPendiente;
+        }
+
+        if (string.Equals(estado, EstadoVentaAnulada, StringComparison.OrdinalIgnoreCase))
+        {
+            return EstadoVentaAnulada;
+        }
+
+        return null;
+    }
+
+    private static bool EsTransicionPermitida(string estadoActual, string nuevoEstado)
+    {
+        return (estadoActual, nuevoEstado) is
+            (EstadoVentaAprobada, EstadoVentaPendiente) or
+            (EstadoVentaPendiente, EstadoVentaAprobada);
+    }
+
+    private void RegistrarBitacora(int usuarioId, string modulo, string accion, string descripcion)
+    {
+        _context.Bitacora.Add(new Bitacora
+        {
+            UsuarioId = usuarioId,
+            Modulo = modulo,
+            Accion = accion,
+            Descripcion = descripcion.Length > 1000 ? descripcion[..1000] : descripcion,
+            FechaRegistro = DateTime.UtcNow
+        });
+    }
 
     private sealed class VentaDetalleAgrupado
     {

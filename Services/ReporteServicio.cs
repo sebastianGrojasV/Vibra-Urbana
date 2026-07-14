@@ -63,6 +63,58 @@ public class ReporteServicio : IReporteServicio
         };
     }
 
+    public async Task<ReporteVentasViewModel> ObtenerVentasAsync(
+        string? periodo,
+        DateTime? fechaInicio,
+        DateTime? fechaFin)
+    {
+        var rango = CalcularRangoVentas(periodo, fechaInicio, fechaFin);
+        var fechaSiguiente = rango.FechaFin.AddDays(1);
+
+        var ventas = await _context.Ventas
+            .AsNoTracking()
+            .Include(venta => venta.Cliente)
+            .Include(venta => venta.Usuario)
+            .Include(venta => venta.MetodoPago)
+            .Include(venta => venta.Factura)
+            .Where(venta => venta.FechaVenta >= rango.FechaInicio && venta.FechaVenta < fechaSiguiente)
+            .OrderByDescending(venta => venta.FechaVenta)
+            .Select(venta => new ReporteVentasItemViewModel
+            {
+                VentaId = venta.Id,
+                NumeroFactura = venta.Factura == null ? "Sin comprobante" : venta.Factura.NumeroFactura,
+                FechaVenta = venta.FechaVenta,
+                Cliente = venta.Cliente.NombreCompleto,
+                Cajero = venta.Usuario.NombreCompleto,
+                MetodoPago = venta.MetodoPago.Nombre,
+                Subtotal = venta.Subtotal,
+                Descuento = venta.Descuento,
+                Impuesto = venta.Impuesto,
+                Total = venta.Total,
+                Estado = venta.Estado
+            })
+            .ToListAsync();
+
+        return new ReporteVentasViewModel
+        {
+            Periodo = rango.Periodo,
+            FechaInicio = rango.FechaInicio,
+            FechaFin = rango.FechaFin,
+            Ventas = ventas,
+            TotalesPorMetodoPago = ventas
+                .Where(venta => venta.Estado == "Aprobada")
+                .GroupBy(venta => venta.MetodoPago)
+                .OrderBy(grupo => grupo.Key)
+                .Select(grupo => new ReporteVentasMetodoPagoViewModel
+                {
+                    MetodoPago = grupo.Key,
+                    CantidadVentas = grupo.Count(),
+                    Total = grupo.Sum(venta => venta.Total)
+                })
+                .ToList()
+        };
+    }
+
     private async Task<IReadOnlyList<SelectListItem>> ObtenerCategoriasAsync(int? categoriaId)
     {
         return await _context.Categorias
@@ -85,6 +137,55 @@ public class ReporteServicio : IReporteServicio
             ReporteInventarioViewModel.EstadoStockBajo => ReporteInventarioViewModel.EstadoStockBajo,
             ReporteInventarioViewModel.EstadoStockDisponible => ReporteInventarioViewModel.EstadoStockDisponible,
             _ => null
+        };
+    }
+
+    private static (string Periodo, DateTime FechaInicio, DateTime FechaFin) CalcularRangoVentas(
+        string? periodo,
+        DateTime? fechaInicio,
+        DateTime? fechaFin)
+    {
+        var periodoNormalizado = NormalizarPeriodoVentas(periodo);
+        var fechaBase = (fechaInicio ?? DateTime.Today).Date;
+
+        return periodoNormalizado switch
+        {
+            ReporteVentasViewModel.PeriodoSemana => (
+                periodoNormalizado,
+                fechaBase.AddDays(-(((int)fechaBase.DayOfWeek + 6) % 7)),
+                fechaBase.AddDays(-(((int)fechaBase.DayOfWeek + 6) % 7)).AddDays(6)),
+            ReporteVentasViewModel.PeriodoMes => (
+                periodoNormalizado,
+                new DateTime(fechaBase.Year, fechaBase.Month, 1),
+                new DateTime(fechaBase.Year, fechaBase.Month, 1).AddMonths(1).AddDays(-1)),
+            ReporteVentasViewModel.PeriodoRango => CalcularRangoPersonalizado(fechaInicio, fechaFin),
+            _ => (ReporteVentasViewModel.PeriodoDia, fechaBase, fechaBase)
+        };
+    }
+
+    private static (string Periodo, DateTime FechaInicio, DateTime FechaFin) CalcularRangoPersonalizado(
+        DateTime? fechaInicio,
+        DateTime? fechaFin)
+    {
+        var inicio = (fechaInicio ?? DateTime.Today).Date;
+        var fin = (fechaFin ?? inicio).Date;
+
+        if (fin < inicio)
+        {
+            (inicio, fin) = (fin, inicio);
+        }
+
+        return (ReporteVentasViewModel.PeriodoRango, inicio, fin);
+    }
+
+    private static string NormalizarPeriodoVentas(string? periodo)
+    {
+        return periodo?.Trim().ToLowerInvariant() switch
+        {
+            ReporteVentasViewModel.PeriodoSemana => ReporteVentasViewModel.PeriodoSemana,
+            ReporteVentasViewModel.PeriodoMes => ReporteVentasViewModel.PeriodoMes,
+            ReporteVentasViewModel.PeriodoRango => ReporteVentasViewModel.PeriodoRango,
+            _ => ReporteVentasViewModel.PeriodoDia
         };
     }
 }

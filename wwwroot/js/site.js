@@ -4,6 +4,7 @@ window.addEventListener("DOMContentLoaded", () => {
     enhanceModulePlaceholders();
     setupInlineConfirmations();
     setupSaleCancellation();
+    setupSaleStatusChange();
     setupAutoDismissAlerts();
 
     if (!window.jQuery || !jQuery.fn.DataTable) {
@@ -43,21 +44,57 @@ window.addEventListener("DOMContentLoaded", () => {
         dataTableOptions.buttons = [
             {
                 extend: 'excelHtml5',
-                text: 'Exportar a Excel',
-                title: 'Reporte'
+                text: `${iconSvg("file")}<span>Excel</span>`,
+                title: document.title.replace(" - Vibra Urbana", ""),
+                filename: exportFileName("excel"),
+                className: "vu-export-btn vu-export-excel",
+                exportOptions: {
+                    columns: ":visible:not(.vu-actions-column)"
+                }
             },
             {
                 extend: 'pdfHtml5',
-                text: 'Exportar a PDF',
-                title: 'Reporte',
+                text: `${iconSvg("file")}<span>PDF</span>`,
+                title: document.title.replace(" - Vibra Urbana", ""),
+                filename: exportFileName("pdf"),
+                className: "vu-export-btn vu-export-pdf",
                 orientation: 'landscape',
-                pageSize: 'A4'
+                pageSize: 'A4',
+                exportOptions: {
+                    columns: ":visible:not(.vu-actions-column)"
+                },
+                customize: (doc) => {
+                    doc.defaultStyle.fontSize = 9;
+                    doc.styles.tableHeader.fillColor = "#145a5a";
+                    doc.styles.tableHeader.color = "#ffffff";
+                    doc.styles.title.color = "#181311";
+                    doc.pageMargins = [24, 32, 24, 32];
+                }
             }
         ];
     }
 
-    jQuery(".vu-data-table").DataTable(dataTableOptions);
+    jQuery(".vu-data-table").each(function () {
+        if (jQuery.fn.DataTable.isDataTable(this)) {
+            return;
+        }
+
+        jQuery(this).DataTable(dataTableOptions);
+    });
 });
+
+function exportFileName(type) {
+    const title = document.title
+        .replace(" - Vibra Urbana", "")
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/[^a-zA-Z0-9]+/g, "-")
+        .replace(/^-|-$/g, "")
+        .toLowerCase();
+    const today = new Date().toISOString().slice(0, 10);
+
+    return `vibra-urbana-${title || "reporte"}-${today}-${type}`;
+}
 
 function enhanceSidebar() {
     const sidebar = document.querySelector(".vu-admin-sidebar");
@@ -190,6 +227,49 @@ function setupSaleCancellation() {
 
     close.addEventListener("click", () => {
         idInput.value = "";
+        reasonInput.value = "";
+        frame.classList.remove("is-visible");
+        frame.hidden = true;
+    });
+}
+
+function setupSaleStatusChange() {
+    const frame = document.querySelector("[data-vu-state-sale-frame]");
+
+    if (!frame) {
+        return;
+    }
+
+    const idInput = frame.querySelector("[data-vu-state-sale-id]");
+    const statusInput = frame.querySelector("[data-vu-state-sale-status]");
+    const reasonInput = frame.querySelector("[data-vu-state-sale-reason]");
+    const title = frame.querySelector("[data-vu-state-sale-title]");
+    const message = frame.querySelector("[data-vu-state-sale-message]");
+    const submit = frame.querySelector("[data-vu-state-sale-submit]");
+    const close = frame.querySelector("[data-vu-state-sale-close]");
+
+    document.querySelectorAll("[data-vu-state-sale]").forEach((button) => {
+        button.addEventListener("click", () => {
+            const saleId = button.dataset.vuSaleId;
+            const saleCode = button.dataset.vuSaleCode || `#${saleId}`;
+            const saleClient = button.dataset.vuSaleClient || "cliente seleccionado";
+            const targetStatus = button.dataset.vuTargetStatus;
+
+            idInput.value = saleId;
+            statusInput.value = targetStatus;
+            reasonInput.value = "";
+            title.textContent = `Cambiar venta ${saleCode} a ${targetStatus}`;
+            message.textContent = `Registra el motivo del cambio para la venta de ${saleClient}.`;
+            submit.textContent = `Marcar como ${targetStatus}`;
+            frame.hidden = false;
+            frame.classList.add("is-visible");
+            reasonInput.focus();
+        });
+    });
+
+    close.addEventListener("click", () => {
+        idInput.value = "";
+        statusInput.value = "";
         reasonInput.value = "";
         frame.classList.remove("is-visible");
         frame.hidden = true;

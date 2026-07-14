@@ -40,6 +40,7 @@ builder.Services.AddScoped<IRolServicio, RolServicio>();
 builder.Services.AddScoped<IClienteServicio, ClienteServicio>();
 builder.Services.AddScoped<IProductoServicio, ProductoServicio>();
 builder.Services.AddScoped<IReporteServicio, ReporteServicio>();
+builder.Services.AddScoped<IAdminDashboardServicio, AdminDashboardServicio>();
 builder.Services.AddScoped<INavigationMenuService, NavigationMenuService>();
 builder.Services.AddScoped<IAuthorizationHandler, PermisoAuthorizationHandler>();
 builder.Services.AddScoped<ActiveUserCookieAuthenticationEvents>();

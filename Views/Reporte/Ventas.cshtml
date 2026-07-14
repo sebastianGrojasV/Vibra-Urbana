@@ -1,0 +1,248 @@
+@model VibraUrbana.ViewModels.ReporteVentasViewModel
+@using System.Globalization
+
+@{
+    ViewData["Title"] = "Reporte de ventas";
+
+    var totalEstados = Model.CantidadVentasAprobadas + Model.CantidadVentasPendientes + Model.CantidadVentasAnuladas;
+    var aprobadoPct = totalEstados == 0 ? 0 : Math.Round(Model.CantidadVentasAprobadas * 100m / totalEstados, 2);
+    var pendientePct = totalEstados == 0 ? 0 : Math.Round((Model.CantidadVentasAprobadas + Model.CantidadVentasPendientes) * 100m / totalEstados, 2);
+    var totalMetodoPago = Model.TotalesPorMetodoPago.Sum(metodo => metodo.Total);
+    var donutClass = totalEstados == 0 ? "vu-status-donut vu-status-donut-empty" : "vu-status-donut";
+}
+
+<section class="vu-admin-shell">
+    <div class="container-fluid">
+        <div class="row g-0">
+            @await Html.PartialAsync("_Sidebar")
+
+            <div class="col-lg-9 col-xl-10 vu-admin-content">
+                <div class="vu-admin-header">
+                    <div>
+                        <p class="vu-eyebrow">Análisis comercial</p>
+                        <h1>Reporte de ventas</h1>
+                        <p>Consulta ventas por día, semana, mes o rango personalizado.</p>
+                    </div>
+                    <a class="btn btn-outline-primary" asp-controller="Reporte" asp-action="Index">
+                        <svg class="vu-inline-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 21h18"></path><path d="M5 21V7l7-4 7 4v14"></path><path d="M9 21v-8h6v8"></path></svg>
+                        Reporte de inventario
+                    </a>
+                </div>
+
+                <div class="vu-panel vu-report-filter-panel mb-4">
+                    <form asp-controller="Reporte" asp-action="Ventas" method="get" class="row g-3 align-items-end">
+                        <div class="col-md-3">
+                            <label class="form-label" for="periodo">Período</label>
+                            <select id="periodo" name="periodo" class="form-select">
+                                <option value="@VibraUrbana.ViewModels.ReporteVentasViewModel.PeriodoDia" selected="@(Model.Periodo == VibraUrbana.ViewModels.ReporteVentasViewModel.PeriodoDia ? "selected" : null)">Día</option>
+                                <option value="@VibraUrbana.ViewModels.ReporteVentasViewModel.PeriodoSemana" selected="@(Model.Periodo == VibraUrbana.ViewModels.ReporteVentasViewModel.PeriodoSemana ? "selected" : null)">Semana</option>
+                                <option value="@VibraUrbana.ViewModels.ReporteVentasViewModel.PeriodoMes" selected="@(Model.Periodo == VibraUrbana.ViewModels.ReporteVentasViewModel.PeriodoMes ? "selected" : null)">Mes</option>
+                                <option value="@VibraUrbana.ViewModels.ReporteVentasViewModel.PeriodoRango" selected="@(Model.Periodo == VibraUrbana.ViewModels.ReporteVentasViewModel.PeriodoRango ? "selected" : null)">Rango</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label" for="fechaInicio">Fecha inicial</label>
+                            <input class="form-control" id="fechaInicio" name="fechaInicio" type="date" value="@Model.FechaInicio.ToString("yyyy-MM-dd")" />
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label" for="fechaFin">Fecha final</label>
+                            <input class="form-control" id="fechaFin" name="fechaFin" type="date" value="@Model.FechaFin.ToString("yyyy-MM-dd")" />
+                        </div>
+                        <div class="col-md-3 d-flex flex-wrap gap-2">
+                            <button class="btn btn-primary" type="submit">
+                                <svg class="vu-inline-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg>
+                                Generar reporte
+                            </button>
+                            <a class="btn btn-outline-secondary" asp-controller="Reporte" asp-action="Ventas">Hoy</a>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="row g-3 mb-4 vu-report-kpis">
+                    <div class="col-md-3">
+                        <div class="vu-dashboard-card vu-report-card vu-report-card-coral h-100">
+                            <svg class="vu-report-card-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 8h12l-1 13H7L6 8Z"></path><path d="M9 8a3 3 0 0 1 6 0"></path></svg>
+                            <span class="vu-card-label">Ventas registradas</span>
+                            <strong class="vu-card-value">@Model.CantidadVentas</strong>
+                            <span class="text-muted small">@Model.FechaInicio.ToString("dd/MM/yyyy") - @Model.FechaFin.ToString("dd/MM/yyyy")</span>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="vu-dashboard-card vu-report-card vu-report-card-teal h-100">
+                            <svg class="vu-report-card-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16v10H4Z"></path><path d="M7 10h.01"></path><path d="M17 14h.01"></path><circle cx="12" cy="12" r="2.5"></circle></svg>
+                            <span class="vu-card-label">Monto total</span>
+                            <strong class="vu-card-value">@Model.MontoTotalAprobado.ToString("C0")</strong>
+                            <span class="text-muted small">Solo ventas aprobadas</span>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="vu-dashboard-card vu-report-card vu-report-card-success h-100">
+                            <svg class="vu-report-card-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="m8.5 12.5 2.2 2.2 4.8-5"></path></svg>
+                            <span class="vu-card-label">Aprobadas</span>
+                            <strong class="vu-card-value">@Model.CantidadVentasAprobadas</strong>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="vu-dashboard-card vu-report-card vu-report-card-danger h-100">
+                            <svg class="vu-report-card-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="m8 8 8 8"></path><path d="m16 8-8 8"></path></svg>
+                            <span class="vu-card-label">Anuladas</span>
+                            <strong class="vu-card-value">@Model.CantidadVentasAnuladas</strong>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="vu-dashboard-card vu-report-card vu-report-card-amber h-100">
+                            <svg class="vu-report-card-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg>
+                            <span class="vu-card-label">Pendientes</span>
+                            <strong class="vu-card-value">@Model.CantidadVentasPendientes</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row g-4">
+                    <div class="col-xl-7">
+                        <div class="vu-panel vu-report-chart-panel h-100">
+                            <div class="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-3">
+                                <div>
+                                    <h2>Totales por método de pago</h2>
+                                    <p>Comparación del monto aprobado por cada método usado en el período.</p>
+                                </div>
+                                <span class="vu-report-chip">
+                                    <svg class="vu-inline-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16v10H4Z"></path><path d="M8 11h4"></path><path d="M16 13h.01"></path></svg>
+                                    @Model.TotalesPorMetodoPago.Count método@(Model.TotalesPorMetodoPago.Count == 1 ? "" : "s")
+                                </span>
+                            </div>
+
+                            @if (!Model.TotalesPorMetodoPago.Any())
+                            {
+                                <div class="vu-empty-state vu-empty-state-inline" role="status">
+                                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3v18h18"></path><path d="m7 15 4-4 3 3 5-6"></path></svg>
+                                    <strong>Sin ventas aprobadas</strong>
+                                    <span>No hay ventas aprobadas para totalizar en este período.</span>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="vu-method-chart vu-report-method-chart">
+                                    @foreach (var metodo in Model.TotalesPorMetodoPago)
+                                    {
+                                        var width = totalMetodoPago == 0
+                                            ? 0
+                                            : Math.Round(metodo.Total * 100m / totalMetodoPago, 2);
+                                        var widthCss = width.ToString("0.##", CultureInfo.InvariantCulture);
+
+                                        <div class="vu-method-row">
+                                            <div class="vu-method-label">
+                                                <span>@metodo.MetodoPago</span>
+                                                <strong>@metodo.Total.ToString("C0")</strong>
+                                            </div>
+                                            <div class="vu-method-track" aria-label="@metodo.MetodoPago: @width.ToString("0.##")%">
+                                                <span style="width: @widthCss%"></span>
+                                            </div>
+                                            <small>@metodo.CantidadVentas venta@(metodo.CantidadVentas == 1 ? "" : "s")</small>
+                                        </div>
+                                    }
+                                </div>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="col-xl-5">
+                        <div class="vu-panel vu-report-chart-panel h-100">
+                            <h2>Estado de ventas</h2>
+                            <p>Vista rápida del comportamiento operativo del período.</p>
+
+                            <div class="vu-status-chart">
+                                <div class="@donutClass"
+                                     style="--vu-approved:@aprobadoPct.ToString("0.##", CultureInfo.InvariantCulture)%; --vu-pending:@pendientePct.ToString("0.##", CultureInfo.InvariantCulture)%;"
+                                     aria-label="Ventas aprobadas @Model.CantidadVentasAprobadas, pendientes @Model.CantidadVentasPendientes, anuladas @Model.CantidadVentasAnuladas">
+                                    <span>@totalEstados</span>
+                                    <small>ventas</small>
+                                </div>
+
+                                <div class="vu-status-legend">
+                                    <span><i class="vu-dot vu-dot-success"></i>Aprobadas <strong>@Model.CantidadVentasAprobadas</strong></span>
+                                    <span><i class="vu-dot vu-dot-warning"></i>Pendientes <strong>@Model.CantidadVentasPendientes</strong></span>
+                                    <span><i class="vu-dot vu-dot-danger"></i>Anuladas <strong>@Model.CantidadVentasAnuladas</strong></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-12">
+                        <div class="vu-panel vu-report-table-panel">
+                            <div class="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-3">
+                                <div>
+                                    <h2>Detalle de ventas</h2>
+                                    <p>Listado completo para revisar, buscar y exportar la información del período.</p>
+                                </div>
+                            </div>
+
+                            @if (!Model.Ventas.Any())
+                            {
+                                <div class="vu-empty-state vu-empty-state-inline" role="status">
+                                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16h14V8Z"></path><path d="M14 2v6h6"></path><circle cx="11" cy="14" r="3"></circle><path d="m13.5 16.5 2 2"></path></svg>
+                                    <strong>Sin ventas registradas</strong>
+                                    <span>No hay ventas registradas en el período seleccionado.</span>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="table-responsive">
+                                    <table class="table table-hover align-middle vu-data-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Venta</th>
+                                                <th>Fecha</th>
+                                                <th>Factura</th>
+                                                <th>Cliente</th>
+                                                <th>Método</th>
+                                                <th class="text-end">Total</th>
+                                                <th class="text-center">Estado</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var venta in Model.Ventas)
+                                            {
+                                                <tr>
+                                                    <td><strong>#@venta.VentaId.ToString("D5")</strong></td>
+                                                    <td>@venta.FechaVenta.ToLocalTime().ToString("dd/MM/yyyy hh:mm tt")</td>
+                                                    <td>@venta.NumeroFactura</td>
+                                                    <td>
+                                                        <div class="d-flex flex-column">
+                                                            <span>@venta.Cliente</span>
+                                                            <small class="text-muted">@venta.Cajero</small>
+                                                        </div>
+                                                    </td>
+                                                    <td><span class="badge bg-secondary">@venta.MetodoPago</span></td>
+                                                    <td class="text-end fw-bold">@venta.Total.ToString("C0")</td>
+                                                    <td class="text-center">
+                                                        @if (venta.Estado == "Aprobada")
+                                                        {
+                                                            <span class="badge bg-success">@venta.Estado</span>
+                                                        }
+                                                        else if (venta.Estado == "Anulada")
+                                                        {
+                                                            <span class="badge bg-danger">@venta.Estado</span>
+                                                        }
+                                                        else if (venta.Estado == "Pendiente")
+                                                        {
+                                                            <span class="badge bg-warning text-dark">@venta.Estado</span>
+                                                        }
+                                                        else
+                                                        {
+                                                            <span class="badge bg-secondary">@venta.Estado</span>
+                                                        }
+                                                    </td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

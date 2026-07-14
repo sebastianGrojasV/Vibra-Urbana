@@ -1477,6 +1477,51 @@ body,
     border-color: #0e4545 !important;
 }
 
+.vu-panel .dt-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .5rem;
+    margin-bottom: .85rem;
+}
+
+.vu-panel .dt-buttons .dt-button.vu-export-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: .45rem;
+    padding: .52rem .8rem;
+    color: #145a5a !important;
+    font-weight: 850;
+    background: #eef8f5 !important;
+    border: 1px solid #a8d8d4 !important;
+    border-radius: 8px;
+    box-shadow: none;
+    transition: background-color .2s ease, border-color .2s ease, color .2s ease, transform .2s ease;
+}
+
+.vu-panel .dt-buttons .dt-button.vu-export-pdf {
+    color: #8a2d16 !important;
+    background: #fff0e8 !important;
+    border-color: #ffb199 !important;
+}
+
+.vu-panel .dt-buttons .dt-button.vu-export-btn:hover,
+.vu-panel .dt-buttons .dt-button.vu-export-btn:focus {
+    color: #ffffff !important;
+    background: #145a5a !important;
+    border-color: #145a5a !important;
+    transform: translateY(-1px);
+}
+
+.vu-panel .dt-buttons .dt-button.vu-export-btn svg {
+    width: 1rem;
+    height: 1rem;
+    fill: none;
+    stroke: currentColor;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 2.2;
+}
+
 .vu-actions {
     display: inline-flex;
     flex-wrap: nowrap;
@@ -2053,6 +2098,461 @@ body.vu-sidebar-collapsed .vu-sidebar-brand {
         padding: .75rem 0 0;
         border-left: 0;
     }
+}
+
+/* Admin dashboard indicators */
+.vu-kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 1rem;
+}
+
+.vu-kpi-card {
+    display: flex;
+    min-height: 9.5rem;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1.25rem;
+    background:
+        linear-gradient(135deg, rgba(255, 255, 255, .96), rgba(255, 248, 244, .84)),
+        #ffffff;
+    border: 1px solid rgba(226, 232, 240, .95);
+    border-radius: 8px;
+    box-shadow: 0 18px 46px rgba(31, 45, 61, .08);
+}
+
+.vu-kpi-icon {
+    display: inline-grid;
+    flex: 0 0 auto;
+    width: 3rem;
+    height: 3rem;
+    place-items: center;
+    color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 12px 24px rgba(20, 33, 43, .12);
+}
+
+.vu-kpi-icon svg {
+    width: 1.35rem;
+    height: 1.35rem;
+}
+
+.vu-kpi-icon-coral {
+    background: linear-gradient(135deg, var(--vu-coral), var(--vu-orange));
+}
+
+.vu-kpi-icon-teal {
+    background: linear-gradient(135deg, #123f42, #1f6f6b);
+}
+
+.vu-kpi-icon-amber {
+    background: linear-gradient(135deg, #b45309, #f59e0b);
+}
+
+.vu-kpi-icon-blue {
+    background: linear-gradient(135deg, #173c5f, #1f4e79);
+}
+
+.vu-kpi-card span {
+    display: block;
+    color: #5f6b78;
+    font-size: .76rem;
+    font-weight: 850;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+}
+
+.vu-kpi-card strong {
+    display: block;
+    margin-top: .15rem;
+    color: #171312;
+    font-size: clamp(2rem, 3vw, 2.65rem);
+    line-height: 1;
+}
+
+.vu-kpi-card small {
+    display: block;
+    margin-top: .55rem;
+    color: #6b7280;
+    font-weight: 700;
+}
+
+.vu-dashboard-panel {
+    min-height: 24rem;
+}
+
+.vu-method-chart {
+    display: grid;
+    gap: 1.15rem;
+}
+
+.vu-method-row {
+    display: grid;
+    gap: .45rem;
+}
+
+.vu-method-label {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.vu-method-label span {
+    color: #273443;
+    font-weight: 850;
+}
+
+.vu-method-label strong {
+    color: #111827;
+}
+
+.vu-method-track {
+    height: .9rem;
+    overflow: hidden;
+    background: #edf5fb;
+    border: 1px solid #d8e7f0;
+    border-radius: 999px;
+}
+
+.vu-method-track span {
+    display: block;
+    height: 100%;
+    min-width: .45rem;
+    background: linear-gradient(90deg, var(--vu-coral), #f59e0b 52%, #1f6f6b);
+    border-radius: inherit;
+}
+
+.vu-method-row small {
+    color: #6b7280;
+    font-weight: 750;
+}
+
+.vu-status-chart {
+    display: grid;
+    grid-template-columns: minmax(10rem, 12rem) 1fr;
+    align-items: center;
+    gap: 1.25rem;
+    min-height: 15rem;
+}
+
+.vu-status-donut {
+    display: grid;
+    position: relative;
+    width: min(12rem, 100%);
+    aspect-ratio: 1;
+    place-items: center;
+    background:
+        radial-gradient(circle at center, #ffffff 0 55%, transparent 56%),
+        conic-gradient(#1f6f6b 0 var(--vu-approved), #f59e0b var(--vu-approved) var(--vu-pending), #c2412d var(--vu-pending) 100%);
+    border-radius: 999px;
+    box-shadow: inset 0 0 0 1px rgba(226, 232, 240, .92), 0 20px 42px rgba(31, 45, 61, .08);
+}
+
+.vu-status-donut-empty {
+    background:
+        radial-gradient(circle at center, #ffffff 0 55%, transparent 56%),
+        conic-gradient(#e4edf3 0 100%);
+}
+
+.vu-status-donut::after {
+    position: absolute;
+    inset: 1.35rem;
+    content: "";
+    border: 1px solid rgba(226, 232, 240, .86);
+    border-radius: inherit;
+}
+
+.vu-status-donut span,
+.vu-status-donut small {
+    position: relative;
+    z-index: 1;
+}
+
+.vu-status-donut span {
+    align-self: end;
+    color: #171312;
+    font-size: 2.35rem;
+    font-weight: 950;
+    line-height: .95;
+}
+
+.vu-status-donut small {
+    align-self: start;
+    color: #6b7280;
+    font-weight: 800;
+    text-transform: uppercase;
+}
+
+.vu-status-legend {
+    display: grid;
+    gap: .75rem;
+}
+
+.vu-status-legend span {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: .8rem;
+    padding: .75rem .85rem;
+    color: #44515f;
+    background: #f8fbfd;
+    border: 1px solid #e4edf3;
+    border-radius: 8px;
+    font-weight: 800;
+}
+
+.vu-dot {
+    display: inline-block;
+    width: .75rem;
+    height: .75rem;
+    margin-right: .45rem;
+    border-radius: 999px;
+}
+
+.vu-dot-success {
+    background: #1f6f6b;
+}
+
+.vu-dot-warning {
+    background: #f59e0b;
+}
+
+.vu-dot-danger {
+    background: #c2412d;
+}
+
+.vu-stock-list {
+    display: grid;
+    gap: .75rem;
+}
+
+.vu-stock-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: .95rem 1rem;
+    background: linear-gradient(135deg, #fff8f4, #ffffff);
+    border: 1px solid #f3d8cb;
+    border-radius: 8px;
+}
+
+.vu-stock-item strong {
+    display: block;
+    color: #171312;
+}
+
+.vu-stock-item span {
+    color: #6b7280;
+    font-weight: 700;
+}
+
+.vu-stock-numbers {
+    min-width: 5rem;
+    text-align: right;
+}
+
+.vu-stock-numbers strong {
+    color: var(--vu-coral);
+    font-size: 1.65rem;
+}
+
+.vu-empty-state {
+    display: grid;
+    min-height: 13rem;
+    place-items: center;
+    padding: 2rem;
+    text-align: center;
+    background: #f8fbfd;
+    border: 1px dashed #cbdbe6;
+    border-radius: 8px;
+}
+
+.vu-empty-state-inline {
+    min-height: 8.5rem;
+}
+
+.vu-empty-state svg {
+    width: 2.35rem;
+    height: 2.35rem;
+    color: #1f6f6b;
+}
+
+.vu-empty-state strong {
+    color: #171312;
+    font-size: 1.05rem;
+}
+
+.vu-empty-state span {
+    color: #6b7280;
+    font-weight: 700;
+}
+
+.vu-module-grid-compact {
+    gap: .65rem;
+}
+
+.vu-module-grid-compact a {
+    min-height: 2.85rem;
+}
+
+@media (max-width: 1199.98px) {
+    .vu-kpi-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 767.98px) {
+    .vu-kpi-grid,
+    .vu-status-chart {
+        grid-template-columns: 1fr;
+    }
+
+    .vu-status-donut {
+        justify-self: center;
+    }
+}
+
+/* Sales report visual layer */
+.vu-report-filter-panel {
+    background:
+        linear-gradient(135deg, rgba(31, 111, 107, .08), rgba(255, 248, 244, .92)),
+        #ffffff;
+}
+
+.vu-report-kpis .vu-dashboard-card::after {
+    display: none;
+}
+
+.vu-report-card {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    min-height: 10rem;
+    padding: 1.15rem;
+    border: 0;
+    box-shadow: 0 18px 42px rgba(20, 33, 43, .1);
+}
+
+.vu-inline-icon,
+.vu-report-card-icon {
+    flex: 0 0 auto;
+    fill: none;
+    stroke: currentColor;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 2;
+}
+
+.vu-inline-icon {
+    width: 1rem;
+    height: 1rem;
+}
+
+.vu-report-card-icon {
+    width: 2rem;
+    height: 2rem;
+    margin-bottom: .7rem;
+}
+
+.btn .vu-inline-icon,
+.vu-report-chip .vu-inline-icon {
+    margin-right: .25rem;
+}
+
+.vu-report-card .vu-card-label {
+    color: rgba(255, 255, 255, .82);
+}
+
+.vu-report-card .vu-card-value {
+    color: #ffffff;
+    font-size: clamp(2rem, 3vw, 2.65rem);
+}
+
+.vu-report-card .text-muted {
+    color: rgba(255, 255, 255, .72) !important;
+}
+
+.vu-report-card-coral {
+    color: #ffffff;
+    background: linear-gradient(135deg, #e33b2f, #ff7a3d);
+}
+
+.vu-report-card-teal {
+    color: #ffffff;
+    background: linear-gradient(135deg, #123f42, #1f6f6b);
+}
+
+.vu-report-card-success {
+    color: #ffffff;
+    background: linear-gradient(135deg, #16615c, #2f8f7f);
+}
+
+.vu-report-card-danger {
+    color: #ffffff;
+    background: linear-gradient(135deg, #8f2f22, #c2412d);
+}
+
+.vu-report-card-amber {
+    color: #171312;
+    background: linear-gradient(135deg, #f59e0b, #ffd166);
+}
+
+.vu-report-card-amber .vu-card-label,
+.vu-report-card-amber .text-muted {
+    color: rgba(23, 19, 18, .72) !important;
+}
+
+.vu-report-card-amber .vu-card-value {
+    color: #171312;
+}
+
+.vu-report-chart-panel {
+    min-height: 24rem;
+    background:
+        radial-gradient(circle at top right, rgba(255, 122, 61, .14), transparent 14rem),
+        linear-gradient(135deg, #ffffff, #f8fbfd);
+}
+
+.vu-report-table-panel {
+    background:
+        linear-gradient(180deg, rgba(237, 245, 251, .78), #ffffff 12rem),
+        #ffffff;
+}
+
+.vu-report-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: .45rem;
+    padding: .5rem .7rem;
+    color: #1f4e79;
+    background: #edf5fb;
+    border: 1px solid #d8e7f0;
+    border-radius: 999px;
+    font-size: .82rem;
+    font-weight: 850;
+}
+
+.vu-report-chip svg {
+    width: 1rem;
+    height: 1rem;
+}
+
+.vu-report-method-chart {
+    padding: .25rem 0;
+}
+
+.vu-report-method-chart .vu-method-row {
+    padding: .85rem;
+    background: rgba(255, 255, 255, .76);
+    border: 1px solid #e4edf3;
+    border-radius: 8px;
+}
+
+.vu-report-method-chart .vu-method-track {
+    background: #fff3ed;
+    border-color: #f3d8cb;
 }
 
 .vu-sale-panel,

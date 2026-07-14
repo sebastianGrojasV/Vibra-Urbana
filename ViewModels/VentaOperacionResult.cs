@@ -1,4 +1,4 @@
-namespace VibraUrbana.ViewModels;
+﻿namespace VibraUrbana.ViewModels;
 
 public class VentaOperacionResult
 {
