@@ -1,0 +1,507 @@
+﻿using Microsoft.EntityFrameworkCore;
+using VibraUrbana.Data;
+using VibraUrbana.Models;
+using VibraUrbana.ViewModels;
+
+namespace VibraUrbana.Services;
+
+public class VentaServicio : IVentaServicio
+{
+    private const decimal TarifaIva = 0.13m;
+    private const string EstadoVentaAprobada = "Aprobada";
+    private const string EstadoVentaPendiente = "Pendiente";
+    private const string EstadoVentaAnulada = "Anulada";
+    private const string EstadoFacturaEmitida = "Emitida";
+    private const string EstadoFacturaAnulada = "Anulada";
+    private readonly ApplicationDbContext _context;
+
+    public VentaServicio(ApplicationDbContext context)
+    {
+        _context = context;
+    }
+
+    public async Task<IReadOnlyList<Venta>> ObtenerVentasAsync(int? clienteId = null)
+    {
+        var query = _context.Ventas
+            .Include(venta => venta.Cliente)
+            .Include(venta => venta.Usuario)
+            .Include(venta => venta.MetodoPago)
+            .Include(venta => venta.Factura)
+            .AsQueryable();
+
+        if (clienteId.HasValue)
+        {
+            query = query.Where(venta => venta.ClienteId == clienteId.Value);
+        }
+
+        return await query
+            .OrderByDescending(venta => venta.FechaVenta)
+            .ToListAsync();
+    }
+
+    public async Task<VentaOperacionResult> RegistrarVentaAsync(RegistrarVentaViewModel model, int usuarioId)
+    {
+        var validationMessage = ValidarDatosMinimos(model);
+
+        if (!string.IsNullOrWhiteSpace(validationMessage))
+        {
+            return VentaOperacionResult.Failure(validationMessage);
+        }
+
+        var detallesAgrupados = model.Detalles
+            .GroupBy(detalle => detalle.ProductoId)
+            .Select(grupo => new VentaDetalleAgrupado
+            {
+                ProductoId = grupo.Key,
+                Cantidad = grupo.Sum(detalle => (long)detalle.Cantidad)
+            })
+            .ToList();
+
+        if (detallesAgrupados.Any(detalle => detalle.Cantidad > int.MaxValue))
+        {
+            return VentaOperacionResult.Failure("La cantidad solicitada para un producto es demasiado alta.");
+        }
+
+        var metodoPago = await _context.MetodosPago.FindAsync(model.MetodoPagoId);
+
+        if (metodoPago is null)
+        {
+            return VentaOperacionResult.Failure("El método de pago especificado no existe.");
+        }
+
+        if (!metodoPago.Activo)
+        {
+            return VentaOperacionResult.Failure("El método de pago seleccionado está inactivo.");
+        }
+
+        await using var transaction = await _context.Database.BeginTransactionAsync();
+
+        try
+        {
+            var cliente = await _context.Clientes.FindAsync(model.ClienteId);
+
+            if (cliente is null)
+            {
+                await transaction.RollbackAsync();
+                return VentaOperacionResult.Failure("El cliente especificado no existe.");
+            }
+
+            if (cliente.Identificacion == "000000000")
+            {
+                await transaction.RollbackAsync();
+                return VentaOperacionResult.Failure("Selecciona un cliente registrado para la venta.");
+            }
+
+            if (!cliente.Activo)
+            {
+                await transaction.RollbackAsync();
+                return VentaOperacionResult.Failure("El cliente seleccionado está inactivo.");
+            }
+
+            var productIds = detallesAgrupados.Select(detalle => detalle.ProductoId).ToList();
+            var productos = await _context.Productos
+                .Include(producto => producto.Inventario)
+                .Where(producto => productIds.Contains(producto.Id))
+                .ToDictionaryAsync(producto => producto.Id);
+
+            var subtotal = 0m;
+
+            foreach (var detalle in detallesAgrupados)
+            {
+                if (!productos.TryGetValue(detalle.ProductoId, out var producto))
+                {
+                    await transaction.RollbackAsync();
+                    return VentaOperacionResult.Failure($"El producto con ID {detalle.ProductoId} no existe.");
+                }
+
+                if (!producto.Activo)
+                {
+                    await transaction.RollbackAsync();
+                    return VentaOperacionResult.Failure($"El producto '{producto.Nombre}' está inactivo.");
+                }
+
+                if (producto.Inventario is null)
+                {
+                    await transaction.RollbackAsync();
+                    return VentaOperacionResult.Failure($"El producto '{producto.Nombre}' no está registrado en inventario.");
+                }
+
+                if (producto.Inventario.CantidadDisponible < detalle.Cantidad)
+                {
+                    await transaction.RollbackAsync();
+                    return VentaOperacionResult.Failure(
+                        $"Stock insuficiente para '{producto.Nombre}'. Disponible: {producto.Inventario.CantidadDisponible}, solicitado: {detalle.Cantidad}.");
+                }
+
+                subtotal += detalle.Cantidad * producto.Precio;
+            }
+
+            var descuento = decimal.Round(model.Descuento, 2, MidpointRounding.AwayFromZero);
+
+            if (descuento > subtotal)
+            {
+                await transaction.RollbackAsync();
+                return VentaOperacionResult.Failure("El descuento no puede ser mayor que el subtotal.");
+            }
+
+            var impuesto = decimal.Round((subtotal - descuento) * TarifaIva, 2, MidpointRounding.AwayFromZero);
+            var total = subtotal - descuento + impuesto;
+            var fechaVenta = DateTime.UtcNow;
+
+            var venta = new Venta
+            {
+                ClienteId = cliente.Id,
+                UsuarioId = usuarioId,
+                MetodoPagoId = model.MetodoPagoId,
+                FechaVenta = fechaVenta,
+                Subtotal = subtotal,
+                Descuento = descuento,
+                Impuesto = impuesto,
+                Total = total,
+                Estado = EstadoVentaAprobada,
+                Observacion = model.Observacion?.Trim() ?? string.Empty,
+                CierreCajaId = null
+            };
+
+            _context.Ventas.Add(venta);
+            await _context.SaveChangesAsync();
+
+            foreach (var detalle in detallesAgrupados)
+            {
+                var producto = productos[detalle.ProductoId];
+                var inventario = producto.Inventario!;
+                var cantidadVendida = (int)detalle.Cantidad;
+                var cantidadAnterior = inventario.CantidadDisponible;
+
+                if (cantidadVendida <= 0 || inventario.CantidadDisponible < cantidadVendida)
+                {
+                    await transaction.RollbackAsync();
+                    return VentaOperacionResult.Failure(
+                        $"Stock insuficiente para '{producto.Nombre}'. Disponible: {inventario.CantidadDisponible}, solicitado: {cantidadVendida}.");
+                }
+
+                _context.DetalleVentas.Add(new DetalleVenta
+                {
+                    VentaId = venta.Id,
+                    ProductoId = detalle.ProductoId,
+                    Cantidad = cantidadVendida,
+                    PrecioUnitario = producto.Precio,
+                    Subtotal = cantidadVendida * producto.Precio
+                });
+
+                inventario.CantidadDisponible -= cantidadVendida;
+                inventario.FechaActualizacion = fechaVenta;
+
+                _context.MovimientosInventario.Add(new MovimientoInventario
+                {
+                    ProductoId = producto.Id,
+                    TipoMovimiento = "Salida",
+                    Cantidad = cantidadVendida,
+                    CantidadAnterior = cantidadAnterior,
+                    CantidadNueva = inventario.CantidadDisponible,
+                    Motivo = $"Venta #{venta.Id}",
+                    FechaMovimiento = fechaVenta,
+                    UsuarioId = usuarioId
+                });
+            }
+
+            var numeroFactura = await GenerarNumeroFacturaUnicoAsync(venta.Id, fechaVenta);
+
+            _context.Facturas.Add(new Factura
+            {
+                VentaId = venta.Id,
+                NumeroFactura = numeroFactura,
+                FechaEmision = fechaVenta,
+                Subtotal = subtotal,
+                Descuento = descuento,
+                Impuesto = impuesto,
+                Total = total,
+                Estado = EstadoFacturaEmitida
+            });
+
+            RegistrarBitacora(
+                usuarioId,
+                "Ventas",
+                "Estado inicial",
+                $"Venta #{venta.Id:D5} registrada con estado {EstadoVentaAprobada}.");
+
+            await _context.SaveChangesAsync();
+            await transaction.CommitAsync();
+
+            return VentaOperacionResult.Success(
+                venta.Id,
+                numeroFactura,
+                $"Venta aprobada correctamente. Comprobante generado: {numeroFactura}.");
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            await transaction.RollbackAsync();
+            return VentaOperacionResult.Failure(
+                "El inventario cambió mientras se registraba la venta. Actualiza la página y vuelve a intentarlo.");
+        }
+        catch (DbUpdateException)
+        {
+            await transaction.RollbackAsync();
+            return VentaOperacionResult.Failure("No fue posible registrar la venta o generar un número único de factura. Revisa los datos e inténtalo nuevamente.");
+        }
+    }
+
+    public async Task<AnularVentaResult> AnularVentaAsync(int ventaId, string motivo, int usuarioId)
+    {
+        var motivoLimpio = motivo?.Trim() ?? string.Empty;
+
+        if (motivoLimpio.Length < 5 || motivoLimpio.Length > 300)
+        {
+            return AnularVentaResult.Failure("El motivo de anulación debe tener entre 5 y 300 caracteres.");
+        }
+
+        await using var transaction = await _context.Database.BeginTransactionAsync();
+
+        try
+        {
+            var venta = await _context.Ventas
+                .Include(item => item.Factura)
+                .Include(item => item.DetalleVentas)
+                    .ThenInclude(detalle => detalle.Producto)
+                        .ThenInclude(producto => producto.Inventario)
+                .SingleOrDefaultAsync(item => item.Id == ventaId);
+
+            if (venta is null)
+            {
+                await transaction.RollbackAsync();
+                return AnularVentaResult.Failure("La venta seleccionada no existe.");
+            }
+
+            if (venta.Estado != EstadoVentaAprobada)
+            {
+                await transaction.RollbackAsync();
+                return AnularVentaResult.Failure("Solo se pueden anular ventas aprobadas.");
+            }
+
+            var fechaAnulacion = DateTime.UtcNow;
+
+            foreach (var detalle in venta.DetalleVentas)
+            {
+                var inventario = detalle.Producto.Inventario;
+
+                if (inventario is null)
+                {
+                    await transaction.RollbackAsync();
+                    return AnularVentaResult.Failure($"El producto '{detalle.Producto.Nombre}' no tiene inventario registrado.");
+                }
+
+                var cantidadAnterior = inventario.CantidadDisponible;
+                var motivoMovimiento = $"Anulación venta #{venta.Id}: {motivoLimpio}";
+                inventario.CantidadDisponible += detalle.Cantidad;
+                inventario.FechaActualizacion = fechaAnulacion;
+
+                _context.MovimientosInventario.Add(new MovimientoInventario
+                {
+                    ProductoId = detalle.ProductoId,
+                    TipoMovimiento = "Reversión",
+                    Cantidad = detalle.Cantidad,
+                    CantidadAnterior = cantidadAnterior,
+                    CantidadNueva = inventario.CantidadDisponible,
+                    Motivo = motivoMovimiento.Length > 300 ? motivoMovimiento[..300] : motivoMovimiento,
+                    FechaMovimiento = fechaAnulacion,
+                    UsuarioId = usuarioId
+                });
+            }
+
+            venta.Estado = EstadoVentaAnulada;
+            venta.MotivoAnulacion = motivoLimpio;
+            venta.FechaAnulacion = fechaAnulacion;
+            venta.UsuarioAnulacionId = usuarioId;
+
+            if (venta.Factura is not null)
+            {
+                venta.Factura.Estado = EstadoFacturaAnulada;
+            }
+
+            RegistrarBitacora(
+                usuarioId,
+                "Ventas",
+                "Anulación",
+                $"Venta #{venta.Id:D5} cambió de {EstadoVentaAprobada} a {EstadoVentaAnulada}. Motivo: {motivoLimpio}");
+
+            await _context.SaveChangesAsync();
+            await transaction.CommitAsync();
+
+            return AnularVentaResult.Success();
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            await transaction.RollbackAsync();
+            return AnularVentaResult.Failure("El inventario cambió mientras se anulaba la venta. Actualiza la página y vuelve a intentarlo.");
+        }
+        catch (DbUpdateException)
+        {
+            await transaction.RollbackAsync();
+            return AnularVentaResult.Failure("No fue posible anular la venta. Revisa los datos e inténtalo nuevamente.");
+        }
+    }
+
+    public async Task<CambiarEstadoVentaResult> CambiarEstadoVentaAsync(int ventaId, string nuevoEstado, string motivo, int usuarioId)
+    {
+        var estadoNormalizado = NormalizarEstado(nuevoEstado);
+        var motivoLimpio = motivo?.Trim() ?? string.Empty;
+
+        if (estadoNormalizado is null)
+        {
+            return CambiarEstadoVentaResult.Failure("El estado seleccionado no es válido.");
+        }
+
+        if (estadoNormalizado == EstadoVentaAnulada)
+        {
+            return CambiarEstadoVentaResult.Failure("Para anular una venta usa la acción Anular.");
+        }
+
+        if (motivoLimpio.Length < 5 || motivoLimpio.Length > 300)
+        {
+            return CambiarEstadoVentaResult.Failure("El motivo del cambio debe tener entre 5 y 300 caracteres.");
+        }
+
+        var venta = await _context.Ventas.SingleOrDefaultAsync(item => item.Id == ventaId);
+
+        if (venta is null)
+        {
+            return CambiarEstadoVentaResult.Failure("La venta seleccionada no existe.");
+        }
+
+        if (venta.Estado == EstadoVentaAnulada)
+        {
+            return CambiarEstadoVentaResult.Failure("No se puede cambiar el estado de una venta anulada.");
+        }
+
+        if (venta.Estado == estadoNormalizado)
+        {
+            return CambiarEstadoVentaResult.Failure("La venta ya tiene el estado seleccionado.");
+        }
+
+        if (!EsTransicionPermitida(venta.Estado, estadoNormalizado))
+        {
+            return CambiarEstadoVentaResult.Failure("La transición de estado seleccionada no está permitida.");
+        }
+
+        var estadoAnterior = venta.Estado;
+        venta.Estado = estadoNormalizado;
+
+        RegistrarBitacora(
+            usuarioId,
+            "Ventas",
+            "Cambio de estado",
+            $"Venta #{venta.Id:D5} cambió de {estadoAnterior} a {estadoNormalizado}. Motivo: {motivoLimpio}");
+
+        await _context.SaveChangesAsync();
+
+        return CambiarEstadoVentaResult.Success($"Venta marcada como {estadoNormalizado} correctamente.");
+    }
+
+    private static string? ValidarDatosMinimos(RegistrarVentaViewModel model)
+    {
+        if (model is null)
+        {
+            return "Los datos de la venta no son válidos.";
+        }
+
+        if (model.ClienteId <= 0)
+        {
+            return "Selecciona un cliente.";
+        }
+
+        if (model.MetodoPagoId <= 0)
+        {
+            return "Selecciona un método de pago.";
+        }
+
+        if (model.Detalles is null || !model.Detalles.Any())
+        {
+            return "La venta debe tener al menos un producto.";
+        }
+
+        if (model.Detalles.Any(detalle => detalle.ProductoId <= 0 || detalle.Cantidad <= 0))
+        {
+            return "Los productos y cantidades de la venta no son válidos.";
+        }
+
+        if (model.Descuento < 0)
+        {
+            return "El descuento no puede ser negativo.";
+        }
+
+        if (model.Observacion?.Length > 500)
+        {
+            return "La observación no puede superar los 500 caracteres.";
+        }
+
+        return null;
+    }
+
+    private async Task<string> GenerarNumeroFacturaUnicoAsync(int ventaId, DateTime fechaVenta)
+    {
+        var numeroBase = $"FAC-{fechaVenta:yyyyMMdd}-{ventaId:D6}";
+
+        if (!await _context.Facturas.AnyAsync(factura => factura.NumeroFactura == numeroBase))
+        {
+            return numeroBase;
+        }
+
+        for (var intento = 1; intento <= 20; intento++)
+        {
+            var numeroAlterno = $"{numeroBase}-{intento:D2}";
+
+            if (!await _context.Facturas.AnyAsync(factura => factura.NumeroFactura == numeroAlterno))
+            {
+                return numeroAlterno;
+            }
+        }
+
+        throw new InvalidOperationException("No fue posible generar un número único de factura.");
+    }
+
+    private static string? NormalizarEstado(string estado)
+    {
+        if (string.Equals(estado, EstadoVentaAprobada, StringComparison.OrdinalIgnoreCase))
+        {
+            return EstadoVentaAprobada;
+        }
+
+        if (string.Equals(estado, EstadoVentaPendiente, StringComparison.OrdinalIgnoreCase))
+        {
+            return EstadoVentaPendiente;
+        }
+
+        if (string.Equals(estado, EstadoVentaAnulada, StringComparison.OrdinalIgnoreCase))
+        {
+            return EstadoVentaAnulada;
+        }
+
+        return null;
+    }
+
+    private static bool EsTransicionPermitida(string estadoActual, string nuevoEstado)
+    {
+        return (estadoActual, nuevoEstado) is
+            (EstadoVentaAprobada, EstadoVentaPendiente) or
+            (EstadoVentaPendiente, EstadoVentaAprobada);
+    }
+
+    private void RegistrarBitacora(int usuarioId, string modulo, string accion, string descripcion)
+    {
+        _context.Bitacora.Add(new Bitacora
+        {
+            UsuarioId = usuarioId,
+            Modulo = modulo,
+            Accion = accion,
+            Descripcion = descripcion.Length > 1000 ? descripcion[..1000] : descripcion,
+            FechaRegistro = DateTime.UtcNow
+        });
+    }
+
+    private sealed class VentaDetalleAgrupado
+    {
+        public int ProductoId { get; set; }
+
+        public long Cantidad { get; set; }
+    }
+}

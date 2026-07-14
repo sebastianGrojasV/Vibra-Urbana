@@ -5,5 +5,6 @@ public enum ActualizarRolResult
     Success,
     NotFound,
     DuplicateName,
-    LastActiveAdministrator
+    LastActiveAdministrator,
+    InvalidPermissions
 }

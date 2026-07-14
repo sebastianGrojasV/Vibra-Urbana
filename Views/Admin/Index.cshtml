@@ -1,87 +1,198 @@
+@model VibraUrbana.ViewModels.AdminDashboardViewModel
+@using System.Globalization
+
 @{
     ViewData["Title"] = "Panel Administrativo";
+
+    var culture = new CultureInfo("es-CR");
+    var aprobadoPct = Model.PorcentajeAprobadas.ToString("0.##", CultureInfo.InvariantCulture);
+    var pendientePct = Model.PorcentajePendientesAcumulado.ToString("0.##", CultureInfo.InvariantCulture);
+    var donutClass = Model.TotalEstados == 0 ? "vu-status-donut vu-status-donut-empty" : "vu-status-donut";
 }
 
 <section class="vu-admin-shell">
     <div class="container-fluid">
         <div class="row g-0">
-            <aside class="col-lg-3 col-xl-2 vu-admin-sidebar">
-                <div class="vu-sidebar-brand">Vibra Urbana</div>
-                <nav class="vu-sidebar-nav">
-                    <a class="active" asp-controller="Admin" asp-action="Index">Panel inicial</a>
-                    <a asp-controller="Admin" asp-action="Usuarios">Usuarios</a>
-                    <a asp-controller="Rol" asp-action="Index">Roles</a>
-                    <a asp-controller="Cliente" asp-action="Index">Clientes</a>
-                    <a asp-controller="Producto" asp-action="Index">Productos</a>
-                    <a asp-controller="Inventario" asp-action="Index">Inventario</a>
-                    <a asp-controller="Venta" asp-action="Index">Ventas</a>
-                    <a asp-controller="Factura" asp-action="Index">Facturación</a>
-                    <a asp-controller="Reporte" asp-action="Index">Reportes</a>
-                    <a asp-controller="Pedido" asp-action="Index">Pedidos</a>
-                </nav>
-            </aside>
+            @await Html.PartialAsync("_Sidebar")
 
             <div class="col-lg-9 col-xl-10 vu-admin-content">
                 <div class="vu-admin-header">
                     <div>
                         <p class="vu-eyebrow">Administración</p>
-                        <h1>Panel inicial</h1>
-                        <p>Vista base para organizar los módulos comerciales de Vibra Urbana.</p>
+                        <h1>Panel administrativo</h1>
+                        <p>Resumen operativo de Vibra Urbana para tomar decisiones rápidas durante el día.</p>
                     </div>
-                    <a class="btn btn-outline-primary" asp-controller="Account" asp-action="Login">Cerrar vista</a>
+                    <a class="btn btn-outline-primary" asp-controller="Reporte" asp-action="Ventas">
+                        <i data-lucide="bar-chart-3" aria-hidden="true"></i>
+                        Ver reportes
+                    </a>
                 </div>
 
-                <div class="row g-3 mb-4">
-                    <div class="col-md-6 col-xl-3">
-                        <a class="vu-dashboard-card vu-module-link" asp-controller="Admin" asp-action="Usuarios">
-                            <span>Usuarios</span>
-                            <strong>Registro</strong>
-                            <p>Consulta y alta de empleados.</p>
-                        </a>
-                    </div>
-                    <div class="col-md-6 col-xl-3">
-                        <a class="vu-dashboard-card vu-module-link" asp-controller="Rol" asp-action="Index">
-                            <span>Roles</span>
-                            <strong>Accesos</strong>
-                            <p>Gestión de perfiles internos.</p>
-                        </a>
-                    </div>
-                    <div class="col-md-6 col-xl-3">
-                        <div class="vu-dashboard-card">
-                            <span>Productos</span>
-                            <strong>Catálogo</strong>
-                            <p>Estructura preparada.</p>
+                <div class="vu-kpi-grid mb-4">
+                    <article class="vu-kpi-card">
+                        <div class="vu-kpi-icon vu-kpi-icon-coral">
+                            <i data-lucide="receipt-text" aria-hidden="true"></i>
                         </div>
-                    </div>
-                    <div class="col-md-6 col-xl-3">
-                        <div class="vu-dashboard-card">
-                            <span>Inventario</span>
-                            <strong>Control</strong>
-                            <p>Módulo pendiente.</p>
+                        <div>
+                            <span>Ventas del día</span>
+                            <strong>@Model.VentasDelDia</strong>
+                            <small>@Model.Fecha.ToString("dd MMMM yyyy", culture)</small>
                         </div>
-                    </div>
-                    <div class="col-md-6 col-xl-3">
-                        <div class="vu-dashboard-card">
-                            <span>Ventas</span>
-                            <strong>Operación</strong>
-                            <p>Flujo pendiente.</p>
+                    </article>
+
+                    <article class="vu-kpi-card">
+                        <div class="vu-kpi-icon vu-kpi-icon-teal">
+                            <i data-lucide="wallet-cards" aria-hidden="true"></i>
                         </div>
-                    </div>
+                        <div>
+                            <span>Total vendido</span>
+                            <strong>@Model.TotalVendidoDia.ToString("C0", culture)</strong>
+                            <small>Ventas aprobadas del día</small>
+                        </div>
+                    </article>
+
+                    <article class="vu-kpi-card">
+                        <div class="vu-kpi-icon vu-kpi-icon-amber">
+                            <i data-lucide="triangle-alert" aria-hidden="true"></i>
+                        </div>
+                        <div>
+                            <span>Stock bajo</span>
+                            <strong>@Model.ProductosStockBajo</strong>
+                            <small>Productos por revisar</small>
+                        </div>
+                    </article>
+
+                    <article class="vu-kpi-card">
+                        <div class="vu-kpi-icon vu-kpi-icon-blue">
+                            <i data-lucide="users-round" aria-hidden="true"></i>
+                        </div>
+                        <div>
+                            <span>Clientes registrados</span>
+                            <strong>@Model.ClientesRegistrados</strong>
+                            <small>Base comercial actual</small>
+                        </div>
+                    </article>
                 </div>
 
                 <div class="row g-4">
-                    <div class="col-xl-8">
-                        <div class="vu-panel">
-                            <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+                    <div class="col-xl-7">
+                        <div class="vu-panel vu-dashboard-panel">
+                            <div class="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-3">
                                 <div>
-                                    <h2>Módulos principales</h2>
-                                    <p>Accesos iniciales para validar la navegación MVC.</p>
+                                    <h2>Ventas por método de pago</h2>
+                                    <p>Distribución de ventas aprobadas registradas hoy.</p>
+                                </div>
+                                <a class="btn btn-primary btn-sm" asp-controller="Venta" asp-action="Crear">
+                                    <i data-lucide="plus" aria-hidden="true"></i>
+                                    Registrar venta
+                                </a>
+                            </div>
+
+                            @if (Model.VentasPorMetodoPago.Any())
+                            {
+                                <div class="vu-method-chart">
+                                    @foreach (var item in Model.VentasPorMetodoPago)
+                                    {
+                                        var width = Model.TotalPorMetodoPago == 0
+                                            ? 0
+                                            : Math.Round(item.Total * 100m / Model.TotalPorMetodoPago, 2);
+                                        var widthCss = width.ToString("0.##", CultureInfo.InvariantCulture);
+
+                                        <div class="vu-method-row">
+                                            <div class="vu-method-label">
+                                                <span>@item.MetodoPago</span>
+                                                <strong>@item.Total.ToString("C0", culture)</strong>
+                                            </div>
+                                            <div class="vu-method-track" aria-label="@item.MetodoPago: @width.ToString("0.##", culture)%">
+                                                <span style="width: @widthCss%"></span>
+                                            </div>
+                                            <small>@item.CantidadVentas venta@(item.CantidadVentas == 1 ? "" : "s")</small>
+                                        </div>
+                                    }
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="vu-empty-state">
+                                    <i data-lucide="chart-no-axes-column" aria-hidden="true"></i>
+                                    <strong>No hay ventas aprobadas hoy</strong>
+                                    <span>Cuando se registren ventas, este gráfico se actualizará automáticamente.</span>
+                                </div>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="col-xl-5">
+                        <div class="vu-panel vu-dashboard-panel">
+                            <h2>Estado de ventas del día</h2>
+                            <p>Lectura rápida de operaciones aprobadas, pendientes y anuladas.</p>
+
+                            <div class="vu-status-chart">
+                                <div class="@donutClass"
+                                     style="--vu-approved:@aprobadoPct%; --vu-pending:@pendientePct%;"
+                                     aria-label="Ventas aprobadas @Model.VentasAprobadasDia, pendientes @Model.VentasPendientesDia, anuladas @Model.VentasAnuladasDia">
+                                    <span>@Model.TotalEstados</span>
+                                    <small>ventas</small>
+                                </div>
+
+                                <div class="vu-status-legend">
+                                    <span><i class="vu-dot vu-dot-success"></i>Aprobadas <strong>@Model.VentasAprobadasDia</strong></span>
+                                    <span><i class="vu-dot vu-dot-warning"></i>Pendientes <strong>@Model.VentasPendientesDia</strong></span>
+                                    <span><i class="vu-dot vu-dot-danger"></i>Anuladas <strong>@Model.VentasAnuladasDia</strong></span>
                                 </div>
                             </div>
-                            <div class="vu-module-grid">
+                        </div>
+                    </div>
+
+                    <div class="col-xl-7">
+                        <div class="vu-panel">
+                            <div class="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-3">
+                                <div>
+                                    <h2>Productos con stock bajo</h2>
+                                    <p>Primeros productos que necesitan revisión de inventario.</p>
+                                </div>
+                                <a class="btn btn-outline-primary btn-sm" asp-controller="Inventario" asp-action="Index">
+                                    <i data-lucide="package-search" aria-hidden="true"></i>
+                                    Ver inventario
+                                </a>
+                            </div>
+
+                            @if (Model.ProductosCriticos.Any())
+                            {
+                                <div class="vu-stock-list">
+                                    @foreach (var item in Model.ProductosCriticos)
+                                    {
+                                        <div class="vu-stock-item">
+                                            <div>
+                                                <strong>@item.Producto</strong>
+                                                <span>@item.Categoria</span>
+                                            </div>
+                                            <div class="vu-stock-numbers">
+                                                <strong>@item.CantidadDisponible</strong>
+                                                <span>Mínimo @item.StockMinimo</span>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="vu-empty-state vu-empty-state-inline">
+                                    <i data-lucide="badge-check" aria-hidden="true"></i>
+                                    <strong>Inventario estable</strong>
+                                    <span>No hay productos por debajo del stock mínimo.</span>
+                                </div>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="col-xl-5">
+                        <div class="vu-panel">
+                            <h2>Accesos rápidos</h2>
+                            <p>Módulos principales para continuar la operación.</p>
+                            <div class="vu-module-grid vu-module-grid-compact">
                                 <a asp-controller="Admin" asp-action="Usuarios">Usuarios</a>
                                 <a asp-controller="Rol" asp-action="Index">Roles</a>
-                                <a asp-controller="Admin" asp-action="CrearUsuario">Registrar usuario</a>
                                 <a asp-controller="Cliente" asp-action="Index">Clientes</a>
                                 <a asp-controller="Producto" asp-action="Index">Productos</a>
                                 <a asp-controller="Inventario" asp-action="Index">Inventario</a>
@@ -89,18 +200,6 @@
                                 <a asp-controller="Factura" asp-action="Index">Facturación</a>
                                 <a asp-controller="Reporte" asp-action="Index">Reportes</a>
                             </div>
-                        </div>
-                    </div>
-
-                    <div class="col-xl-4">
-                        <div class="vu-panel">
-                            <h2>Estado del sprint</h2>
-                            <ul class="vu-status-list">
-                                <li><span></span> MVC base configurado</li>
-                                <li><span></span> EF Core preparado</li>
-                                <li><span></span> Login funcional pendiente</li>
-                                <li><span></span> CRUD pendiente</li>
-                            </ul>
                         </div>
                     </div>
                 </div>

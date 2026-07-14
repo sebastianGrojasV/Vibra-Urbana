@@ -15,7 +15,13 @@ public interface IUsuarioRegistrationService
 
     Task<EditarUsuarioViewModel?> GetUsuarioParaEditarAsync(int id);
 
+    Task<bool> ExistsByEmailAsync(string correo);
+
+    Task<RestablecerPasswordUsuarioViewModel?> GetUsuarioParaRestablecerPasswordAsync(int id);
+
     Task<ActualizarUsuarioResult> UpdateAsync(EditarUsuarioViewModel model);
+
+    Task<RestablecerPasswordUsuarioResult> ResetPasswordAsync(RestablecerPasswordUsuarioViewModel model);
 
     Task<CambiarEstadoUsuarioResult> ChangeStatusAsync(int id, bool active);
 }

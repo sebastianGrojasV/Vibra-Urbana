@@ -1,6 +1,8 @@
+using System.Globalization;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
 using VibraUrbana.Data;
 using VibraUrbana.Filters;
@@ -10,8 +12,22 @@ using VibraUrbana.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
-    ?? throw new InvalidOperationException("DefaultConnection is not configured.");
+var costaRicaCulture = new CultureInfo("es-CR");
+CultureInfo.DefaultThreadCurrentCulture = costaRicaCulture;
+CultureInfo.DefaultThreadCurrentUICulture = costaRicaCulture;
+
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+
+if (string.IsNullOrWhiteSpace(connectionString))
+{
+    throw new InvalidOperationException("DefaultConnection is not configured. Configure the Azure SQL connection with dotnet user-secrets or an environment variable.");
+}
+
+if (connectionString.Contains("localhost", StringComparison.OrdinalIgnoreCase)
+    || connectionString.Contains("SQLEXPRESS", StringComparison.OrdinalIgnoreCase))
+{
+    throw new InvalidOperationException("DefaultConnection points to a local SQL Server. Configure the Azure SQL connection before running the application.");
+}
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
@@ -21,16 +37,25 @@ builder.Services.AddScoped<IUsuarioAuthenticationService, AuthenticationService>
 builder.Services.AddScoped<IUsuarioRegistrationService, UsuarioRegistrationService>();
 builder.Services.AddScoped<IRolRepositorio, RolRepositorio>();
 builder.Services.AddScoped<IRolServicio, RolServicio>();
+builder.Services.AddScoped<IClienteServicio, ClienteServicio>();
+builder.Services.AddScoped<IProductoServicio, ProductoServicio>();
+builder.Services.AddScoped<IReporteServicio, ReporteServicio>();
+builder.Services.AddScoped<IAdminDashboardServicio, AdminDashboardServicio>();
 builder.Services.AddScoped<INavigationMenuService, NavigationMenuService>();
 builder.Services.AddScoped<IAuthorizationHandler, PermisoAuthorizationHandler>();
+builder.Services.AddScoped<ActiveUserCookieAuthenticationEvents>();
+builder.Services.AddScoped<ICategoriaRepositorio, CategoriaRepositorio>();
+builder.Services.AddScoped<ICategoriaServicio, CategoriaServicio>();
+builder.Services.AddScoped<IVentaServicio, VentaServicio>();
 
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
     {
         options.LoginPath = "/Account/Login";
-        options.AccessDeniedPath = "/Account/Login";
+        options.AccessDeniedPath = "/Account/AccessDenied";
         options.Cookie.Name = "VibraUrbana.Auth";
         options.SlidingExpiration = true;
+        options.EventsType = typeof(ActiveUserCookieAuthenticationEvents);
     });
 
 builder.Services.AddAuthorization(options =>
@@ -47,6 +72,13 @@ builder.Services.AddControllersWithViews(options =>
 });
 
 var app = builder.Build();
+
+app.UseRequestLocalization(new RequestLocalizationOptions
+{
+    DefaultRequestCulture = new RequestCulture(costaRicaCulture),
+    SupportedCultures = [costaRicaCulture],
+    SupportedUICultures = [costaRicaCulture]
+});
 
 if (!app.Environment.IsDevelopment())
 {

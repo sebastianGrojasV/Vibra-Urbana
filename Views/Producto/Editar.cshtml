@@ -1,0 +1,31 @@
+﻿@model VibraUrbana.ViewModels.ProductoFormViewModel
+
+@{
+    ViewData["Title"] = "Editar Producto";
+}
+
+<section class="vu-admin-shell">
+    <div class="container-fluid">
+        <div class="row g-0">
+            @await Html.PartialAsync("_Sidebar")
+
+            <div class="col-lg-9 col-xl-10 vu-admin-content">
+                <div class="vu-admin-header">
+                    <div>
+                        <p class="vu-eyebrow">Catálogo</p>
+                        <h1>Editar producto</h1>
+                        <p>Actualiza datos comerciales, estado y control de existencias.</p>
+                    </div>
+                    <a class="btn btn-outline-primary" asp-controller="Producto" asp-action="Index">Volver al listado</a>
+                </div>
+
+                <partial name="_ProductoForm" model="Model" />
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
+

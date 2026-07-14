@@ -1,0 +1,93 @@
+﻿@model VibraUrbana.ViewModels.ClienteHistorialComprasViewModel
+
+@{
+    ViewData["Title"] = "Historial de compras";
+}
+
+<section class="vu-admin-shell">
+    <div class="container-fluid">
+        <div class="row g-0">
+            @await Html.PartialAsync("_Sidebar")
+
+            <div class="col-lg-9 col-xl-10 vu-admin-content">
+                <div class="vu-admin-header">
+                    <div>
+                        <p class="vu-eyebrow">Seguimiento comercial</p>
+                        <h1>Historial de compras</h1>
+                        <p>@Model.NombreCompleto · @Model.Identificacion</p>
+                    </div>
+                    <a class="btn btn-outline-primary" asp-controller="Cliente" asp-action="Index">Volver a clientes</a>
+                </div>
+
+                <div class="row g-3 mb-4">
+                    <div class="col-md-6">
+                        <div class="vu-dashboard-card h-100">
+                            <span class="vu-card-label">Compras registradas</span>
+                            <strong class="vu-card-value">@Model.TotalCompras</strong>
+                            <span class="text-muted small">Historial del cliente seleccionado</span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="vu-dashboard-card h-100">
+                            <span class="vu-card-label">Monto acumulado</span>
+                            <strong class="vu-card-value">@Model.MontoTotal.ToString("C2")</strong>
+                            <span class="text-muted small">Total de compras realizadas</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="vu-panel">
+                    @if (!Model.Compras.Any())
+                    {
+                        <div class="alert alert-info mb-0" role="status">
+                            No existen compras registradas para este cliente.
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle vu-data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Compra</th>
+                                        <th>Fecha</th>
+                                        <th>Número de comprobante</th>
+                                        <th class="text-end">Monto total</th>
+                                        <th class="text-center">Estado</th>
+                                        <th class="text-end vu-actions-column">Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var compra in Model.Compras)
+                                    {
+                                        <tr>
+                                            <td><strong>#@compra.VentaId.ToString("D5")</strong></td>
+                                            <td>@compra.FechaVenta.ToLocalTime().ToString("dd/MM/yyyy hh:mm tt")</td>
+                                            <td>@(string.IsNullOrWhiteSpace(compra.NumeroComprobante) ? "Sin comprobante" : compra.NumeroComprobante)</td>
+                                            <td class="text-end">@compra.Total.ToString("C2")</td>
+                                            <td class="text-center">
+                                                <span class="badge @(compra.Estado == "Registrada" ? "bg-success" : "bg-secondary")">@compra.Estado</span>
+                                            </td>
+                                            <td class="text-end">
+                                                <a class="btn btn-sm vu-icon-btn vu-icon-view"
+                                                   asp-controller="Cliente"
+                                                   asp-action="DetalleCompra"
+                                                   asp-route-clienteId="@Model.ClienteId"
+                                                   asp-route-ventaId="@compra.VentaId"
+                                                   title="Ver detalle"
+                                                   aria-label="Ver detalle de la compra #@compra.VentaId.ToString("D5")">
+                                                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+

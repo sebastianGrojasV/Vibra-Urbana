@@ -1,9 +1,111 @@
+﻿@model VibraUrbana.ViewModels.ClientesIndexViewModel
+
 @{
     ViewData["Title"] = "Clientes";
 }
 
-<section class="container py-5">
-    <p class="vu-eyebrow">Módulo</p>
-    <h1>Clientes</h1>
-    <p class="text-muted">Vista reservada para la gestión de clientes en próximos issues.</p>
+<section class="vu-admin-shell">
+    <div class="container-fluid">
+        <div class="row g-0">
+            @await Html.PartialAsync("_Sidebar")
+
+            <div class="col-lg-9 col-xl-10 vu-admin-content">
+                <div class="vu-admin-header">
+                    <div>
+                        <p class="vu-eyebrow">Gestión comercial</p>
+                        <h1>Clientes</h1>
+                        <p>Consulta, registra y actualiza la información de clientes de Vibra Urbana.</p>
+                    </div>
+                    <a class="btn btn-primary" asp-controller="Cliente" asp-action="Crear">Registrar cliente</a>
+                </div>
+
+                <div class="vu-panel">
+                    @if (TempData["SuccessMessage"] is string successMessage)
+                    {
+                        <div class="alert alert-success" role="alert">@successMessage</div>
+                    }
+
+                    @if (!Model.Clientes.Any())
+                    {
+                        <div class="alert alert-info" role="alert">
+                            No existen clientes registrados.
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle vu-data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Nombre</th>
+                                        <th>Identificación</th>
+                                        <th>Teléfono</th>
+                                        <th>Correo</th>
+                                        <th>Dirección</th>
+                                        <th>Estado</th>
+                                        <th class="text-end vu-actions-column">Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var cliente in Model.Clientes)
+                                    {
+                                        <tr>
+                                            <td>@cliente.NombreCompleto</td>
+                                            <td>@cliente.Identificacion</td>
+                                            <td>@(string.IsNullOrWhiteSpace(cliente.Telefono) ? "Sin teléfono" : cliente.Telefono)</td>
+                                            <td>@(string.IsNullOrWhiteSpace(cliente.Correo) ? "Sin correo" : cliente.Correo)</td>
+                                            <td>@(string.IsNullOrWhiteSpace(cliente.Direccion) ? "Sin dirección" : cliente.Direccion)</td>
+                                            <td>
+                                                @if (cliente.Activo)
+                                                {
+                                                    <span class="badge bg-success">Activo</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-secondary">Inactivo</span>
+                                                }
+                                            </td>
+                                            <td class="text-end">
+                                                <div class="vu-actions">
+                                                    <a class="btn btn-sm vu-icon-btn vu-icon-history" asp-controller="Cliente" asp-action="HistorialCompras" asp-route-id="@cliente.Id" title="Historial de compras" aria-label="Historial de compras del cliente">
+                                                        <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 01-8 0"></path></svg>
+                                                    </a>
+                                                    <a class="btn btn-sm vu-icon-btn vu-icon-edit" asp-controller="Cliente" asp-action="Editar" asp-route-id="@cliente.Id" title="Editar" aria-label="Editar cliente">
+                                                        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h9"></path><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5Z"></path></svg>
+                                                    </a>
+                                                    <form asp-controller="Cliente"
+                                                          asp-action="ConfirmarCambiarEstado"
+                                                          method="post"
+                                                          class="d-inline"
+                                                          data-vu-confirm
+                                                          data-vu-confirm-title="@(cliente.Activo ? "Desactivar cliente" : "Activar cliente")"
+                                                          data-vu-confirm-message="@(cliente.Activo ? $"¿Deseas desactivar a {cliente.NombreCompleto}?" : $"¿Deseas activar a {cliente.NombreCompleto}?")"
+                                                          data-vu-confirm-action="@(cliente.Activo ? "Desactivar" : "Activar")">
+                                                        @Html.AntiForgeryToken()
+                                                        <input name="id" type="hidden" value="@cliente.Id" />
+                                                        <input name="active" type="hidden" value="@(cliente.Activo ? "false" : "true")" />
+                                                        <button class="btn btn-sm vu-icon-btn @(cliente.Activo ? "vu-icon-disable" : "vu-icon-enable")" type="submit" title="@(cliente.Activo ? "Desactivar" : "Activar")" aria-label="@(cliente.Activo ? "Desactivar cliente" : "Activar cliente")">
+                                                            @if (cliente.Activo)
+                                                            {
+                                                                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18.4 6.6a9 9 0 1 1-12.8 0"></path><path d="M12 2v10"></path></svg>
+                                                            }
+                                                            else
+                                                            {
+                                                                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"></path></svg>
+                                                            }
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
 </section>
+

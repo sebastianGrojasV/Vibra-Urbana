@@ -1,0 +1,128 @@
+﻿@model VibraUrbana.ViewModels.ProductoFormViewModel
+
+@{
+    var actionName = Model.Id == 0 ? "Crear" : "Editar";
+}
+
+<div class="row g-4">
+    <div class="col-xl-8">
+        <div class="vu-panel">
+            @if (!Model.Categorias.Any())
+            {
+                <div class="alert alert-warning" role="alert">
+                    No hay categorías activas. Registra una categoría en la base de datos antes de guardar productos.
+                </div>
+            }
+
+            <form asp-controller="Producto" asp-action="@actionName" method="post" novalidate>
+                @Html.AntiForgeryToken()
+                <input asp-for="Id" type="hidden" />
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+
+                <div class="row g-3">
+                    <div class="col-md-8">
+                        <label asp-for="Nombre" class="form-label"></label>
+                        <input asp-for="Nombre" class="form-control" />
+                        <span asp-validation-for="Nombre" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-4">
+                        <label asp-for="Precio" class="form-label"></label>
+                        <div class="input-group">
+                            <span class="input-group-text">₡</span>
+                            <input asp-for="Precio" class="form-control" type="number" step="1" min="0" inputmode="numeric" />
+                        </div>
+                        <span asp-validation-for="Precio" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-4">
+                        <label asp-for="CategoriaId" class="form-label"></label>
+                        <select asp-for="CategoriaId" asp-items="Model.Categorias" class="form-select">
+                            <option value="">Selecciona una categoría</option>
+                        </select>
+                        <span asp-validation-for="CategoriaId" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-4">
+                        <label asp-for="Talla" class="form-label"></label>
+                        <input asp-for="Talla" class="form-control" placeholder="S, M, L, 32..." />
+                        <span asp-validation-for="Talla" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-4">
+                        <label asp-for="Color" class="form-label"></label>
+                        <input asp-for="Color" class="form-control" placeholder="Negro, coral, blanco..." />
+                        <span asp-validation-for="Color" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-6">
+                        @if (Model.Id == 0)
+                        {
+                            <label asp-for="CantidadDisponible" class="form-label"></label>
+                            <input asp-for="CantidadDisponible" class="form-control" type="number" min="0" step="1" inputmode="numeric" />
+                            <span asp-validation-for="CantidadDisponible" class="text-danger small"></span>
+                        }
+                        else
+                        {
+                            <label asp-for="CantidadDisponible" class="form-label"></label>
+                            <input asp-for="CantidadDisponible" type="hidden" />
+                            <input class="form-control" value="@Model.CantidadDisponible" disabled />
+                            <div class="form-text">
+                                Las existencias se modifican mediante un ajuste de inventario.
+                            </div>
+                        }
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="StockMinimo" class="form-label"></label>
+                        <input asp-for="StockMinimo" class="form-control" type="number" min="0" step="1" inputmode="numeric" />
+                        <span asp-validation-for="StockMinimo" class="text-danger small"></span>
+                    </div>
+                    <div class="col-12">
+                        <label asp-for="ImagenUrl" class="form-label"></label>
+                        <input asp-for="ImagenUrl" class="form-control" placeholder="/img/productos/camisa-coral.jpg o URL externa" />
+                        <span asp-validation-for="ImagenUrl" class="text-danger small"></span>
+                    </div>
+                    <div class="col-12">
+                        <label asp-for="Descripcion" class="form-label"></label>
+                        <textarea asp-for="Descripcion" class="form-control" rows="4" placeholder="Descripción comercial breve para identificar la prenda."></textarea>
+                        <span asp-validation-for="Descripcion" class="text-danger small"></span>
+                    </div>
+                    @if (Model.Id != 0)
+                    {
+                        <div class="col-md-6">
+                            <div class="form-check mt-md-4 pt-md-2">
+                                <input asp-for="Activo" class="form-check-input" />
+                                <label asp-for="Activo" class="form-check-label"></label>
+                            </div>
+                        </div>
+                    }
+                </div>
+
+                <div class="d-flex flex-wrap gap-2 mt-4">
+                    <button class="btn btn-primary" type="submit" disabled="@(!Model.Categorias.Any())">Guardar</button>
+                    @if (Model.Id != 0)
+                    {
+                        <a class="btn btn-outline-primary" asp-controller="Inventario" asp-action="Ajustar" asp-route-id="@Model.Id">Ajustar existencias</a>
+                    }
+                    <a class="btn btn-outline-primary" asp-controller="Producto" asp-action="Index">Cancelar</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="col-xl-4">
+        <div class="vu-panel vu-product-preview">
+            <h2>Vista del producto</h2>
+            @if (!string.IsNullOrWhiteSpace(Model.ImagenUrl))
+            {
+                <img src="@Model.ImagenUrl" alt="@Model.Nombre" class="vu-product-preview-image" />
+            }
+            else
+            {
+                <div class="vu-product-preview-empty">VU</div>
+            }
+            <strong>@(string.IsNullOrWhiteSpace(Model.Nombre) ? "Nuevo producto" : Model.Nombre)</strong>
+            <p>@(string.IsNullOrWhiteSpace(Model.Descripcion) ? "La descripción ayudará a diferenciar la prenda dentro del catálogo." : Model.Descripcion)</p>
+            <ul class="vu-status-list">
+                <li><span></span> El stock bajo se activa cuando disponible es menor o igual al mínimo</li>
+                <li><span></span> La imagen puede quedar vacía en esta primera versión</li>
+                <li><span></span> El producto inactivo se conserva para historial</li>
+            </ul>
+        </div>
+    </div>
+</div>

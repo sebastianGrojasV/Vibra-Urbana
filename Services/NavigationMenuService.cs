@@ -1,4 +1,4 @@
-using System.Security.Claims;
+﻿using System.Security.Claims;
 using Microsoft.EntityFrameworkCore;
 using VibraUrbana.Data;
 
@@ -29,7 +29,7 @@ public class NavigationMenuService : INavigationMenuService
 
         if (permisos.Contains(PermisosSistema.UsuariosGestionar))
         {
-            items.Add(new MenuItemViewModel { Texto = "Admin", Controller = "Admin" });
+            items.Add(new MenuItemViewModel { Texto = "Panel inicial", Controller = "Admin" });
             items.Add(new MenuItemViewModel { Texto = "Usuarios", Controller = "Admin", Action = "Usuarios" });
         }
 
@@ -46,6 +46,7 @@ public class NavigationMenuService : INavigationMenuService
         if (permisos.Contains(PermisosSistema.ProductosGestionar))
         {
             items.Add(new MenuItemViewModel { Texto = "Productos", Controller = "Producto" });
+            items.Add(new MenuItemViewModel { Texto = "Categorías", Controller = "Categoria" });
         }
 
         if (permisos.Contains(PermisosSistema.InventarioGestionar))
@@ -62,6 +63,7 @@ public class NavigationMenuService : INavigationMenuService
         if (permisos.Contains(PermisosSistema.FacturacionGestionar))
         {
             items.Add(new MenuItemViewModel { Texto = "Facturación", Controller = "Factura" });
+            items.Add(new MenuItemViewModel { Texto = "Cierre de caja", Controller = "Factura", Action = "CierreCaja" });
         }
 
         if (permisos.Contains(PermisosSistema.ReportesVer))

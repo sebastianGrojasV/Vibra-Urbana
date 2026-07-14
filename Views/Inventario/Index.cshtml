@@ -1,9 +1,188 @@
+﻿@model VibraUrbana.ViewModels.InventarioIndexViewModel
+
 @{
     ViewData["Title"] = "Inventario";
+    var productosStockBajo = Model.Inventario.Count(item => item.StockBajo);
 }
 
-<section class="container py-5">
-    <p class="vu-eyebrow">Módulo</p>
-    <h1>Inventario</h1>
-    <p class="text-muted">Vista reservada para control de existencias en próximos issues.</p>
+<section class="vu-admin-shell">
+    <div class="container-fluid">
+        <div class="row g-0">
+            @await Html.PartialAsync("_Sidebar")
+
+            <div class="col-lg-9 col-xl-10 vu-admin-content">
+                <div class="vu-admin-header">
+                    <div>
+                        <p class="vu-eyebrow">Control de existencias</p>
+                        <h1>Inventario</h1>
+                        <p>Consulta disponibilidad, stock mínimo y productos que requieren reposición.</p>
+                    </div>
+                    <a class="btn btn-primary" asp-controller="Producto" asp-action="Crear">Registrar producto</a>
+                </div>
+
+                @if (productosStockBajo > 0)
+                {
+                    <div class="alert alert-warning vu-stock-alert" role="alert">
+                        Hay @productosStockBajo producto(s) con stock bajo. Revisa las filas resaltadas para planificar reposición.
+                    </div>
+                }
+
+                <div class="vu-panel mb-4">
+                    <form asp-controller="Inventario" asp-action="Index" method="get" class="row g-3 align-items-end">
+                        <div class="col-md-4 col-lg-2">
+                            <label class="form-label" for="categoriaId">Categoría</label>
+                            <select id="categoriaId" name="categoriaId" asp-items="Model.Categorias" class="form-select">
+                                <option value="">Todas</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4 col-lg-2">
+                            <label class="form-label" for="talla">Talla</label>
+                            <select id="talla" name="talla" asp-items="Model.Tallas" class="form-select">
+                                <option value="">Todas</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4 col-lg-2">
+                            <label class="form-label" for="color">Color</label>
+                            <select id="color" name="color" asp-items="Model.Colores" class="form-select">
+                                <option value="">Todos</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4 col-lg-2">
+                            <label class="form-label" for="activo">Estado</label>
+                            <select id="activo" name="activo" class="form-select">
+                                <option value="">Todos</option>
+                                <option value="true" selected="@(Model.Activo == true ? "selected" : null)">Activos</option>
+                                <option value="false" selected="@(Model.Activo == false ? "selected" : null)">Inactivos</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4 col-lg-2">
+                            <label class="form-label" for="estadoStock">Estado stock</label>
+                            <select id="estadoStock" name="estadoStock" class="form-select">
+                                <option value="">Todos</option>
+                                <option value="@VibraUrbana.ViewModels.InventarioIndexViewModel.EstadoStockDisponible"
+                                        selected="@(Model.EstadoStock == VibraUrbana.ViewModels.InventarioIndexViewModel.EstadoStockDisponible ? "selected" : null)">
+                                    Disponible
+                                </option>
+                                <option value="@VibraUrbana.ViewModels.InventarioIndexViewModel.EstadoStockBajo"
+                                        selected="@(Model.EstadoStock == VibraUrbana.ViewModels.InventarioIndexViewModel.EstadoStockBajo ? "selected" : null)">
+                                    Stock bajo
+                                </option>
+                            </select>
+                        </div>
+                        <div class="col-md-8 col-lg-2 d-flex flex-wrap gap-2">
+                            <button class="btn btn-outline-primary" type="submit">Filtrar</button>
+                            <a class="btn btn-outline-secondary" asp-controller="Inventario" asp-action="Index">Limpiar</a>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="vu-panel">
+                    @if (TempData["SuccessMessage"] is string successMessage)
+                    {
+                        <div class="alert alert-success" role="alert">@successMessage</div>
+                    }
+
+                    @if (!Model.Inventario.Any())
+                    {
+                        <div class="alert alert-info" role="alert">
+                            No existen productos en inventario con los filtros actuales.
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle vu-data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Producto</th>
+                                        <th>Categoría</th>
+                                        <th>Talla</th>
+                                        <th>Color</th>
+                                        <th>Disponible</th>
+                                        <th>Stock mínimo</th>
+                                        <th>Estado stock</th>
+                                        <th>Actualización</th>
+                                        <th class="text-end vu-actions-column">Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var item in Model.Inventario)
+                                    {
+                                        <tr class="@(item.StockBajo ? "vu-stock-low-row" : string.Empty)">
+                                            <td>
+                                                <strong>@item.Producto</strong>
+                                                <div class="text-muted small">@(item.Activo ? "Producto activo" : "Producto inactivo")</div>
+                                            </td>
+                                            <td>@item.Categoria</td>
+                                            <td>@(string.IsNullOrWhiteSpace(item.Talla) ? "Sin talla" : item.Talla)</td>
+                                            <td>@(string.IsNullOrWhiteSpace(item.Color) ? "Sin color" : item.Color)</td>
+                                            <td>@item.CantidadDisponible</td>
+                                            <td>@item.StockMinimo</td>
+                                            <td>
+                                                @if (item.StockBajo)
+                                                {
+                                                    <span class="badge bg-warning text-dark">Stock bajo</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-success">Disponible</span>
+                                                }
+                                            </td>
+                                            <td>@item.FechaActualizacion.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</td>
+                                            <td class="text-end">
+                                                <div class="vu-actions">
+                                                    <a class="btn btn-sm vu-icon-btn vu-icon-enable" asp-controller="Inventario" asp-action="Entrada" asp-route-id="@item.ProductoId" title="Registrar entrada" aria-label="Registrar entrada para @item.Producto">
+                                                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                                                            <path d="M12 3v18"></path>
+                                                            <path d="M3 12h18"></path>
+                                                        </svg>
+                                                    </a>
+                                                    <a class="btn btn-sm vu-icon-btn vu-icon-reset" asp-controller="Inventario" asp-action="Ajustar" asp-route-id="@item.ProductoId" title="Ajustar existencias" aria-label="Ajustar existencias de @item.Producto">
+                                                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                                                            <path d="M4 21v-7"></path>
+                                                            <path d="M4 10V3"></path>
+                                                            <path d="M12 21v-9"></path>
+                                                            <path d="M12 8V3"></path>
+                                                            <path d="M20 21v-5"></path>
+                                                            <path d="M20 12V3"></path>
+                                                            <path d="M2 14h4"></path>
+                                                            <path d="M10 8h4"></path>
+                                                            <path d="M18 16h4"></path>
+                                                        </svg>
+                                                    </a>
+                                                    <a class="btn btn-sm vu-icon-btn vu-icon-edit" asp-controller="Producto" asp-action="Editar" asp-route-id="@item.ProductoId" title="Editar" aria-label="Editar producto">
+                                                        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h9"></path><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5Z"></path></svg>
+                                                    </a>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
 </section>
+@section Scripts {
+    <!-- DataTables core -->
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+
+    <!-- DataTables Buttons -->
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css">
+
+    <!-- Export to Excel/PDF -->
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.print.min.js"></script>
+
+    <!-- Dependencias -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
+}
+
+

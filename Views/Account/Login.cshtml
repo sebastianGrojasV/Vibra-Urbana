@@ -1,4 +1,4 @@
-@model VibraUrbana.ViewModels.LoginViewModel
+﻿@model VibraUrbana.ViewModels.LoginViewModel
 
 @{
     ViewData["Title"] = "Iniciar sesión";
@@ -26,7 +26,7 @@
             <div class="col-md-8 col-lg-5">
                 <div class="vu-auth-card">
                     <div class="text-center mb-4">
-                        <div class="vu-brand-mark">VU</div>
+                        <img src="~/img/logo-vibra-urbana.jpeg" alt="Vibra Urbana" class="vu-auth-card-logo" />
                         <h2>Iniciar sesión</h2>
                         <p>Ingresa con tu cuenta asignada para continuar.</p>
                     </div>
@@ -60,9 +60,10 @@
                                 <input asp-for="Recordarme" class="form-check-input" />
                                 <label asp-for="Recordarme" class="form-check-label"></label>
                             </div>
-                            <a class="vu-text-link" asp-controller="Home" asp-action="Index">Volver al inicio</a>
+                            <a class="vu-text-link" asp-controller="Account" asp-action="RecuperarAcceso">Olvidé mi contraseña</a>
                         </div>
                         <button class="btn btn-primary btn-lg w-100" type="submit">Iniciar sesión</button>
+                        <a class="btn btn-outline-primary btn-lg w-100 mt-2" asp-controller="Home" asp-action="Index">Volver al inicio</a>
                     </form>
                 </div>
             </div>

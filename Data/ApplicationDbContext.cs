@@ -185,6 +185,7 @@ public class ApplicationDbContext : DbContext
             entity.HasKey(inventario => inventario.Id);
 
             entity.Property(inventario => inventario.FechaActualizacion).HasDefaultValueSql("GETUTCDATE()");
+            entity.Property(inventario => inventario.Version).IsRowVersion();
 
             entity.HasIndex(inventario => inventario.ProductoId).IsUnique();
 
@@ -240,6 +241,7 @@ public class ApplicationDbContext : DbContext
             entity.Property(venta => venta.Total).HasPrecision(18, 2);
             entity.Property(venta => venta.Estado).IsRequired().HasMaxLength(40);
             entity.Property(venta => venta.Observacion).HasMaxLength(500);
+            entity.Property(venta => venta.MotivoAnulacion).HasMaxLength(300);
 
             entity.HasOne(venta => venta.Cliente)
                 .WithMany(cliente => cliente.Ventas)
@@ -250,6 +252,11 @@ public class ApplicationDbContext : DbContext
                 .WithMany(usuario => usuario.Ventas)
                 .HasForeignKey(venta => venta.UsuarioId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasOne(venta => venta.UsuarioAnulacion)
+                .WithMany()
+                .HasForeignKey(venta => venta.UsuarioAnulacionId)
+                .OnDelete(DeleteBehavior.NoAction);
 
             entity.HasOne(venta => venta.MetodoPago)
                 .WithMany(metodoPago => metodoPago.Ventas)

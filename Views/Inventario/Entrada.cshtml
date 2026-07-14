@@ -1,0 +1,103 @@
+﻿@model VibraUrbana.ViewModels.EntradaInventarioViewModel
+
+@{
+    ViewData["Title"] = "Registrar entrada";
+}
+
+<section class="vu-admin-shell">
+    <div class="container-fluid">
+        <div class="row g-0">
+            @await Html.PartialAsync("_Sidebar")
+
+            <div class="col-lg-9 col-xl-10 vu-admin-content">
+                <div class="vu-admin-header">
+                    <div>
+                        <p class="vu-eyebrow">Entrada de mercadería</p>
+                        <h1>Registrar entrada</h1>
+                        <p>Aumenta las existencias disponibles cuando ingresa nueva mercadería a la tienda.</p>
+                    </div>
+                    <a class="btn btn-outline-primary" asp-action="Index">Volver al inventario</a>
+                </div>
+
+                <div class="row g-4">
+                    <div class="col-xl-8">
+                        <div class="vu-panel">
+                            <form asp-action="Entrada" method="post" novalidate>
+                                @Html.AntiForgeryToken()
+                                <input asp-for="ProductoId" type="hidden" />
+                                <input asp-for="Version" type="hidden" />
+
+                                <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+
+                                <div class="row g-3">
+                                    <div class="col-md-8">
+                                        <label class="form-label">Producto</label>
+                                        <input class="form-control" value="@Model.Producto" disabled />
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label">Cantidad actual</label>
+                                        <input class="form-control" value="@Model.CantidadActual" disabled />
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label">Categoría</label>
+                                        <input class="form-control" value="@Model.Categoria" disabled />
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label">Talla</label>
+                                        <input class="form-control" value="@(string.IsNullOrWhiteSpace(Model.Talla) ? "Sin talla" : Model.Talla)" disabled />
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label">Color</label>
+                                        <input class="form-control" value="@(string.IsNullOrWhiteSpace(Model.Color) ? "Sin color" : Model.Color)" disabled />
+                                    </div>
+                                    <div class="col-md-5">
+                                        <label asp-for="CantidadIngresada" class="form-label"></label>
+                                        <input asp-for="CantidadIngresada"
+                                               class="form-control"
+                                               type="number"
+                                               min="1"
+                                               step="1"
+                                               inputmode="numeric"
+                                               data-msg-min="La cantidad ingresada debe ser mayor a cero." />
+                                        <span asp-validation-for="CantidadIngresada" class="text-danger small"></span>
+                                    </div>
+                                    <div class="col-12">
+                                        <label asp-for="Observacion" class="form-label"></label>
+                                        <textarea asp-for="Observacion" class="form-control" rows="4" maxlength="300" placeholder="Ejemplo: Entrada por compra a proveedor."></textarea>
+                                        <span asp-validation-for="Observacion" class="text-danger small"></span>
+                                    </div>
+                                </div>
+
+                                <div class="alert alert-info mt-4 mb-0" role="alert">
+                                    La entrada quedará registrada con usuario, fecha, producto, cantidad ingresada y nueva cantidad disponible.
+                                </div>
+
+                                <div class="d-flex flex-wrap gap-2 mt-4">
+                                    <button class="btn btn-primary" type="submit">Registrar entrada</button>
+                                    <a class="btn btn-outline-primary" asp-action="Index">Cancelar</a>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div class="col-xl-4">
+                        <div class="vu-panel">
+                            <h2>Trazabilidad</h2>
+                            <ul class="vu-status-list">
+                                <li><span></span> La cantidad ingresada debe ser positiva</li>
+                                <li><span></span> La existencia aumenta inmediatamente</li>
+                                <li><span></span> El movimiento registra fecha y usuario</li>
+                                <li><span></span> Los cambios simultáneos son detectados</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
+

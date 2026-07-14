@@ -7,8 +7,22 @@ namespace VibraUrbana.Controllers;
 [Authorize(Policy = PermisosSistema.ReportesVer)]
 public class ReporteController : Controller
 {
-    public IActionResult Index()
+    private readonly IReporteServicio _reporteServicio;
+
+    public ReporteController(IReporteServicio reporteServicio)
     {
-        return View();
+        _reporteServicio = reporteServicio;
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> Index(int? categoriaId, string? estadoStock)
+    {
+        return View(await _reporteServicio.ObtenerInventarioAsync(categoriaId, estadoStock));
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> Ventas(string? periodo, DateTime? fechaInicio, DateTime? fechaFin)
+    {
+        return View(await _reporteServicio.ObtenerVentasAsync(periodo, fechaInicio, fechaFin));
     }
 }

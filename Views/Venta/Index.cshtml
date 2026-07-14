@@ -1,9 +1,243 @@
+﻿@model IReadOnlyList<VibraUrbana.Models.Venta>
+
 @{
-    ViewData["Title"] = "Ventas";
+    ViewData["Title"] = "Historial de Ventas";
 }
 
-<section class="container py-5">
-    <p class="vu-eyebrow">Módulo</p>
-    <h1>Ventas</h1>
-    <p class="text-muted">Vista reservada para ventas en próximos issues.</p>
+<section class="vu-admin-shell">
+    <div class="container-fluid">
+        <div class="row g-0">
+            @await Html.PartialAsync("_Sidebar")
+
+            <div class="col-lg-9 col-xl-10 vu-admin-content">
+                <div class="vu-admin-header">
+                    <div>
+                        <p class="vu-eyebrow">Gestión comercial</p>
+                        <h1>Ventas</h1>
+                        <p>Consulta el historial de ventas realizadas y registra nuevas transacciones comerciales.</p>
+                    </div>
+                    <a class="btn btn-primary" asp-controller="Venta" asp-action="Crear">Registrar Venta</a>
+                </div>
+
+                <div class="vu-panel">
+                    @if (TempData["SuccessMessage"] is string successMessage)
+                    {
+                        <div class="alert alert-success" role="alert">@successMessage</div>
+                    }
+
+                    @if (TempData["ErrorMessage"] is string errorMessage)
+                    {
+                        <div class="alert alert-danger" role="alert">@errorMessage</div>
+                    }
+
+                    <div class="vu-cancel-sale-frame mb-4" data-vu-cancel-sale-frame hidden>
+                        <form asp-controller="Venta" asp-action="Anular" method="post" class="vu-cancel-sale-form">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="VentaId" data-vu-cancel-sale-id />
+                            <div>
+                                <strong data-vu-cancel-sale-title>Anular venta</strong>
+                                <p data-vu-cancel-sale-message>Indica el motivo de anulación para continuar.</p>
+                            </div>
+                            <div>
+                                <label class="form-label" for="motivoAnulacion">Motivo de anulación</label>
+                                <textarea id="motivoAnulacion"
+                                          name="Motivo"
+                                          class="form-control"
+                                          rows="2"
+                                          maxlength="300"
+                                          minlength="5"
+                                          required
+                                          data-vu-cancel-sale-reason
+                                          placeholder="Ejemplo: error operativo en la selección de productos."></textarea>
+                                <small class="text-muted">Entre 5 y 300 caracteres.</small>
+                            </div>
+                            <div class="vu-cancel-sale-actions">
+                                <button class="btn btn-primary" type="submit">Confirmar anulación</button>
+                                <button class="btn btn-outline-primary" type="button" data-vu-cancel-sale-close>Cancelar</button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div class="vu-cancel-sale-frame mb-4" data-vu-state-sale-frame hidden>
+                        <form asp-controller="Venta" asp-action="CambiarEstado" method="post" class="vu-cancel-sale-form">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="VentaId" data-vu-state-sale-id />
+                            <input type="hidden" name="NuevoEstado" data-vu-state-sale-status />
+                            <div>
+                                <strong data-vu-state-sale-title>Cambiar estado de venta</strong>
+                                <p data-vu-state-sale-message>Indica el motivo del cambio para continuar.</p>
+                            </div>
+                            <div>
+                                <label class="form-label" for="motivoCambioEstado">Motivo del cambio</label>
+                                <textarea id="motivoCambioEstado"
+                                          name="Motivo"
+                                          class="form-control"
+                                          rows="2"
+                                          maxlength="300"
+                                          minlength="5"
+                                          required
+                                          data-vu-state-sale-reason
+                                          placeholder="Ejemplo: venta requiere revisión administrativa."></textarea>
+                                <small class="text-muted">Entre 5 y 300 caracteres.</small>
+                            </div>
+                            <div class="vu-cancel-sale-actions">
+                                <button class="btn btn-primary" type="submit" data-vu-state-sale-submit>Confirmar cambio</button>
+                                <button class="btn btn-outline-primary" type="button" data-vu-state-sale-close>Cancelar</button>
+                            </div>
+                        </form>
+                    </div>
+
+                    @if (ViewBag.ClienteFiltrado != null)
+                    {
+                        <div class="alert alert-info d-flex justify-content-between align-items-center mb-3" role="alert">
+                            <div>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 20px; height: 20px; vertical-align: middle;" class="me-2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                                <span>Mostrando compras del cliente: <strong>@ViewBag.ClienteFiltrado</strong> (@ViewBag.ClienteIdentificacion)</span>
+                            </div>
+                            <a class="btn btn-sm btn-outline-primary" asp-controller="Venta" asp-action="Index">Mostrar todas</a>
+                        </div>
+                    }
+
+                    @if (!Model.Any())
+                    {
+                        <div class="alert alert-info" role="alert">
+                            No existen ventas registradas. ¡Comienza registrando una nueva venta!
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle vu-data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Código</th>
+                                        <th>Fecha</th>
+                                        <th>Cliente</th>
+                                        <th>Cajero</th>
+                                        <th>Comprobante</th>
+                                        <th>Método Pago</th>
+                                        <th class="text-end">Subtotal</th>
+                                        <th class="text-end">Descuento</th>
+                                        <th class="text-end">Impuesto</th>
+                                        <th class="text-end">Total</th>
+                                        <th class="text-center">Estado</th>
+                                        <th class="text-end vu-actions-column">Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var venta in Model)
+                                    {
+                                        <tr>
+                                            <td><strong>#@venta.Id.ToString("D5")</strong></td>
+                                            <td>@venta.FechaVenta.ToLocalTime().ToString("dd/MM/yyyy hh:mm tt")</td>
+                                            <td>
+                                                <div class="d-flex flex-column">
+                                                    <span>@venta.Cliente.NombreCompleto</span>
+                                                    <small class="text-muted">@venta.Cliente.Identificacion</small>
+                                                </div>
+                                            </td>
+                                            <td>@venta.Usuario.NombreCompleto</td>
+                                            <td>
+                                                @if (venta.Factura is null)
+                                                {
+                                                    <span class="text-muted">Pendiente</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-light text-dark border">@venta.Factura.NumeroFactura</span>
+                                                }
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-secondary">@venta.MetodoPago.Nombre</span>
+                                            </td>
+                                            <td class="text-end">@venta.Subtotal.ToString("C2")</td>
+                                            <td class="text-end text-danger">-@venta.Descuento.ToString("C2")</td>
+                                            <td class="text-end">@venta.Impuesto.ToString("C2")</td>
+                                            <td class="text-end font-weight-bold text-primary">@venta.Total.ToString("C2")</td>
+                                            <td class="text-center">
+                                                @if (venta.Estado == "Aprobada")
+                                                {
+                                                    <span class="badge bg-success">@venta.Estado</span>
+                                                }
+                                                else if (venta.Estado == "Pendiente")
+                                                {
+                                                    <span class="badge bg-warning text-dark">@venta.Estado</span>
+                                                }
+                                                else if (venta.Estado == "Anulada")
+                                                {
+                                                    <div class="d-flex flex-column align-items-center gap-1">
+                                                        <span class="badge bg-danger">@venta.Estado</span>
+                                                        <small class="text-muted">@(string.IsNullOrWhiteSpace(venta.MotivoAnulacion) ? "Sin motivo registrado" : venta.MotivoAnulacion)</small>
+                                                    </div>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-secondary">@venta.Estado</span>
+                                                }
+                                            </td>
+                                            <td class="text-end">
+                                                <div class="vu-actions">
+                                                    <a class="btn btn-sm vu-icon-btn vu-icon-view"
+                                                       asp-controller="Venta"
+                                                       asp-action="Detalle"
+                                                       asp-route-id="@venta.Id"
+                                                       title="Ver detalle"
+                                                       aria-label="Ver detalle de venta">
+                                                        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6Z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                                                    </a>
+                                                    @if (venta.Estado == "Aprobada")
+                                                    {
+                                                        <button class="btn btn-sm vu-icon-btn vu-icon-reset"
+                                                                type="button"
+                                                                title="Marcar como pendiente"
+                                                                aria-label="Marcar venta como pendiente"
+                                                                data-vu-state-sale
+                                                                data-vu-sale-id="@venta.Id"
+                                                                data-vu-sale-code="#@venta.Id.ToString("D5")"
+                                                                data-vu-sale-client="@venta.Cliente.NombreCompleto"
+                                                                data-vu-target-status="Pendiente">
+                                                            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8v5l3 3"></path><circle cx="12" cy="12" r="10"></circle></svg>
+                                                        </button>
+                                                        <button class="btn btn-sm vu-icon-btn vu-icon-disable"
+                                                                type="button"
+                                                                title="Anular"
+                                                                aria-label="Anular venta"
+                                                                data-vu-cancel-sale
+                                                                data-vu-sale-id="@venta.Id"
+                                                                data-vu-sale-code="#@venta.Id.ToString("D5")"
+                                                                data-vu-sale-client="@venta.Cliente.NombreCompleto">
+                                                            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18.4 6.6a9 9 0 1 1-12.8 0"></path><path d="M12 2v10"></path></svg>
+                                                        </button>
+                                                    }
+                                                    else if (venta.Estado == "Pendiente")
+                                                    {
+                                                        <button class="btn btn-sm vu-icon-btn vu-icon-enable"
+                                                                type="button"
+                                                                title="Marcar como aprobada"
+                                                                aria-label="Marcar venta como aprobada"
+                                                                data-vu-state-sale
+                                                                data-vu-sale-id="@venta.Id"
+                                                                data-vu-sale-code="#@venta.Id.ToString("D5")"
+                                                                data-vu-sale-client="@venta.Cliente.NombreCompleto"
+                                                                data-vu-target-status="Aprobada">
+                                                            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"></path></svg>
+                                                        </button>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="text-muted small">Sin acciones</span>
+                                                    }
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
 </section>
+

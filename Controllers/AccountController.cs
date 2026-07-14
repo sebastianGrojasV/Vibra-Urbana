@@ -11,10 +11,14 @@ namespace VibraUrbana.Controllers;
 public class AccountController : Controller
 {
     private readonly IUsuarioAuthenticationService _authenticationService;
+    private readonly IUsuarioRegistrationService _usuarioRegistrationService;
 
-    public AccountController(IUsuarioAuthenticationService authenticationService)
+    public AccountController(
+        IUsuarioAuthenticationService authenticationService,
+        IUsuarioRegistrationService usuarioRegistrationService)
     {
         _authenticationService = authenticationService;
+        _usuarioRegistrationService = usuarioRegistrationService;
     }
 
     [HttpGet]
@@ -44,7 +48,7 @@ public class AccountController : Controller
 
         if (result.Result == LoginResult.InactiveUser)
         {
-            ModelState.AddModelError(string.Empty, "El usuario esta desactivado. Contacta al administrador.");
+            ModelState.AddModelError(string.Empty, "El usuario está desactivado. Contacta al administrador.");
             return View(model);
         }
 
@@ -80,6 +84,38 @@ public class AccountController : Controller
         }
 
         return RedirectToRolePanel(result.Usuario.Rol.Nombre);
+    }
+
+    [HttpGet]
+    [AllowAnonymous]
+    public IActionResult RecuperarAcceso()
+    {
+        return View(new RecuperarAccesoViewModel());
+    }
+
+    [HttpPost]
+    [AllowAnonymous]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> RecuperarAcceso(RecuperarAccesoViewModel model)
+    {
+        if (!ModelState.IsValid)
+        {
+            ModelState.AddModelError(string.Empty, "Ingresa un correo electrónico válido para iniciar la recuperación.");
+            return View(model);
+        }
+
+        await _usuarioRegistrationService.ExistsByEmailAsync(model.Correo);
+
+        TempData["RecoveryMessage"] = "Si el correo está registrado, un administrador podrá restablecer el acceso a la cuenta.";
+        return RedirectToAction(nameof(RecuperarAcceso));
+    }
+
+    [HttpGet]
+    [Authorize]
+    public IActionResult AccessDenied()
+    {
+        Response.StatusCode = StatusCodes.Status403Forbidden;
+        return View();
     }
 
     [HttpPost]

@@ -12,6 +12,7 @@ Credenciales.txt
 appsettings.Development.json
 appsettings.*.local.json
 secrets.json
+.database/
 
 # OS and archive artifacts
 __MACOSX/

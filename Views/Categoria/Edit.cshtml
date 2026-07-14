@@ -1,0 +1,87 @@
+﻿@model VibraUrbana.Models.Categoria
+
+@{
+    ViewData["Title"] = "Editar Categoría";
+}
+
+<section class="vu-admin-shell">
+    <div class="container-fluid">
+        <div class="row g-0">
+            <!-- 🔹 Sidebar -->
+            @await Html.PartialAsync("_Sidebar")
+
+            <!-- 🔹 Contenido principal -->
+            <div class="col-lg-9 col-xl-10 vu-admin-content">
+                <div class="vu-admin-header">
+                    <div>
+                        <p class="vu-eyebrow">Gestión de productos</p>
+                        <h1>Editar categoría</h1>
+                        <p>Actualiza datos generales y controla el estado activo de la categoría.</p>
+                    </div>
+                    <a class="btn btn-outline-primary" asp-controller="Categoria" asp-action="Index">Volver al listado</a>
+                </div>
+
+                <div class="row g-4">
+                    <div class="col-xl-8">
+                        <div class="vu-panel">
+                            <form asp-controller="Categoria" asp-action="Edit" method="post" novalidate>
+                                @Html.AntiForgeryToken()
+                                <input asp-for="Id" type="hidden" />
+                                <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+
+                                <div class="row g-3">
+                                    <!-- Id visible pero no editable -->
+                                    <div class="col-md-6">
+                                        <label class="form-label">Id</label>
+                                        <input value="@Model.Id" class="form-control" readonly />
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <label asp-for="Nombre" class="form-label"></label>
+                                        <input asp-for="Nombre" class="form-control" autocomplete="off" />
+                                        <span asp-validation-for="Nombre" class="text-danger small"></span>
+                                    </div>
+
+                                    <div class="col-12">
+                                        <label asp-for="Descripcion" class="form-label"></label>
+                                        <textarea asp-for="Descripcion" class="form-control" rows="3"></textarea>
+                                        <span asp-validation-for="Descripcion" class="text-danger small"></span>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <div class="form-check mt-md-4 pt-md-2">
+                                            <input asp-for="Activo" class="form-check-input" />
+                                            <label asp-for="Activo" class="form-check-label"></label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="d-flex flex-wrap gap-2 mt-4">
+                                    <button class="btn btn-primary" type="submit">Guardar</button>
+                                    <a class="btn btn-outline-primary" asp-controller="Categoria" asp-action="Index">Cancelar</a>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Panel lateral de ayuda -->
+                    <div class="col-xl-4">
+                        <div class="vu-panel">
+                            <h2>Control del registro</h2>
+                            <ul class="vu-status-list">
+                                <li><span></span> El nombre de la categoría debe ser único</li>
+                                <li><span></span> El estado inactivo conserva el historial</li>
+                                <li><span></span> Los cambios quedan disponibles para próximos módulos</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
+

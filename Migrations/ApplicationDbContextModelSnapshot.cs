@@ -376,6 +376,12 @@ namespace VibraUrbana.Migrations
                     b.Property<int>("StockMinimo")
                         .HasColumnType("int");
 
+                    b.Property<byte[]>("Version")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("rowversion");
+
                     b.HasKey("Id");
 
                     b.HasIndex("ProductoId")
@@ -926,6 +932,9 @@ namespace VibraUrbana.Migrations
                         .HasMaxLength(40)
                         .HasColumnType("nvarchar(40)");
 
+                    b.Property<DateTime?>("FechaAnulacion")
+                        .HasColumnType("datetime2");
+
                     b.Property<DateTime>("FechaVenta")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime2")
@@ -937,6 +946,11 @@ namespace VibraUrbana.Migrations
 
                     b.Property<int>("MetodoPagoId")
                         .HasColumnType("int");
+
+                    b.Property<string>("MotivoAnulacion")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
 
                     b.Property<string>("Observacion")
                         .IsRequired()
@@ -951,6 +965,9 @@ namespace VibraUrbana.Migrations
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
+                    b.Property<int?>("UsuarioAnulacionId")
+                        .HasColumnType("int");
+
                     b.Property<int>("UsuarioId")
                         .HasColumnType("int");
 
@@ -961,6 +978,8 @@ namespace VibraUrbana.Migrations
                     b.HasIndex("ClienteId");
 
                     b.HasIndex("MetodoPagoId");
+
+                    b.HasIndex("UsuarioAnulacionId");
 
                     b.HasIndex("UsuarioId");
 
@@ -1163,6 +1182,11 @@ namespace VibraUrbana.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("VibraUrbana.Models.Usuario", "UsuarioAnulacion")
+                        .WithMany()
+                        .HasForeignKey("UsuarioAnulacionId")
+                        .OnDelete(DeleteBehavior.NoAction);
+
                     b.HasOne("VibraUrbana.Models.Usuario", "Usuario")
                         .WithMany("Ventas")
                         .HasForeignKey("UsuarioId")
@@ -1176,6 +1200,8 @@ namespace VibraUrbana.Migrations
                     b.Navigation("MetodoPago");
 
                     b.Navigation("Usuario");
+
+                    b.Navigation("UsuarioAnulacion");
                 });
 
             modelBuilder.Entity("VibraUrbana.Models.Categoria", b =>
