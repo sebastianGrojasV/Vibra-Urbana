@@ -74,7 +74,13 @@ window.addEventListener("DOMContentLoaded", () => {
         ];
     }
 
-    jQuery(".vu-data-table").DataTable(dataTableOptions);
+    jQuery(".vu-data-table").each(function () {
+        if (jQuery.fn.DataTable.isDataTable(this)) {
+            return;
+        }
+
+        jQuery(this).DataTable(dataTableOptions);
+    });
 });
 
 function exportFileName(type) {
