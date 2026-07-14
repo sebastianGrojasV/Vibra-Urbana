@@ -9,16 +9,20 @@ namespace VibraUrbana.Controllers;
 [Authorize(Policy = PermisosSistema.UsuariosGestionar)]
 public class AdminController : Controller
 {
+    private readonly IAdminDashboardServicio _adminDashboardServicio;
     private readonly IUsuarioRegistrationService _usuarioRegistrationService;
 
-    public AdminController(IUsuarioRegistrationService usuarioRegistrationService)
+    public AdminController(
+        IAdminDashboardServicio adminDashboardServicio,
+        IUsuarioRegistrationService usuarioRegistrationService)
     {
+        _adminDashboardServicio = adminDashboardServicio;
         _usuarioRegistrationService = usuarioRegistrationService;
     }
 
-    public IActionResult Index()
+    public async Task<IActionResult> Index()
     {
-        return View();
+        return View(await _adminDashboardServicio.ObtenerDashboardAsync());
     }
 
     [HttpGet]
