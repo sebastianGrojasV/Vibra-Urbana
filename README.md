@@ -106,6 +106,34 @@ dotnet run
 
 Al iniciar, la consola mostrará la URL local donde se encuentra disponible la aplicación.
 
+### Ejecutar con recarga automática
+
+Durante desarrollo se recomienda usar `dotnet watch`. Este modo detecta cambios en vistas Razor, CSS, JavaScript y C#, recompila cuando corresponde y refresca el navegador automáticamente.
+
+Opción directa:
+
+```powershell
+dotnet watch --launch-profile http run
+```
+
+Opción con script del proyecto:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\Scripts\Start-DevWatch.ps1
+```
+
+Si el equipo nota que los cambios descargados con `git pull` no se detectan en alguna computadora, pueden activar el watcher por sondeo:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\Scripts\Start-DevWatch.ps1 -UsePollingWatcher
+```
+
+Notas de uso:
+
+- Cada integrante debe tener configurada su cadena de Azure SQL en `user-secrets` o variable de entorno.
+- Si un compañero sube cambios al repositorio, primero se debe ejecutar `git pull`.
+- Con `dotnet watch` activo, después del `git pull` la aplicación se recompila y el navegador se actualiza sin presionar F5.
+
 ## Migraciones
 
 Las migraciones de Entity Framework Core permiten mantener sincronizada la estructura de la base de datos con las entidades del proyecto.
