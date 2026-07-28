@@ -1,0 +1,34 @@
+@{
+    ViewData["Title"] = "Pedido pendiente";
+}
+
+<section class="vu-cart-page">
+    <div class="container">
+        <div class="vu-order-confirmation" data-vu-order-confirmation>
+            <span class="vu-order-status">Pendiente</span>
+            <p class="vu-eyebrow">Pedido recibido</p>
+            <h1>Tu pedido quedó pendiente de confirmación</h1>
+            <p>Revisaremos los datos y el comprobante SINPE para continuar con la preparación de tu compra.</p>
+
+            <div class="vu-order-confirmation-grid">
+                <div>
+                    <span>Número de pedido</span>
+                    <strong data-vu-confirm-order-number>VU-PENDIENTE</strong>
+                </div>
+                <div>
+                    <span>Total</span>
+                    <strong data-vu-confirm-order-total>₡0</strong>
+                </div>
+                <div>
+                    <span>Cliente</span>
+                    <strong data-vu-confirm-order-customer>Sin datos</strong>
+                </div>
+            </div>
+
+            <div class="vu-order-confirmation-actions">
+                <a class="btn btn-primary" asp-controller="Catalogo" asp-action="Index">Volver al catálogo</a>
+                <a class="btn btn-outline-dark" asp-controller="Carrito" asp-action="Index">Ver carrito</a>
+            </div>
+        </div>
+    </div>
+</section>
