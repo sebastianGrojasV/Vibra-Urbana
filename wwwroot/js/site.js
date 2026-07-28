@@ -8,6 +8,9 @@ window.addEventListener("DOMContentLoaded", () => {
     setupAutoDismissAlerts();
     setupCatalogFilters();
     setupCatalogCartButtons();
+    setupCartPage();
+    setupOrderConfirmationPage();
+    updateCartNavigationCount();
 
     if (!window.jQuery || !jQuery.fn.DataTable) {
         return;
@@ -402,21 +405,254 @@ function setupCatalogCartButtons() {
                     id: productId,
                     name: button.dataset.vuProductName || "Producto",
                     price: Number(button.dataset.vuProductPrice || "0"),
-                    quantity: 1
+                    quantity: 1,
+                    stock,
+                    image: button.dataset.vuProductImage || "",
+                    category: button.dataset.vuProductCategory || "",
+                    size: button.dataset.vuProductSize || "",
+                    color: button.dataset.vuProductColor || ""
                 });
             }
 
             localStorage.setItem(storageKey, JSON.stringify(current));
+            updateCartNavigationCount();
 
             if (feedback) {
                 feedback.hidden = false;
-                feedback.textContent = "Producto agregado al carrito.";
+                feedback.innerHTML = 'Producto agregado al carrito. <a href="/Carrito">Ver carrito</a>';
                 window.setTimeout(() => {
                     feedback.hidden = true;
                 }, 3000);
             }
         });
     });
+}
+
+function setupCartPage() {
+    const itemsContainer = document.querySelector("[data-vu-cart-items]");
+    const emptyState = document.querySelector("[data-vu-cart-empty]");
+    const form = document.querySelector("[data-vu-order-form]");
+
+    if (!itemsContainer || !emptyState) {
+        return;
+    }
+
+    const renderCart = () => {
+        const cart = readCatalogCart();
+        const totals = calculateCartTotals(cart);
+        const countLabel = document.querySelector("[data-vu-cart-count-label]");
+        const subtotal = document.querySelector("[data-vu-cart-subtotal]");
+        const tax = document.querySelector("[data-vu-cart-tax]");
+        const total = document.querySelector("[data-vu-cart-total]");
+
+        emptyState.hidden = cart.length > 0;
+        itemsContainer.hidden = cart.length === 0;
+        itemsContainer.innerHTML = cart.map(renderCartItem).join("");
+
+        if (countLabel) {
+            countLabel.textContent = `${totals.quantity} artículo${totals.quantity === 1 ? "" : "s"}`;
+        }
+
+        if (subtotal) {
+            subtotal.textContent = formatCurrency(totals.subtotal);
+        }
+
+        if (tax) {
+            tax.textContent = formatCurrency(totals.tax);
+        }
+
+        if (total) {
+            total.textContent = formatCurrency(totals.total);
+        }
+
+        if (form) {
+            form.hidden = cart.length === 0;
+        }
+
+        updateCartNavigationCount();
+    };
+
+    itemsContainer.addEventListener("input", (event) => {
+        const input = event.target.closest("[data-vu-cart-quantity]");
+
+        if (!input) {
+            return;
+        }
+
+        const cart = readCatalogCart();
+        const item = cart.find((product) => product.id === input.dataset.vuProductId);
+
+        if (!item) {
+            return;
+        }
+
+        const stock = Number(item.stock || input.max || "1");
+        item.quantity = Math.max(1, Math.min(Number(input.value || "1"), stock));
+        writeCatalogCart(cart);
+        renderCart();
+    });
+
+    itemsContainer.addEventListener("click", (event) => {
+        const remove = event.target.closest("[data-vu-remove-cart]");
+
+        if (!remove) {
+            return;
+        }
+
+        const cart = readCatalogCart().filter((product) => product.id !== remove.dataset.vuProductId);
+        writeCatalogCart(cart);
+        renderCart();
+    });
+
+    form?.addEventListener("submit", (event) => {
+        event.preventDefault();
+        const cart = readCatalogCart();
+        const message = document.querySelector("[data-vu-order-message]");
+
+        if (cart.length === 0) {
+            showOrderMessage(message, "Agrega al menos un producto para confirmar el pedido.");
+            return;
+        }
+
+        if (!form.checkValidity()) {
+            form.reportValidity();
+            return;
+        }
+
+        const data = Object.fromEntries(new FormData(form).entries());
+        const totals = calculateCartTotals(cart);
+        const order = {
+            number: `VU-${Date.now().toString().slice(-8)}`,
+            status: "Pendiente",
+            customer: data,
+            items: cart,
+            totals,
+            createdAt: new Date().toISOString()
+        };
+
+        localStorage.setItem("vibra.pendingOrder", JSON.stringify(order));
+        localStorage.removeItem("vibra.catalogCart");
+        updateCartNavigationCount();
+        window.location.href = "/Carrito/Confirmacion";
+    });
+
+    renderCart();
+}
+
+function setupOrderConfirmationPage() {
+    const page = document.querySelector("[data-vu-order-confirmation]");
+
+    if (!page) {
+        return;
+    }
+
+    const order = JSON.parse(localStorage.getItem("vibra.pendingOrder") || "null");
+
+    if (!order) {
+        return;
+    }
+
+    const number = page.querySelector("[data-vu-confirm-order-number]");
+    const total = page.querySelector("[data-vu-confirm-order-total]");
+    const customer = page.querySelector("[data-vu-confirm-order-customer]");
+
+    if (number) {
+        number.textContent = order.number || "VU-PENDIENTE";
+    }
+
+    if (total) {
+        total.textContent = formatCurrency(order.totals?.total || 0);
+    }
+
+    if (customer) {
+        customer.textContent = order.customer?.nombreCliente || "Sin datos";
+    }
+}
+
+function renderCartItem(item) {
+    const image = item.image
+        ? `<img src="${escapeHtml(item.image)}" alt="${escapeHtml(item.name)}">`
+        : `<div class="vu-cart-item-fallback">${escapeHtml((item.name || "VU").slice(0, 2).toUpperCase())}</div>`;
+    const stock = Number(item.stock || 1);
+    const quantity = Math.max(1, Math.min(Number(item.quantity || 1), stock));
+
+    return `
+        <article class="vu-cart-item">
+            <div class="vu-cart-item-media">${image}</div>
+            <div class="vu-cart-item-body">
+                <div>
+                    <span>${escapeHtml(item.category || "Producto")}</span>
+                    <h3>${escapeHtml(item.name || "Producto")}</h3>
+                    <p>Talla ${escapeHtml(item.size || "N/D")} · ${escapeHtml(item.color || "N/D")}</p>
+                </div>
+                <strong>${formatCurrency(Number(item.price || 0))}</strong>
+            </div>
+            <div class="vu-cart-item-controls">
+                <label for="cantidad-${escapeHtml(item.id)}">Cantidad</label>
+                <input id="cantidad-${escapeHtml(item.id)}" class="form-control" type="number" min="1" max="${stock}" value="${quantity}" data-vu-cart-quantity data-vu-product-id="${escapeHtml(item.id)}">
+                <button class="btn btn-outline-danger" type="button" data-vu-remove-cart data-vu-product-id="${escapeHtml(item.id)}">Eliminar</button>
+            </div>
+            <div class="vu-cart-item-subtotal">${formatCurrency(Number(item.price || 0) * quantity)}</div>
+        </article>`;
+}
+
+function readCatalogCart() {
+    return JSON.parse(localStorage.getItem("vibra.catalogCart") || "[]");
+}
+
+function writeCatalogCart(cart) {
+    localStorage.setItem("vibra.catalogCart", JSON.stringify(cart));
+}
+
+function calculateCartTotals(cart) {
+    const subtotal = cart.reduce((sum, item) => sum + Number(item.price || 0) * Number(item.quantity || 0), 0);
+    const quantity = cart.reduce((sum, item) => sum + Number(item.quantity || 0), 0);
+    const tax = subtotal * 0.13;
+
+    return {
+        subtotal,
+        tax,
+        total: subtotal + tax,
+        quantity
+    };
+}
+
+function updateCartNavigationCount() {
+    const count = document.querySelector("[data-vu-cart-count]");
+
+    if (!count) {
+        return;
+    }
+
+    const total = readCatalogCart().reduce((sum, item) => sum + Number(item.quantity || 0), 0);
+    count.textContent = total.toString();
+    count.hidden = total === 0;
+}
+
+function formatCurrency(value) {
+    return new Intl.NumberFormat("es-CR", {
+        style: "currency",
+        currency: "CRC",
+        maximumFractionDigits: 0
+    }).format(value || 0);
+}
+
+function showOrderMessage(message, text) {
+    if (!message) {
+        return;
+    }
+
+    message.hidden = false;
+    message.textContent = text;
+}
+
+function escapeHtml(value) {
+    return String(value ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
 }
 
 function enhanceModulePlaceholders() {

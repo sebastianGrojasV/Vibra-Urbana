@@ -65,7 +65,11 @@
                         data-vu-product-id="@Model.Id"
                         data-vu-product-name="@Model.Nombre"
                         data-vu-product-price="@Model.Precio.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture)"
-                        data-vu-product-stock="@Model.CantidadDisponible">
+                        data-vu-product-stock="@Model.CantidadDisponible"
+                        data-vu-product-image="@Model.ImagenUrl"
+                        data-vu-product-category="@Model.Categoria"
+                        data-vu-product-size="@Model.Talla"
+                        data-vu-product-color="@Model.Color">
                         Agregar al carrito
                     </button>
                     <div class="vu-product-cart-feedback" data-vu-cart-feedback hidden></div>

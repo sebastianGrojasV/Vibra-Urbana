@@ -34,6 +34,12 @@
                         <li class="nav-item">
                             <a class="nav-link" asp-controller="Catalogo" asp-action="Index">Catálogo</a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link vu-cart-nav-link" asp-controller="Carrito" asp-action="Index">
+                                Carrito
+                                <span class="vu-cart-nav-count" data-vu-cart-count hidden>0</span>
+                            </a>
+                        </li>
                         @foreach (var item in menuItems)
                         {
                             <li class="nav-item">
