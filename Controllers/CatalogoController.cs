@@ -13,8 +13,20 @@ public class CatalogoController : Controller
     }
 
     [HttpGet]
-    public async Task<IActionResult> Index(int? categoriaId, string? busqueda)
+    public async Task<IActionResult> Index(
+        int? categoriaId,
+        string? busqueda,
+        string? talla,
+        string? color,
+        decimal? precioMinimo,
+        decimal? precioMaximo)
     {
-        return View(await _productoServicio.ObtenerCatalogoAsync(categoriaId, busqueda));
+        return View(await _productoServicio.ObtenerCatalogoAsync(
+            categoriaId,
+            busqueda,
+            talla,
+            color,
+            precioMinimo,
+            precioMaximo));
     }
 }
