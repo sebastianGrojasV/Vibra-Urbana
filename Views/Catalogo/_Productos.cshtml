@@ -54,6 +54,7 @@ else
                         <span>@producto.Color</span>
                         <span>@(producto.Disponible ? $"{producto.CantidadDisponible} disponible(s)" : "Sin stock")</span>
                     </div>
+                    <a class="btn btn-outline-primary vu-catalog-detail-link" asp-controller="Catalogo" asp-action="Detalle" asp-route-id="@producto.Id">Ver detalle</a>
                 </div>
             </article>
         }
