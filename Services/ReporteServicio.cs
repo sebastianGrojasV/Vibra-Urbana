@@ -8,10 +8,14 @@ namespace VibraUrbana.Services;
 public class ReporteServicio : IReporteServicio
 {
     private readonly ApplicationDbContext _context;
+    private readonly IFechaHoraServicio _fechaHoraServicio;
 
-    public ReporteServicio(ApplicationDbContext context)
+    public ReporteServicio(
+        ApplicationDbContext context,
+        IFechaHoraServicio fechaHoraServicio)
     {
         _context = context;
+        _fechaHoraServicio = fechaHoraServicio;
     }
 
     public async Task<ReporteInventarioViewModel> ObtenerInventarioAsync(
@@ -69,7 +73,7 @@ public class ReporteServicio : IReporteServicio
         DateTime? fechaFin)
     {
         var rango = CalcularRangoVentas(periodo, fechaInicio, fechaFin);
-        var fechaSiguiente = rango.FechaFin.AddDays(1);
+        var rangoUtc = _fechaHoraServicio.ObtenerRangoUtcCostaRica(rango.FechaInicio, rango.FechaFin);
 
         var ventas = await _context.Ventas
             .AsNoTracking()
@@ -77,7 +81,7 @@ public class ReporteServicio : IReporteServicio
             .Include(venta => venta.Usuario)
             .Include(venta => venta.MetodoPago)
             .Include(venta => venta.Factura)
-            .Where(venta => venta.FechaVenta >= rango.FechaInicio && venta.FechaVenta < fechaSiguiente)
+            .Where(venta => venta.FechaVenta >= rangoUtc.InicioUtc && venta.FechaVenta < rangoUtc.FinExclusivoUtc)
             .OrderByDescending(venta => venta.FechaVenta)
             .Select(venta => new ReporteVentasItemViewModel
             {
@@ -94,6 +98,11 @@ public class ReporteServicio : IReporteServicio
                 Estado = venta.Estado
             })
             .ToListAsync();
+
+        foreach (var venta in ventas)
+        {
+            venta.FechaVenta = _fechaHoraServicio.ConvertirUtcACostaRica(venta.FechaVenta);
+        }
 
         return new ReporteVentasViewModel
         {
@@ -140,13 +149,13 @@ public class ReporteServicio : IReporteServicio
         };
     }
 
-    private static (string Periodo, DateTime FechaInicio, DateTime FechaFin) CalcularRangoVentas(
+    private (string Periodo, DateTime FechaInicio, DateTime FechaFin) CalcularRangoVentas(
         string? periodo,
         DateTime? fechaInicio,
         DateTime? fechaFin)
     {
         var periodoNormalizado = NormalizarPeriodoVentas(periodo);
-        var fechaBase = (fechaInicio ?? DateTime.Today).Date;
+        var fechaBase = (fechaInicio ?? _fechaHoraServicio.HoyCostaRica).Date;
 
         return periodoNormalizado switch
         {
@@ -163,11 +172,11 @@ public class ReporteServicio : IReporteServicio
         };
     }
 
-    private static (string Periodo, DateTime FechaInicio, DateTime FechaFin) CalcularRangoPersonalizado(
+    private (string Periodo, DateTime FechaInicio, DateTime FechaFin) CalcularRangoPersonalizado(
         DateTime? fechaInicio,
         DateTime? fechaFin)
     {
-        var inicio = (fechaInicio ?? DateTime.Today).Date;
+        var inicio = (fechaInicio ?? _fechaHoraServicio.HoyCostaRica).Date;
         var fin = (fechaFin ?? inicio).Date;
 
         if (fin < inicio)

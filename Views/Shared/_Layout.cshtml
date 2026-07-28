@@ -22,7 +22,7 @@
     <header>
         <nav class="navbar navbar-expand-lg vu-navbar">
             <div class="container">
-                <a class="navbar-brand vu-navbar-brand" asp-controller="Home" asp-action="Index">
+                <a class="navbar-brand vu-navbar-brand" asp-controller="Catalogo" asp-action="Index">
                     <img src="~/img/logo-vibra-urbana.jpeg" alt="Vibra Urbana" class="vu-nav-logo" />
                     <span>Vibra Urbana</span>
                 </a>
@@ -31,6 +31,9 @@
                 </button>
                 <div class="collapse navbar-collapse" id="mainNav">
                     <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-2">
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="Catalogo" asp-action="Index">Catálogo</a>
+                        </li>
                         @foreach (var item in menuItems)
                         {
                             <li class="nav-item">
@@ -56,7 +59,7 @@
                             }
                             else
                             {
-                                <a class="btn btn-sm btn-light" asp-controller="Account" asp-action="Login">Iniciar sesión</a>
+                                <a class="btn btn-sm btn-light" asp-controller="Account" asp-action="Login">Acceso interno</a>
                             }
                         </li>
                     </ul>
@@ -86,7 +89,7 @@
     <footer class="vu-footer">
         <div class="container d-flex flex-wrap justify-content-between gap-2">
             <span>&copy; 2026 Vibra Urbana</span>
-            <span>Estructura base ASP.NET Core MVC</span>
+            <span>Moda urbana para todos los días</span>
         </div>
     </footer>
 

@@ -48,6 +48,52 @@ public class ProductoServicio : IProductoServicio
         };
     }
 
+    public async Task<CatalogoIndexViewModel> ObtenerCatalogoAsync(int? categoriaId, string? busqueda)
+    {
+        var query = QueryProductos()
+            .Where(producto => producto.Activo);
+
+        if (categoriaId.HasValue)
+        {
+            query = query.Where(producto => producto.CategoriaId == categoriaId.Value);
+        }
+
+        var criterio = busqueda?.Trim();
+
+        if (!string.IsNullOrWhiteSpace(criterio))
+        {
+            query = query.Where(producto =>
+                producto.Nombre.Contains(criterio) ||
+                producto.Descripcion.Contains(criterio) ||
+                producto.Categoria.Nombre.Contains(criterio) ||
+                producto.Color.Contains(criterio) ||
+                producto.Talla.Contains(criterio));
+        }
+
+        return new CatalogoIndexViewModel
+        {
+            CategoriaId = categoriaId,
+            Busqueda = criterio,
+            Productos = await query
+                .OrderByDescending(producto => producto.Inventario != null && producto.Inventario.CantidadDisponible > 0)
+                .ThenBy(producto => producto.Nombre)
+                .Select(producto => new CatalogoProductoViewModel
+                {
+                    Id = producto.Id,
+                    Nombre = producto.Nombre,
+                    Descripcion = producto.Descripcion,
+                    Precio = producto.Precio,
+                    Categoria = producto.Categoria.Nombre,
+                    Talla = producto.Talla,
+                    Color = producto.Color,
+                    ImagenUrl = producto.ImagenUrl,
+                    CantidadDisponible = producto.Inventario == null ? 0 : producto.Inventario.CantidadDisponible
+                })
+                .ToListAsync(),
+            Categorias = await ObtenerCategoriasSelectAsync(categoriaId)
+        };
+    }
+
     public async Task<ProductoFormViewModel> PrepararCrearAsync()
     {
         return new ProductoFormViewModel

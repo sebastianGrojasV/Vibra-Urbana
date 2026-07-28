@@ -41,6 +41,7 @@ builder.Services.AddScoped<IClienteServicio, ClienteServicio>();
 builder.Services.AddScoped<IProductoServicio, ProductoServicio>();
 builder.Services.AddScoped<IReporteServicio, ReporteServicio>();
 builder.Services.AddScoped<IAdminDashboardServicio, AdminDashboardServicio>();
+builder.Services.AddSingleton<IFechaHoraServicio, FechaHoraServicio>();
 builder.Services.AddScoped<INavigationMenuService, NavigationMenuService>();
 builder.Services.AddScoped<IAuthorizationHandler, PermisoAuthorizationHandler>();
 builder.Services.AddScoped<ActiveUserCookieAuthenticationEvents>();
@@ -96,6 +97,6 @@ app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
+    pattern: "{controller=Catalogo}/{action=Index}/{id?}");
 
 app.Run();

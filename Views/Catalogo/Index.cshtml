@@ -1,0 +1,112 @@
+@model VibraUrbana.ViewModels.CatalogoIndexViewModel
+
+@{
+    ViewData["Title"] = "Catálogo";
+}
+
+<section class="vu-catalog-hero">
+    <div class="container">
+        <div class="vu-catalog-hero-content">
+            <p class="vu-eyebrow">Vibra Urbana</p>
+            <h1>Moda urbana para moverte a tu ritmo</h1>
+            <p>Explora prendas disponibles, precios y estilos pensados para el día a día.</p>
+            <div class="vu-catalog-actions">
+                <a class="btn btn-dark" href="#productos">Ver catálogo</a>
+                <a class="btn btn-outline-dark" asp-controller="Account" asp-action="Login">Acceso interno</a>
+            </div>
+        </div>
+
+        <div class="vu-catalog-hero-note" aria-label="Resumen del catálogo">
+            <strong>@Model.Productos.Count</strong>
+            <span>producto@(Model.Productos.Count == 1 ? "" : "s") para consultar</span>
+        </div>
+    </div>
+</section>
+
+<section id="productos" class="vu-catalog-section">
+    <div class="container">
+        <div class="vu-catalog-toolbar">
+            <div>
+                <h2>Catálogo</h2>
+                <p>Busca por nombre, color, talla o categoría.</p>
+            </div>
+
+            <form asp-controller="Catalogo" asp-action="Index" method="get" class="vu-catalog-filters">
+                <div>
+                    <label class="form-label" for="busqueda">Buscar</label>
+                    <input class="form-control" id="busqueda" name="busqueda" value="@Model.Busqueda" placeholder="Camisa, negro, M..." />
+                </div>
+                <div>
+                    <label class="form-label" for="categoriaId">Categoría</label>
+                    <select class="form-select" id="categoriaId" name="categoriaId">
+                        <option value="">Todas</option>
+                        @foreach (var categoria in Model.Categorias)
+                        {
+                            <option value="@categoria.Value" selected="@categoria.Selected">@categoria.Text</option>
+                        }
+                    </select>
+                </div>
+                <div class="vu-catalog-filter-actions">
+                    <button class="btn btn-primary" type="submit">Filtrar</button>
+                    <a class="btn btn-outline-secondary" asp-controller="Catalogo" asp-action="Index">Limpiar</a>
+                </div>
+            </form>
+        </div>
+
+        @if (!Model.Productos.Any())
+        {
+            <div class="vu-catalog-empty">
+                <strong>No hay productos para mostrar</strong>
+                <span>Pronto verás nuevas prendas disponibles en esta sección.</span>
+            </div>
+        }
+        else
+        {
+            <div class="vu-catalog-grid">
+                @foreach (var producto in Model.Productos)
+                {
+                    var fallback = string.IsNullOrWhiteSpace(producto.Nombre)
+                        ? "VU"
+                        : producto.Nombre[..Math.Min(2, producto.Nombre.Length)].ToUpperInvariant();
+
+                    <article class="vu-catalog-card @(producto.Disponible ? "" : "is-sold-out")">
+                        <div class="vu-catalog-media">
+                            @if (!string.IsNullOrWhiteSpace(producto.ImagenUrl))
+                            {
+                                <img src="@producto.ImagenUrl" alt="@producto.Nombre" loading="lazy" />
+                            }
+                            else
+                            {
+                                <div class="vu-catalog-image-fallback" aria-label="@producto.Nombre">
+                                    <span>@fallback</span>
+                                    <small>@producto.Categoria</small>
+                                </div>
+                            }
+
+                            <span class="vu-catalog-status @(producto.Disponible ? "is-available" : "is-empty")">
+                                @(producto.Disponible ? "Disponible" : "Agotado")
+                            </span>
+                        </div>
+
+                        <div class="vu-catalog-body">
+                            <div class="vu-catalog-card-header">
+                                <span>@producto.Categoria</span>
+                                <strong>@producto.Precio.ToString("C0")</strong>
+                            </div>
+                            <h3>@producto.Nombre</h3>
+                            @if (!string.IsNullOrWhiteSpace(producto.Descripcion))
+                            {
+                                <p>@producto.Descripcion</p>
+                            }
+                            <div class="vu-catalog-meta">
+                                <span>Talla @producto.Talla</span>
+                                <span>@producto.Color</span>
+                                <span>@(producto.Disponible ? $"{producto.CantidadDisponible} disponible(s)" : "Sin stock")</span>
+                            </div>
+                        </div>
+                    </article>
+                }
+            </div>
+        }
+    </div>
+</section>

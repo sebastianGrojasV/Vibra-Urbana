@@ -7,20 +7,24 @@ namespace VibraUrbana.Services;
 public class AdminDashboardServicio : IAdminDashboardServicio
 {
     private readonly ApplicationDbContext _context;
+    private readonly IFechaHoraServicio _fechaHoraServicio;
 
-    public AdminDashboardServicio(ApplicationDbContext context)
+    public AdminDashboardServicio(
+        ApplicationDbContext context,
+        IFechaHoraServicio fechaHoraServicio)
     {
         _context = context;
+        _fechaHoraServicio = fechaHoraServicio;
     }
 
     public async Task<AdminDashboardViewModel> ObtenerDashboardAsync()
     {
-        var fechaInicio = DateTime.Today;
-        var fechaFin = fechaInicio.AddDays(1);
+        var fechaInicio = _fechaHoraServicio.HoyCostaRica;
+        var rangoUtc = _fechaHoraServicio.ObtenerRangoUtcCostaRica(fechaInicio, fechaInicio);
 
         var ventasDelDia = _context.Ventas
             .AsNoTracking()
-            .Where(venta => venta.FechaVenta >= fechaInicio && venta.FechaVenta < fechaFin);
+            .Where(venta => venta.FechaVenta >= rangoUtc.InicioUtc && venta.FechaVenta < rangoUtc.FinExclusivoUtc);
 
         var ventasAprobadasDelDia = ventasDelDia
             .Where(venta => venta.Estado == "Aprobada");

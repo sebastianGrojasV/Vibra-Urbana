@@ -62,7 +62,7 @@
                                     {
                                         <tr>
                                             <td><strong>#@compra.VentaId.ToString("D5")</strong></td>
-                                            <td>@compra.FechaVenta.ToLocalTime().ToString("dd/MM/yyyy hh:mm tt")</td>
+                                            <td>@compra.FechaVenta.ToString("dd/MM/yyyy hh:mm tt")</td>
                                             <td>@(string.IsNullOrWhiteSpace(compra.NumeroComprobante) ? "Sin comprobante" : compra.NumeroComprobante)</td>
                                             <td class="text-end">@compra.Total.ToString("C2")</td>
                                             <td class="text-center">

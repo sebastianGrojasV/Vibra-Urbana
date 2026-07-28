@@ -14,17 +14,20 @@ public class VentaController : Controller
     private readonly IVentaServicio _ventaServicio;
     private readonly IClienteServicio _clienteServicio;
     private readonly IProductoServicio _productoServicio;
+    private readonly IFechaHoraServicio _fechaHoraServicio;
     private readonly ApplicationDbContext _context;
 
     public VentaController(
         IVentaServicio ventaServicio,
         IClienteServicio clienteServicio,
         IProductoServicio productoServicio,
+        IFechaHoraServicio fechaHoraServicio,
         ApplicationDbContext context)
     {
         _ventaServicio = ventaServicio;
         _clienteServicio = clienteServicio;
         _productoServicio = productoServicio;
+        _fechaHoraServicio = fechaHoraServicio;
         _context = context;
     }
 
@@ -84,6 +87,13 @@ public class VentaController : Controller
         if (venta is null)
         {
             return NotFound();
+        }
+
+        venta.FechaVenta = _fechaHoraServicio.ConvertirUtcACostaRica(venta.FechaVenta);
+
+        if (venta.Factura is not null)
+        {
+            venta.Factura.FechaEmision = _fechaHoraServicio.ConvertirUtcACostaRica(venta.Factura.FechaEmision);
         }
 
         return View(venta);

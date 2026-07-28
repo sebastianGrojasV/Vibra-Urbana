@@ -14,15 +14,20 @@ public class VentaServicio : IVentaServicio
     private const string EstadoFacturaEmitida = "Emitida";
     private const string EstadoFacturaAnulada = "Anulada";
     private readonly ApplicationDbContext _context;
+    private readonly IFechaHoraServicio _fechaHoraServicio;
 
-    public VentaServicio(ApplicationDbContext context)
+    public VentaServicio(
+        ApplicationDbContext context,
+        IFechaHoraServicio fechaHoraServicio)
     {
         _context = context;
+        _fechaHoraServicio = fechaHoraServicio;
     }
 
     public async Task<IReadOnlyList<Venta>> ObtenerVentasAsync(int? clienteId = null)
     {
         var query = _context.Ventas
+            .AsNoTracking()
             .Include(venta => venta.Cliente)
             .Include(venta => venta.Usuario)
             .Include(venta => venta.MetodoPago)
@@ -34,9 +39,21 @@ public class VentaServicio : IVentaServicio
             query = query.Where(venta => venta.ClienteId == clienteId.Value);
         }
 
-        return await query
+        var ventas = await query
             .OrderByDescending(venta => venta.FechaVenta)
             .ToListAsync();
+
+        foreach (var venta in ventas)
+        {
+            venta.FechaVenta = _fechaHoraServicio.ConvertirUtcACostaRica(venta.FechaVenta);
+
+            if (venta.Factura is not null)
+            {
+                venta.Factura.FechaEmision = _fechaHoraServicio.ConvertirUtcACostaRica(venta.Factura.FechaEmision);
+            }
+        }
+
+        return ventas;
     }
 
     public async Task<VentaOperacionResult> RegistrarVentaAsync(RegistrarVentaViewModel model, int usuarioId)
@@ -146,7 +163,7 @@ public class VentaServicio : IVentaServicio
 
             var impuesto = decimal.Round((subtotal - descuento) * TarifaIva, 2, MidpointRounding.AwayFromZero);
             var total = subtotal - descuento + impuesto;
-            var fechaVenta = DateTime.UtcNow;
+            var fechaVenta = _fechaHoraServicio.UtcNow;
 
             var venta = new Venta
             {
@@ -278,7 +295,7 @@ public class VentaServicio : IVentaServicio
                 return AnularVentaResult.Failure("Solo se pueden anular ventas aprobadas.");
             }
 
-            var fechaAnulacion = DateTime.UtcNow;
+            var fechaAnulacion = _fechaHoraServicio.UtcNow;
 
             foreach (var detalle in venta.DetalleVentas)
             {
@@ -494,7 +511,7 @@ public class VentaServicio : IVentaServicio
             Modulo = modulo,
             Accion = accion,
             Descripcion = descripcion.Length > 1000 ? descripcion[..1000] : descripcion,
-            FechaRegistro = DateTime.UtcNow
+            FechaRegistro = _fechaHoraServicio.UtcNow
         });
     }
 
