@@ -1,0 +1,82 @@
+@model VibraUrbana.ViewModels.CatalogoDetalleViewModel
+
+@{
+    ViewData["Title"] = Model.Nombre;
+    var fallback = string.IsNullOrWhiteSpace(Model.Nombre)
+        ? "VU"
+        : Model.Nombre[..Math.Min(2, Model.Nombre.Length)].ToUpperInvariant();
+}
+
+<section class="vu-product-detail-page">
+    <div class="container">
+        <div class="vu-product-detail-nav">
+            <a class="btn btn-outline-dark" asp-controller="Catalogo" asp-action="Index">Volver al catálogo</a>
+        </div>
+
+        <article class="vu-product-detail">
+            <div class="vu-product-detail-media">
+                @if (!string.IsNullOrWhiteSpace(Model.ImagenUrl))
+                {
+                    <img src="@Model.ImagenUrl" alt="@Model.Nombre" />
+                }
+                else
+                {
+                    <div class="vu-catalog-image-fallback" aria-label="@Model.Nombre">
+                        <span>@fallback</span>
+                        <small>@Model.Categoria</small>
+                    </div>
+                }
+
+                <span class="vu-catalog-status @(Model.Disponible ? "is-available" : "is-empty")">
+                    @(Model.Disponible ? "Disponible" : "Agotado")
+                </span>
+            </div>
+
+            <div class="vu-product-detail-content">
+                <p class="vu-eyebrow">@Model.Categoria</p>
+                <h1>@Model.Nombre</h1>
+                <strong class="vu-product-detail-price">@Model.Precio.ToString("C0")</strong>
+
+                <p class="vu-product-detail-description">
+                    @(string.IsNullOrWhiteSpace(Model.Descripcion) ? "Producto disponible en el catálogo de Vibra Urbana." : Model.Descripcion)
+                </p>
+
+                <dl class="vu-product-detail-specs">
+                    <div>
+                        <dt>Talla</dt>
+                        <dd>@Model.Talla</dd>
+                    </div>
+                    <div>
+                        <dt>Color</dt>
+                        <dd>@Model.Color</dd>
+                    </div>
+                    <div>
+                        <dt>Disponibilidad</dt>
+                        <dd>@(Model.Disponible ? $"{Model.CantidadDisponible} unidad(es)" : "Sin stock")</dd>
+                    </div>
+                </dl>
+
+                @if (Model.Disponible)
+                {
+                    <button
+                        class="btn btn-primary vu-product-cart-button"
+                        type="button"
+                        data-vu-add-cart
+                        data-vu-product-id="@Model.Id"
+                        data-vu-product-name="@Model.Nombre"
+                        data-vu-product-price="@Model.Precio.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture)"
+                        data-vu-product-stock="@Model.CantidadDisponible">
+                        Agregar al carrito
+                    </button>
+                    <div class="vu-product-cart-feedback" data-vu-cart-feedback hidden></div>
+                }
+                else
+                {
+                    <div class="vu-product-unavailable">
+                        Este producto no tiene disponibilidad por el momento.
+                    </div>
+                }
+            </div>
+        </article>
+    </div>
+</section>

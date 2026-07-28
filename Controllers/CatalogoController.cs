@@ -36,4 +36,17 @@ public class CatalogoController : Controller
 
         return View(model);
     }
+
+    [HttpGet]
+    public async Task<IActionResult> Detalle(int id)
+    {
+        var model = await _productoServicio.ObtenerCatalogoDetalleAsync(id);
+
+        if (model is null)
+        {
+            return NotFound();
+        }
+
+        return View(model);
+    }
 }

@@ -14,6 +14,8 @@ public interface IProductoServicio
         decimal? precioMinimo,
         decimal? precioMaximo);
 
+    Task<CatalogoDetalleViewModel?> ObtenerCatalogoDetalleAsync(int id);
+
     Task<ProductoFormViewModel> PrepararCrearAsync();
 
     Task<ProductoFormViewModel?> ObtenerProductoParaEditarAsync(int id);

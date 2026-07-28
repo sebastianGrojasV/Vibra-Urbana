@@ -134,6 +134,25 @@ public class ProductoServicio : IProductoServicio
         };
     }
 
+    public async Task<CatalogoDetalleViewModel?> ObtenerCatalogoDetalleAsync(int id)
+    {
+        return await QueryProductos()
+            .Where(producto => producto.Id == id && producto.Activo)
+            .Select(producto => new CatalogoDetalleViewModel
+            {
+                Id = producto.Id,
+                Nombre = producto.Nombre,
+                Descripcion = producto.Descripcion,
+                Precio = producto.Precio,
+                Categoria = producto.Categoria.Nombre,
+                Talla = producto.Talla,
+                Color = producto.Color,
+                ImagenUrl = producto.ImagenUrl,
+                CantidadDisponible = producto.Inventario == null ? 0 : producto.Inventario.CantidadDisponible
+            })
+            .SingleOrDefaultAsync();
+    }
+
     public async Task<ProductoFormViewModel> PrepararCrearAsync()
     {
         return new ProductoFormViewModel

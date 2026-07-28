@@ -7,6 +7,7 @@ window.addEventListener("DOMContentLoaded", () => {
     setupSaleStatusChange();
     setupAutoDismissAlerts();
     setupCatalogFilters();
+    setupCatalogCartButtons();
 
     if (!window.jQuery || !jQuery.fn.DataTable) {
         return;
@@ -376,6 +377,45 @@ function setupCatalogFilters() {
             select.selectedIndex = 0;
         });
         loadCatalog(new URL(clear.href, window.location.origin));
+    });
+}
+
+function setupCatalogCartButtons() {
+    document.querySelectorAll("[data-vu-add-cart]").forEach((button) => {
+        button.addEventListener("click", () => {
+            const stock = Number(button.dataset.vuProductStock || "0");
+            const productId = button.dataset.vuProductId;
+            const feedback = document.querySelector("[data-vu-cart-feedback]");
+
+            if (!productId || stock <= 0) {
+                return;
+            }
+
+            const storageKey = "vibra.catalogCart";
+            const current = JSON.parse(localStorage.getItem(storageKey) || "[]");
+            const item = current.find((product) => product.id === productId);
+
+            if (item) {
+                item.quantity = Math.min(item.quantity + 1, stock);
+            } else {
+                current.push({
+                    id: productId,
+                    name: button.dataset.vuProductName || "Producto",
+                    price: Number(button.dataset.vuProductPrice || "0"),
+                    quantity: 1
+                });
+            }
+
+            localStorage.setItem(storageKey, JSON.stringify(current));
+
+            if (feedback) {
+                feedback.hidden = false;
+                feedback.textContent = "Producto agregado al carrito.";
+                window.setTimeout(() => {
+                    feedback.hidden = true;
+                }, 3000);
+            }
+        });
     });
 }
 
