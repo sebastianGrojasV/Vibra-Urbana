@@ -2725,6 +2725,29 @@ body.vu-sidebar-collapsed .vu-sidebar-brand {
     white-space: nowrap;
 }
 
+[data-vu-catalog-results] {
+    position: relative;
+    min-height: 12rem;
+    transition: opacity .18s ease;
+}
+
+[data-vu-catalog-results].is-loading {
+    opacity: .58;
+}
+
+.vu-catalog-filters.is-loading {
+    pointer-events: none;
+}
+
+.vu-catalog-results-summary {
+    display: flex;
+    justify-content: flex-end;
+    margin: -.45rem 0 1rem;
+    color: #64748b;
+    font-size: .92rem;
+    font-weight: 850;
+}
+
 .vu-catalog-grid {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -2951,6 +2974,10 @@ body.vu-sidebar-collapsed .vu-sidebar-brand {
 
     .vu-catalog-heading > span {
         width: 100%;
+    }
+
+    .vu-catalog-results-summary {
+        justify-content: flex-start;
     }
 
     .vu-catalog-filter-actions {

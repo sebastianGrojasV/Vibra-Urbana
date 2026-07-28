@@ -21,12 +21,19 @@ public class CatalogoController : Controller
         decimal? precioMinimo,
         decimal? precioMaximo)
     {
-        return View(await _productoServicio.ObtenerCatalogoAsync(
+        var model = await _productoServicio.ObtenerCatalogoAsync(
             categoriaId,
             busqueda,
             talla,
             color,
             precioMinimo,
-            precioMaximo));
+            precioMaximo);
+
+        if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+        {
+            return PartialView("_Productos", model);
+        }
+
+        return View(model);
     }
 }
