@@ -1,0 +1,205 @@
+@model VibraUrbana.ViewModels.PedidoDetalleViewModel
+
+@{
+    ViewData["Title"] = $"Detalle {Model.Codigo}";
+}
+
+<section class="vu-admin-shell">
+    <div class="container-fluid">
+        <div class="row g-0">
+            @await Html.PartialAsync("_Sidebar")
+
+            <div class="col-lg-9 col-xl-10 vu-admin-content">
+                <div class="vu-admin-header">
+                    <div>
+                        <p class="vu-eyebrow">@Model.Codigo</p>
+                        <h1>Detalle de pedido</h1>
+                        <p>Información completa del pedido web, cliente, comprobante y productos solicitados.</p>
+                    </div>
+                    <a class="btn btn-outline-primary" asp-controller="Pedido" asp-action="Index">Volver</a>
+                </div>
+
+                <div class="vu-panel">
+                    <div class="vu-order-admin-summary">
+                        <div>
+                            <span>Fecha del pedido</span>
+                            <strong>@Model.FechaPedido.ToString("dd/MM/yyyy hh:mm tt")</strong>
+                        </div>
+                        <div>
+                            <span>Estado</span>
+                            <strong><span class="badge @EstadoBadge(Model.Estado)">@Model.Estado</span></strong>
+                        </div>
+                        <div>
+                            <span>Método de pago</span>
+                            <strong>@Model.MetodoPago</strong>
+                        </div>
+                        <div>
+                            <span>Total</span>
+                            <strong>@Model.Total.ToString("C0")</strong>
+                        </div>
+                    </div>
+
+                    <div class="vu-order-admin-grid">
+                        <section class="vu-order-admin-card">
+                            <h2>Cliente</h2>
+                            <dl>
+                                <div>
+                                    <dt>Nombre</dt>
+                                    <dd>@Model.NombreCliente</dd>
+                                </div>
+                                <div>
+                                    <dt>Teléfono</dt>
+                                    <dd>@Model.Telefono</dd>
+                                </div>
+                                <div>
+                                    <dt>Correo</dt>
+                                    <dd>@Model.Correo</dd>
+                                </div>
+                                <div>
+                                    <dt>Dirección</dt>
+                                    <dd>@Model.DireccionEntrega</dd>
+                                </div>
+                                @if (!string.IsNullOrWhiteSpace(Model.Observacion))
+                                {
+                                    <div>
+                                        <dt>Observación</dt>
+                                        <dd>@Model.Observacion</dd>
+                                    </div>
+                                }
+                            </dl>
+                        </section>
+
+                        <section class="vu-order-admin-card">
+                            <h2>Comprobante</h2>
+                            @if (string.IsNullOrWhiteSpace(Model.ReferenciaPago) && string.IsNullOrWhiteSpace(Model.ImagenComprobanteUrl))
+                            {
+                                <div class="alert alert-info" role="alert">No hay comprobante registrado para este pedido.</div>
+                            }
+                            else
+                            {
+                                <dl>
+                                    <div>
+                                        <dt>Referencia</dt>
+                                        <dd>@(string.IsNullOrWhiteSpace(Model.ReferenciaPago) ? "Sin referencia" : Model.ReferenciaPago)</dd>
+                                    </div>
+                                    <div>
+                                        <dt>Estado de verificación</dt>
+                                        <dd>@(string.IsNullOrWhiteSpace(Model.EstadoVerificacion) ? "Pendiente" : Model.EstadoVerificacion)</dd>
+                                    </div>
+                                    @if (Model.FechaComprobante.HasValue)
+                                    {
+                                        <div>
+                                            <dt>Fecha</dt>
+                                            <dd>@Model.FechaComprobante.Value.ToString("dd/MM/yyyy hh:mm tt")</dd>
+                                        </div>
+                                    }
+                                </dl>
+
+                                @if (!string.IsNullOrWhiteSpace(Model.ImagenComprobanteUrl))
+                                {
+                                    <a class="vu-payment-proof" href="@Model.ImagenComprobanteUrl" target="_blank" rel="noopener">
+                                        <img src="@Model.ImagenComprobanteUrl" alt="Comprobante de pago del pedido @Model.Codigo" />
+                                    </a>
+                                }
+                            }
+                        </section>
+                    </div>
+
+                    <div class="table-responsive mt-4">
+                        <table class="table table-hover align-middle">
+                            <thead>
+                                <tr>
+                                    <th>Producto</th>
+                                    <th>Categoría</th>
+                                    <th>Talla</th>
+                                    <th>Color</th>
+                                    <th class="text-end">Cantidad</th>
+                                    <th class="text-end">Precio</th>
+                                    <th class="text-end">Subtotal</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var producto in Model.Productos)
+                                {
+                                    <tr>
+                                        <td><strong>@producto.Producto</strong></td>
+                                        <td>@producto.Categoria</td>
+                                        <td>@producto.Talla</td>
+                                        <td>@producto.Color</td>
+                                        <td class="text-end">@producto.Cantidad</td>
+                                        <td class="text-end">@producto.PrecioUnitario.ToString("C0")</td>
+                                        <td class="text-end">@producto.Subtotal.ToString("C0")</td>
+                                    </tr>
+                                }
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <th colspan="6" class="text-end">Subtotal</th>
+                                    <th class="text-end">@Model.Subtotal.ToString("C0")</th>
+                                </tr>
+                                <tr>
+                                    <th colspan="6" class="text-end">Descuento</th>
+                                    <th class="text-end text-danger">-@Model.Descuento.ToString("C0")</th>
+                                </tr>
+                                <tr>
+                                    <th colspan="6" class="text-end">Impuesto</th>
+                                    <th class="text-end">@Model.Impuesto.ToString("C0")</th>
+                                </tr>
+                                <tr>
+                                    <th colspan="6" class="text-end">Total</th>
+                                    <th class="text-end text-primary">@Model.Total.ToString("C0")</th>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+
+                    <div class="vu-order-admin-actions">
+                        @if (Model.Estado == "Pendiente")
+                        {
+                            <form asp-controller="Pedido" asp-action="CambiarEstado" method="post" data-vu-confirm data-vu-confirm-title="Confirmar pedido" data-vu-confirm-message="El pedido pasará a estado Confirmado." data-vu-confirm-action="Confirmar">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="PedidoId" value="@Model.Id" />
+                                <input type="hidden" name="NuevoEstado" value="Confirmado" />
+                                <button class="btn btn-primary" type="submit">Confirmar pedido</button>
+                            </form>
+                        }
+
+                        @if (Model.Estado is "Pendiente" or "Confirmado")
+                        {
+                            <form asp-controller="Pedido" asp-action="CambiarEstado" method="post" data-vu-confirm data-vu-confirm-title="Cancelar pedido" data-vu-confirm-message="El pedido quedará cancelado sin eliminar el historial." data-vu-confirm-action="Cancelar pedido">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="PedidoId" value="@Model.Id" />
+                                <input type="hidden" name="NuevoEstado" value="Cancelado" />
+                                <button class="btn btn-outline-danger" type="submit">Cancelar pedido</button>
+                            </form>
+                        }
+
+                        @if (Model.Estado == "Confirmado")
+                        {
+                            <form asp-controller="Pedido" asp-action="CambiarEstado" method="post" data-vu-confirm data-vu-confirm-title="Marcar como entregado" data-vu-confirm-message="El pedido quedará marcado como Entregado." data-vu-confirm-action="Marcar entregado">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="PedidoId" value="@Model.Id" />
+                                <input type="hidden" name="NuevoEstado" value="Entregado" />
+                                <button class="btn btn-outline-primary" type="submit">Marcar como entregado</button>
+                            </form>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+@functions {
+    private static string EstadoBadge(string estado)
+    {
+        return estado switch
+        {
+            "Pendiente" => "bg-warning text-dark",
+            "Confirmado" => "bg-primary",
+            "Entregado" => "bg-success",
+            "Cancelado" => "bg-danger",
+            _ => "bg-secondary"
+        };
+    }
+}
