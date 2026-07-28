@@ -48,17 +48,26 @@ public class ProductoServicio : IProductoServicio
         };
     }
 
-    public async Task<CatalogoIndexViewModel> ObtenerCatalogoAsync(int? categoriaId, string? busqueda)
+    public async Task<CatalogoIndexViewModel> ObtenerCatalogoAsync(
+        int? categoriaId,
+        string? busqueda,
+        string? talla,
+        string? color,
+        decimal? precioMinimo,
+        decimal? precioMaximo)
     {
         var query = QueryProductos()
             .Where(producto => producto.Activo);
+        var criterio = busqueda?.Trim();
+        var tallaNormalizada = string.IsNullOrWhiteSpace(talla) ? null : talla.Trim();
+        var colorNormalizado = string.IsNullOrWhiteSpace(color) ? null : color.Trim();
+        var minimo = precioMinimo is >= 0 ? precioMinimo : null;
+        var maximo = precioMaximo is >= 0 ? precioMaximo : null;
 
         if (categoriaId.HasValue)
         {
             query = query.Where(producto => producto.CategoriaId == categoriaId.Value);
         }
-
-        var criterio = busqueda?.Trim();
 
         if (!string.IsNullOrWhiteSpace(criterio))
         {
@@ -70,10 +79,39 @@ public class ProductoServicio : IProductoServicio
                 producto.Talla.Contains(criterio));
         }
 
+        if (!string.IsNullOrWhiteSpace(tallaNormalizada))
+        {
+            query = query.Where(producto => producto.Talla == tallaNormalizada);
+        }
+
+        if (!string.IsNullOrWhiteSpace(colorNormalizado))
+        {
+            query = query.Where(producto => producto.Color == colorNormalizado);
+        }
+
+        if (minimo.HasValue && maximo.HasValue && minimo > maximo)
+        {
+            (minimo, maximo) = (maximo, minimo);
+        }
+
+        if (minimo.HasValue)
+        {
+            query = query.Where(producto => producto.Precio >= minimo.Value);
+        }
+
+        if (maximo.HasValue)
+        {
+            query = query.Where(producto => producto.Precio <= maximo.Value);
+        }
+
         return new CatalogoIndexViewModel
         {
             CategoriaId = categoriaId,
             Busqueda = criterio,
+            Talla = tallaNormalizada,
+            Color = colorNormalizado,
+            PrecioMinimo = minimo,
+            PrecioMaximo = maximo,
             Productos = await query
                 .OrderByDescending(producto => producto.Inventario != null && producto.Inventario.CantidadDisponible > 0)
                 .ThenBy(producto => producto.Nombre)
@@ -90,7 +128,9 @@ public class ProductoServicio : IProductoServicio
                     CantidadDisponible = producto.Inventario == null ? 0 : producto.Inventario.CantidadDisponible
                 })
                 .ToListAsync(),
-            Categorias = await ObtenerCategoriasSelectAsync(categoriaId)
+            Categorias = await ObtenerCategoriasSelectAsync(categoriaId),
+            Tallas = await ObtenerTallasSelectAsync(tallaNormalizada),
+            Colores = await ObtenerColoresSelectAsync(colorNormalizado)
         };
     }
 

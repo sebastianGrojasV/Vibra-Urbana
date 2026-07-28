@@ -8,7 +8,19 @@ public class CatalogoIndexViewModel
 
     public string? Busqueda { get; set; }
 
+    public string? Talla { get; set; }
+
+    public string? Color { get; set; }
+
+    public decimal? PrecioMinimo { get; set; }
+
+    public decimal? PrecioMaximo { get; set; }
+
     public IReadOnlyList<CatalogoProductoViewModel> Productos { get; set; } = [];
 
     public IEnumerable<SelectListItem> Categorias { get; set; } = Enumerable.Empty<SelectListItem>();
+
+    public IEnumerable<SelectListItem> Tallas { get; set; } = Enumerable.Empty<SelectListItem>();
+
+    public IEnumerable<SelectListItem> Colores { get; set; } = Enumerable.Empty<SelectListItem>();
 }

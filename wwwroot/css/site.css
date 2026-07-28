@@ -2652,11 +2652,28 @@ body.vu-sidebar-collapsed .vu-sidebar-brand {
 }
 
 .vu-catalog-toolbar {
-    display: grid;
-    grid-template-columns: minmax(0, .9fr) minmax(20rem, 1.1fr);
-    gap: 1.5rem;
-    align-items: end;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
     margin-bottom: 1.75rem;
+}
+
+.vu-catalog-heading {
+    display: flex;
+    align-items: end;
+    justify-content: space-between;
+    gap: 1.25rem;
+}
+
+.vu-catalog-heading > div {
+    max-width: 42rem;
+}
+
+.vu-catalog-heading > span {
+    flex: 0 0 auto;
+    color: #64748b;
+    font-size: .92rem;
+    font-weight: 850;
 }
 
 .vu-catalog-toolbar h2 {
@@ -2675,19 +2692,37 @@ body.vu-sidebar-collapsed .vu-sidebar-brand {
 
 .vu-catalog-filters {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(12rem, .72fr) auto;
+    width: 100%;
+    grid-template-columns: minmax(15rem, 1.25fr) repeat(5, minmax(7rem, .7fr)) minmax(9.5rem, auto);
     gap: .75rem;
     align-items: end;
     padding: 1rem;
-    background: #ffffff;
-    border: 1px solid #e4edf3;
+    background:
+        linear-gradient(135deg, rgba(255, 248, 244, .96), rgba(237, 245, 251, .9)),
+        #ffffff;
+    border: 1px solid #dbe8ef;
     border-radius: 8px;
     box-shadow: 0 16px 38px rgba(31, 78, 121, .08);
 }
 
+.vu-catalog-filters .form-label {
+    margin-bottom: .35rem;
+    color: #44515f;
+    font-size: .78rem;
+    font-weight: 900;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+}
+
 .vu-catalog-filter-actions {
-    display: flex;
+    display: grid;
+    grid-template-columns: 1fr;
     gap: .5rem;
+}
+
+.vu-catalog-filter-actions .btn {
+    min-width: 8.75rem;
+    white-space: nowrap;
 }
 
 .vu-catalog-grid {
@@ -2878,8 +2913,18 @@ body.vu-sidebar-collapsed .vu-sidebar-brand {
         margin-top: 1rem;
     }
 
-    .vu-catalog-toolbar {
-        grid-template-columns: 1fr;
+    .vu-catalog-heading {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .vu-catalog-filters {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .vu-catalog-search-field,
+    .vu-catalog-filter-actions {
+        grid-column: 1 / -1;
     }
 
     .vu-catalog-grid {
@@ -2902,6 +2947,10 @@ body.vu-sidebar-collapsed .vu-sidebar-brand {
     .vu-catalog-filters,
     .vu-catalog-grid {
         grid-template-columns: 1fr;
+    }
+
+    .vu-catalog-heading > span {
+        width: 100%;
     }
 
     .vu-catalog-filter-actions {

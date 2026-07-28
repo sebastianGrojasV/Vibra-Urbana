@@ -6,7 +6,13 @@ public interface IProductoServicio
 {
     Task<ProductosIndexViewModel> ObtenerProductosAsync(int? categoriaId, string? talla, string? color, bool? activo);
 
-    Task<CatalogoIndexViewModel> ObtenerCatalogoAsync(int? categoriaId, string? busqueda);
+    Task<CatalogoIndexViewModel> ObtenerCatalogoAsync(
+        int? categoriaId,
+        string? busqueda,
+        string? talla,
+        string? color,
+        decimal? precioMinimo,
+        decimal? precioMaximo);
 
     Task<ProductoFormViewModel> PrepararCrearAsync();
 
