@@ -8,10 +8,14 @@ namespace VibraUrbana.Services;
 public class ClienteServicio : IClienteServicio
 {
     private readonly ApplicationDbContext _dbContext;
+    private readonly IFechaHoraServicio _fechaHoraServicio;
 
-    public ClienteServicio(ApplicationDbContext dbContext)
+    public ClienteServicio(
+        ApplicationDbContext dbContext,
+        IFechaHoraServicio fechaHoraServicio)
     {
         _dbContext = dbContext;
+        _fechaHoraServicio = fechaHoraServicio;
     }
 
     public async Task<IReadOnlyList<ClienteListadoItemViewModel>> ObtenerClientesAsync(string? busqueda)
@@ -167,6 +171,11 @@ public class ClienteServicio : IClienteServicio
             })
             .ToListAsync();
 
+        foreach (var compra in compras)
+        {
+            compra.FechaVenta = _fechaHoraServicio.ConvertirUtcACostaRica(compra.FechaVenta);
+        }
+
         return new ClienteHistorialComprasViewModel
         {
             ClienteId = cliente.Id,
@@ -178,7 +187,7 @@ public class ClienteServicio : IClienteServicio
 
     public async Task<ClienteCompraDetalleViewModel?> ObtenerDetalleCompraAsync(int clienteId, int ventaId)
     {
-        return await _dbContext.Ventas
+        var model = await _dbContext.Ventas
             .AsNoTracking()
             .Where(venta => venta.Id == ventaId && venta.ClienteId == clienteId)
             .Select(venta => new ClienteCompraDetalleViewModel
@@ -212,6 +221,13 @@ public class ClienteServicio : IClienteServicio
                     .ToList()
             })
             .FirstOrDefaultAsync();
+
+        if (model is not null)
+        {
+            model.FechaVenta = _fechaHoraServicio.ConvertirUtcACostaRica(model.FechaVenta);
+        }
+
+        return model;
     }
 
     private async Task<bool> ExisteIdentificacionAsync(string identificacion, int? excludedId = null)

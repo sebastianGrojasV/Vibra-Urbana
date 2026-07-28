@@ -13,10 +13,14 @@ namespace VibraUrbana.Controllers;
 public class FacturaController : Controller
 {
     private readonly ApplicationDbContext _context;
+    private readonly IFechaHoraServicio _fechaHoraServicio;
 
-    public FacturaController(ApplicationDbContext context)
+    public FacturaController(
+        ApplicationDbContext context,
+        IFechaHoraServicio fechaHoraServicio)
     {
         _context = context;
+        _fechaHoraServicio = fechaHoraServicio;
     }
 
     public async Task<IActionResult> Index()
@@ -44,6 +48,11 @@ public class FacturaController : Controller
                 Estado = factura.Estado
             })
             .ToListAsync();
+
+        foreach (var factura in facturas)
+        {
+            factura.FechaEmision = _fechaHoraServicio.ConvertirUtcACostaRica(factura.FechaEmision);
+        }
 
         return View(facturas);
     }
@@ -74,7 +83,7 @@ public class FacturaController : Controller
 
     public async Task<IActionResult> CierreCaja(DateTime? fecha)
     {
-        var fechaSeleccionada = fecha?.Date ?? DateTime.Today;
+        var fechaSeleccionada = fecha?.Date ?? _fechaHoraServicio.HoyCostaRica;
         var model = await ConstruirCierreCajaViewModelAsync(fechaSeleccionada);
 
         return View(model);
@@ -90,13 +99,13 @@ public class FacturaController : Controller
         }
 
         var fechaSeleccionada = fecha.Date;
-        var fechaSiguiente = fechaSeleccionada.AddDays(1);
+        var rangoUtc = _fechaHoraServicio.ObtenerRangoUtcCostaRica(fechaSeleccionada, fechaSeleccionada);
 
         await using var transaction = await _context.Database.BeginTransactionAsync();
 
         var ventasParaCierre = await _context.Ventas
             .Include(venta => venta.MetodoPago)
-            .Where(venta => venta.FechaVenta >= fechaSeleccionada && venta.FechaVenta < fechaSiguiente)
+            .Where(venta => venta.FechaVenta >= rangoUtc.InicioUtc && venta.FechaVenta < rangoUtc.FinExclusivoUtc)
             .Where(venta => venta.CierreCajaId == null)
             .Where(venta => venta.Estado == "Aprobada" || venta.Estado == "Anulada")
             .ToListAsync();
@@ -118,7 +127,7 @@ public class FacturaController : Controller
         var cierre = new CierreCaja
         {
             UsuarioId = usuarioId,
-            FechaCierre = DateTime.UtcNow,
+            FechaCierre = _fechaHoraServicio.UtcNow,
             TotalVentas = ventasAprobadas.Sum(venta => venta.Total),
             TotalEfectivo = totalEfectivo,
             TotalSinpe = totalSinpe,
@@ -141,7 +150,7 @@ public class FacturaController : Controller
             Modulo = "Caja",
             Accion = "Cierre de caja",
             Descripcion = $"Cierre #{cierre.Id} registrado para {fechaSeleccionada:dd/MM/yyyy}. Ventas: {ventasParaCierre.Count}. Total: {cierre.TotalVentas:C0}.",
-            FechaRegistro = DateTime.UtcNow
+            FechaRegistro = _fechaHoraServicio.UtcNow
         });
 
         await _context.SaveChangesAsync();
@@ -154,7 +163,7 @@ public class FacturaController : Controller
 
     private async Task<CierreCajaViewModel> ConstruirCierreCajaViewModelAsync(DateTime fechaSeleccionada)
     {
-        var fechaSiguiente = fechaSeleccionada.AddDays(1);
+        var rangoUtc = _fechaHoraServicio.ObtenerRangoUtcCostaRica(fechaSeleccionada, fechaSeleccionada);
 
         var ventas = await _context.Ventas
             .AsNoTracking()
@@ -162,7 +171,7 @@ public class FacturaController : Controller
             .Include(venta => venta.Usuario)
             .Include(venta => venta.MetodoPago)
             .Include(venta => venta.Factura)
-            .Where(venta => venta.FechaVenta >= fechaSeleccionada && venta.FechaVenta < fechaSiguiente)
+            .Where(venta => venta.FechaVenta >= rangoUtc.InicioUtc && venta.FechaVenta < rangoUtc.FinExclusivoUtc)
             .OrderByDescending(venta => venta.FechaVenta)
             .ToListAsync();
 
@@ -200,7 +209,7 @@ public class FacturaController : Controller
             {
                 VentaId = venta.Id,
                 NumeroFactura = venta.Factura?.NumeroFactura ?? "Sin comprobante",
-                FechaVenta = venta.FechaVenta,
+                FechaVenta = _fechaHoraServicio.ConvertirUtcACostaRica(venta.FechaVenta),
                 Cliente = venta.Cliente.NombreCompleto,
                 Cajero = venta.Usuario.NombreCompleto,
                 MetodoPago = venta.MetodoPago.Nombre,
@@ -213,7 +222,7 @@ public class FacturaController : Controller
 
     private async Task<FacturaDetalleViewModel?> ObtenerFacturaDetalleAsync(int id)
     {
-        return await _context.Facturas
+        var model = await _context.Facturas
             .AsNoTracking()
             .Include(factura => factura.Venta)
                 .ThenInclude(venta => venta.Cliente)
@@ -261,6 +270,14 @@ public class FacturaController : Controller
                     .ToList()
             })
             .FirstOrDefaultAsync();
+
+        if (model is not null)
+        {
+            model.FechaEmision = _fechaHoraServicio.ConvertirUtcACostaRica(model.FechaEmision);
+            model.FechaVenta = _fechaHoraServicio.ConvertirUtcACostaRica(model.FechaVenta);
+        }
+
+        return model;
     }
 
     private bool TryGetUsuarioId(out int usuarioId)

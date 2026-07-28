@@ -1,4 +1,4 @@
-﻿@{
+@{
     ViewData["Title"] = "Inicio";
 }
 
@@ -8,44 +8,21 @@
             <div class="col-lg-7">
                 <h1>Vibra Urbana</h1>
                 <p class="vu-lead">
-                    Base ASP.NET Core MVC para gestionar la operación comercial de la tienda de ropa.
+                    Moda urbana seleccionada para el día a día. Explora prendas disponibles y encuentra tu siguiente pieza favorita.
                 </p>
                 <div class="d-flex flex-wrap gap-2">
-                    <a class="btn btn-dark" asp-controller="Account" asp-action="Login">Iniciar sesión</a>
-                    <a class="btn btn-outline-dark" asp-controller="Admin" asp-action="Index">Panel administrativo</a>
+                    <a class="btn btn-dark" asp-controller="Catalogo" asp-action="Index">Ver catálogo</a>
+                    <a class="btn btn-outline-dark" asp-controller="Account" asp-action="Login">Acceso interno</a>
                 </div>
             </div>
             <div class="col-lg-5">
                 <div class="vu-hero-visual" aria-label="Identidad visual Vibra Urbana">
                     <img src="~/img/logo-vibra-urbana.jpeg" alt="Logo Vibra Urbana" />
                     <div>
-                        <strong>Estructura base MVC</strong>
-                        <span>Panel administrativo, seguridad inicial y navegación preparada.</span>
+                        <strong>Estilo Vibra Urbana</strong>
+                        <span>Prendas, colores y cortes pensados para moverse con la ciudad.</span>
                     </div>
                 </div>
-            </div>
-        </div>
-    </div>
-</section>
-
-<section class="container py-5">
-    <div class="row g-3">
-        <div class="col-md-4">
-            <div class="vu-module">
-                <h2>Catálogo</h2>
-                <p>Espacio reservado para productos, inventario y pedidos.</p>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="vu-module">
-                <h2>Ventas</h2>
-                <p>Base lista para ventas, facturación y carrito en siguientes tareas.</p>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="vu-module">
-                <h2>Reportes</h2>
-                <p>Navegacion inicial preparada para analítica administrativa futura.</p>
             </div>
         </div>
     </div>
