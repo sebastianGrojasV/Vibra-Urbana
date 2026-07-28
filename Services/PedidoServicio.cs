@@ -1,0 +1,226 @@
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
+using VibraUrbana.Data;
+using VibraUrbana.Models;
+using VibraUrbana.ViewModels;
+
+namespace VibraUrbana.Services;
+
+public class PedidoServicio : IPedidoServicio
+{
+    public const string EstadoPendiente = "Pendiente";
+    public const string EstadoConfirmado = "Confirmado";
+    public const string EstadoCancelado = "Cancelado";
+    public const string EstadoEntregado = "Entregado";
+
+    private static readonly string[] Estados = [EstadoPendiente, EstadoConfirmado, EstadoCancelado, EstadoEntregado];
+
+    private readonly ApplicationDbContext _context;
+    private readonly IFechaHoraServicio _fechaHoraServicio;
+
+    public PedidoServicio(ApplicationDbContext context, IFechaHoraServicio fechaHoraServicio)
+    {
+        _context = context;
+        _fechaHoraServicio = fechaHoraServicio;
+    }
+
+    public async Task<PedidosIndexViewModel> ObtenerPedidosAsync(string? estado, DateTime? fechaInicio, DateTime? fechaFin, string? cliente)
+    {
+        var estadoNormalizado = NormalizarEstado(estado);
+        var clienteNormalizado = cliente?.Trim();
+        var query = _context.Pedidos
+            .AsNoTracking()
+            .Include(pedido => pedido.MetodoPago)
+            .Include(pedido => pedido.ComprobantePago)
+            .AsQueryable();
+
+        if (!string.IsNullOrWhiteSpace(estadoNormalizado))
+        {
+            query = query.Where(pedido => pedido.Estado == estadoNormalizado);
+        }
+
+        if (fechaInicio.HasValue || fechaFin.HasValue)
+        {
+            var inicio = fechaInicio ?? fechaFin!.Value;
+            var fin = fechaFin ?? fechaInicio!.Value;
+            var rango = _fechaHoraServicio.ObtenerRangoUtcCostaRica(inicio, fin);
+
+            query = query.Where(pedido => pedido.FechaPedido >= rango.InicioUtc && pedido.FechaPedido < rango.FinExclusivoUtc);
+        }
+
+        if (!string.IsNullOrWhiteSpace(clienteNormalizado))
+        {
+            query = query.Where(pedido =>
+                pedido.NombreCliente.Contains(clienteNormalizado) ||
+                pedido.Telefono.Contains(clienteNormalizado) ||
+                pedido.Correo.Contains(clienteNormalizado));
+        }
+
+        var pedidos = await query
+            .OrderByDescending(pedido => pedido.FechaPedido)
+            .Select(pedido => new PedidoListadoItemViewModel
+            {
+                Id = pedido.Id,
+                FechaPedido = pedido.FechaPedido,
+                Cliente = pedido.NombreCliente,
+                Telefono = pedido.Telefono,
+                MetodoPago = pedido.MetodoPago.Nombre,
+                ReferenciaPago = pedido.ComprobantePago == null ? string.Empty : pedido.ComprobantePago.ReferenciaPago,
+                Total = pedido.Total,
+                Estado = pedido.Estado
+            })
+            .ToListAsync();
+
+        foreach (var pedido in pedidos)
+        {
+            pedido.FechaPedido = _fechaHoraServicio.ConvertirUtcACostaRica(pedido.FechaPedido);
+        }
+
+        return new PedidosIndexViewModel
+        {
+            Estado = estadoNormalizado,
+            FechaInicio = fechaInicio,
+            FechaFin = fechaFin,
+            Cliente = clienteNormalizado,
+            Pedidos = pedidos,
+            Estados = ObtenerEstadosSelect(estadoNormalizado)
+        };
+    }
+
+    public async Task<PedidoDetalleViewModel?> ObtenerDetalleAsync(int id)
+    {
+        var pedido = await _context.Pedidos
+            .AsNoTracking()
+            .Include(item => item.MetodoPago)
+            .Include(item => item.ComprobantePago)
+                .ThenInclude(comprobante => comprobante!.MetodoPago)
+            .Include(item => item.DetallePedidos)
+                .ThenInclude(detalle => detalle.Producto)
+                    .ThenInclude(producto => producto.Categoria)
+            .Where(item => item.Id == id)
+            .Select(item => new PedidoDetalleViewModel
+            {
+                Id = item.Id,
+                FechaPedido = item.FechaPedido,
+                NombreCliente = item.NombreCliente,
+                Telefono = item.Telefono,
+                Correo = item.Correo,
+                DireccionEntrega = item.DireccionEntrega,
+                MetodoPago = item.MetodoPago.Nombre,
+                Subtotal = item.Subtotal,
+                Descuento = item.Descuento,
+                Impuesto = item.Impuesto,
+                Total = item.Total,
+                Estado = item.Estado,
+                Observacion = item.Observacion,
+                ReferenciaPago = item.ComprobantePago == null ? string.Empty : item.ComprobantePago.ReferenciaPago,
+                ImagenComprobanteUrl = item.ComprobantePago == null ? string.Empty : item.ComprobantePago.ImagenComprobanteUrl,
+                EstadoVerificacion = item.ComprobantePago == null ? string.Empty : item.ComprobantePago.EstadoVerificacion,
+                FechaComprobante = item.ComprobantePago == null ? null : item.ComprobantePago.FechaRegistro,
+                Productos = item.DetallePedidos
+                    .Select(detalle => new PedidoDetalleProductoViewModel
+                    {
+                        Producto = detalle.Producto.Nombre,
+                        Categoria = detalle.Producto.Categoria.Nombre,
+                        Talla = detalle.Producto.Talla,
+                        Color = detalle.Producto.Color,
+                        Cantidad = detalle.Cantidad,
+                        PrecioUnitario = detalle.PrecioUnitario,
+                        Subtotal = detalle.Subtotal
+                    })
+                    .ToList()
+            })
+            .SingleOrDefaultAsync();
+
+        if (pedido is null)
+        {
+            return null;
+        }
+
+        pedido.FechaPedido = _fechaHoraServicio.ConvertirUtcACostaRica(pedido.FechaPedido);
+
+        if (pedido.FechaComprobante.HasValue)
+        {
+            pedido.FechaComprobante = _fechaHoraServicio.ConvertirUtcACostaRica(pedido.FechaComprobante.Value);
+        }
+
+        return pedido;
+    }
+
+    public async Task<PedidoOperacionResult> CambiarEstadoAsync(int pedidoId, string nuevoEstado, int usuarioId)
+    {
+        var estadoNormalizado = NormalizarEstado(nuevoEstado);
+
+        if (string.IsNullOrWhiteSpace(estadoNormalizado))
+        {
+            return PedidoOperacionResult.Failure("El estado seleccionado no es válido.");
+        }
+
+        var pedido = await _context.Pedidos
+            .Include(item => item.ComprobantePago)
+            .SingleOrDefaultAsync(item => item.Id == pedidoId);
+
+        if (pedido is null)
+        {
+            return PedidoOperacionResult.Failure("No se encontró el pedido seleccionado.");
+        }
+
+        if (!PuedeCambiarEstado(pedido.Estado, estadoNormalizado))
+        {
+            return PedidoOperacionResult.Failure("El cambio de estado solicitado no está permitido para este pedido.");
+        }
+
+        var estadoAnterior = pedido.Estado;
+        pedido.Estado = estadoNormalizado;
+
+        if (pedido.ComprobantePago is not null)
+        {
+            pedido.ComprobantePago.EstadoVerificacion = estadoNormalizado == EstadoConfirmado || estadoNormalizado == EstadoEntregado
+                ? "Verificado"
+                : estadoNormalizado == EstadoCancelado ? "Rechazado" : "Pendiente";
+        }
+
+        _context.Bitacora.Add(new Bitacora
+        {
+            UsuarioId = usuarioId,
+            Modulo = "Pedidos",
+            Accion = "Cambiar estado",
+            Descripcion = $"Pedido PED-{pedido.Id:D6} cambió de {estadoAnterior} a {estadoNormalizado}.",
+            FechaRegistro = _fechaHoraServicio.UtcNow
+        });
+
+        await _context.SaveChangesAsync();
+        return PedidoOperacionResult.Success($"Pedido PED-{pedido.Id:D6} actualizado a {estadoNormalizado}.");
+    }
+
+    private static bool PuedeCambiarEstado(string estadoActual, string nuevoEstado)
+    {
+        if (estadoActual == nuevoEstado)
+        {
+            return false;
+        }
+
+        return nuevoEstado switch
+        {
+            EstadoConfirmado => estadoActual == EstadoPendiente,
+            EstadoCancelado => estadoActual is EstadoPendiente or EstadoConfirmado,
+            EstadoEntregado => estadoActual == EstadoConfirmado,
+            _ => false
+        };
+    }
+
+    private static string? NormalizarEstado(string? estado)
+    {
+        return Estados.FirstOrDefault(item => string.Equals(item, estado?.Trim(), StringComparison.OrdinalIgnoreCase));
+    }
+
+    private static IEnumerable<SelectListItem> ObtenerEstadosSelect(string? selected)
+    {
+        return Estados.Select(estado => new SelectListItem
+        {
+            Value = estado,
+            Text = estado,
+            Selected = estado == selected
+        });
+    }
+}

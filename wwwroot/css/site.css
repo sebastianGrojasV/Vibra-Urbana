@@ -1609,6 +1609,21 @@ body,
         min-width: 0;
         margin: .4rem 0 0;
     }
+
+    .vu-filter-panel,
+    .vu-order-admin-summary,
+    .vu-order-admin-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .vu-filter-actions {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .vu-filter-actions .btn {
+        width: 100%;
+    }
 }
 
 /* Sprint 2 readiness polish */
@@ -1732,6 +1747,120 @@ body,
 
 .vu-panel form .row.g-3 {
     row-gap: 1.15rem !important;
+}
+
+.vu-filter-panel {
+    display: grid;
+    grid-template-columns: minmax(10rem, .75fr) repeat(2, minmax(9rem, .65fr)) minmax(14rem, 1fr) auto;
+    gap: .85rem;
+    align-items: end;
+    padding: 1rem;
+    background: linear-gradient(135deg, #f8fbfd, #fff3ed);
+    border: 1px solid #dbe8ef;
+    border-radius: 8px;
+}
+
+.vu-filter-panel .form-label {
+    margin-bottom: .35rem;
+    color: #44515f;
+    font-size: .78rem;
+    font-weight: 900;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+}
+
+.vu-filter-actions {
+    display: flex;
+    gap: .5rem;
+}
+
+.vu-order-admin-summary {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: .85rem;
+    margin-bottom: 1rem;
+}
+
+.vu-order-admin-summary div,
+.vu-order-admin-card {
+    background: #ffffff;
+    border: 1px solid #e4edf3;
+    border-radius: 8px;
+    box-shadow: 0 12px 32px rgba(31, 78, 121, .06);
+}
+
+.vu-order-admin-summary div {
+    padding: 1rem;
+}
+
+.vu-order-admin-summary span,
+.vu-order-admin-card dt {
+    display: block;
+    color: #64748b;
+    font-size: .76rem;
+    font-weight: 900;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+}
+
+.vu-order-admin-summary strong {
+    display: block;
+    margin-top: .3rem;
+    color: #171312;
+    font-size: 1rem;
+}
+
+.vu-order-admin-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(18rem, .7fr);
+    gap: 1rem;
+}
+
+.vu-order-admin-card {
+    padding: 1rem;
+}
+
+.vu-order-admin-card h2 {
+    margin: 0 0 .85rem;
+    color: #173f46;
+    font-size: 1.05rem;
+    font-weight: 950;
+}
+
+.vu-order-admin-card dl {
+    display: grid;
+    gap: .75rem;
+    margin: 0;
+}
+
+.vu-order-admin-card dd {
+    margin: .15rem 0 0;
+    color: #171312;
+    font-weight: 850;
+}
+
+.vu-payment-proof {
+    display: block;
+    overflow: hidden;
+    margin-top: .9rem;
+    background: #f8fbfd;
+    border: 1px solid #e4edf3;
+    border-radius: 8px;
+}
+
+.vu-payment-proof img {
+    display: block;
+    width: 100%;
+    max-height: 18rem;
+    object-fit: cover;
+}
+
+.vu-order-admin-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .65rem;
+    justify-content: flex-end;
+    margin-top: 1rem;
 }
 
 .form-label {

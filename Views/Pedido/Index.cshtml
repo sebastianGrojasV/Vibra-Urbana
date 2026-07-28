@@ -1,18 +1,182 @@
-﻿@{
+@model VibraUrbana.ViewModels.PedidosIndexViewModel
+
+@{
     ViewData["Title"] = "Pedidos";
 }
 
-<section class="vu-module-placeholder-page">
-    <div class="container">
-        <div class="vu-module-placeholder">
-            <span class="vu-module-placeholder-icon" data-vu-module-icon="pedidos"></span>
-            <p class="vu-eyebrow">Módulo en preparación</p>
-            <h1>Pedidos</h1>
-            <p>Este espacio quedará preparado para pedidos en línea, detalle de productos y comprobantes de pago.</p>
-            <div class="vu-placeholder-actions">
-                <a class="btn btn-primary" asp-controller="Admin" asp-action="Index">Volver al panel</a>
-                <a class="btn btn-outline-primary" asp-controller="Producto" asp-action="Index">Ver productos</a>
+<section class="vu-admin-shell">
+    <div class="container-fluid">
+        <div class="row g-0">
+            @await Html.PartialAsync("_Sidebar")
+
+            <div class="col-lg-9 col-xl-10 vu-admin-content">
+                <div class="vu-admin-header">
+                    <div>
+                        <p class="vu-eyebrow">Pedidos en línea</p>
+                        <h1>Pedidos</h1>
+                        <p>Consulta pedidos web, revisa comprobantes y actualiza su estado operativo.</p>
+                    </div>
+                </div>
+
+                <div class="vu-panel">
+                    @if (TempData["SuccessMessage"] is string successMessage)
+                    {
+                        <div class="alert alert-success" role="alert">@successMessage</div>
+                    }
+
+                    @if (TempData["ErrorMessage"] is string errorMessage)
+                    {
+                        <div class="alert alert-danger" role="alert">@errorMessage</div>
+                    }
+
+                    <form asp-controller="Pedido" asp-action="Index" method="get" class="vu-filter-panel mb-4">
+                        <div>
+                            <label class="form-label" for="estado">Estado</label>
+                            <select class="form-select" id="estado" name="estado">
+                                <option value="">Todos</option>
+                                @foreach (var estado in Model.Estados)
+                                {
+                                    <option value="@estado.Value" selected="@estado.Selected">@estado.Text</option>
+                                }
+                            </select>
+                        </div>
+                        <div>
+                            <label class="form-label" for="fechaInicio">Desde</label>
+                            <input class="form-control" id="fechaInicio" name="fechaInicio" type="date" value="@Model.FechaInicio?.ToString("yyyy-MM-dd")" />
+                        </div>
+                        <div>
+                            <label class="form-label" for="fechaFin">Hasta</label>
+                            <input class="form-control" id="fechaFin" name="fechaFin" type="date" value="@Model.FechaFin?.ToString("yyyy-MM-dd")" />
+                        </div>
+                        <div>
+                            <label class="form-label" for="cliente">Cliente</label>
+                            <input class="form-control" id="cliente" name="cliente" value="@Model.Cliente" placeholder="Nombre, teléfono o correo" />
+                        </div>
+                        <div class="vu-filter-actions">
+                            <button class="btn btn-primary" type="submit">Filtrar</button>
+                            <a class="btn btn-outline-secondary" asp-controller="Pedido" asp-action="Index">Limpiar</a>
+                        </div>
+                    </form>
+
+                    @if (!Model.Pedidos.Any())
+                    {
+                        <div class="alert alert-info" role="alert">
+                            No existen pedidos registrados con los filtros seleccionados.
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle vu-data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Código</th>
+                                        <th>Fecha</th>
+                                        <th>Cliente</th>
+                                        <th>Método</th>
+                                        <th>Referencia</th>
+                                        <th class="text-end">Total</th>
+                                        <th class="text-center">Estado</th>
+                                        <th class="text-end vu-actions-column">Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var pedido in Model.Pedidos)
+                                    {
+                                        <tr>
+                                            <td><strong>@pedido.Codigo</strong></td>
+                                            <td>@pedido.FechaPedido.ToString("dd/MM/yyyy hh:mm tt")</td>
+                                            <td>
+                                                <div class="d-flex flex-column">
+                                                    <span>@pedido.Cliente</span>
+                                                    <small class="text-muted">@pedido.Telefono</small>
+                                                </div>
+                                            </td>
+                                            <td><span class="badge bg-secondary">@pedido.MetodoPago</span></td>
+                                            <td>
+                                                @if (string.IsNullOrWhiteSpace(pedido.ReferenciaPago))
+                                                {
+                                                    <span class="text-muted">Sin referencia</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-light text-dark border">@pedido.ReferenciaPago</span>
+                                                }
+                                            </td>
+                                            <td class="text-end">@pedido.Total.ToString("C0")</td>
+                                            <td class="text-center">
+                                                <span class="badge @EstadoBadge(pedido.Estado)">@pedido.Estado</span>
+                                            </td>
+                                            <td class="text-end">
+                                                <div class="vu-actions">
+                                                    <a class="btn btn-sm vu-icon-btn vu-icon-view"
+                                                       asp-controller="Pedido"
+                                                       asp-action="Detalle"
+                                                       asp-route-id="@pedido.Id"
+                                                       title="Ver detalle"
+                                                       aria-label="Ver detalle de pedido">
+                                                        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6Z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                                                    </a>
+
+                                                    @if (pedido.Estado == "Pendiente")
+                                                    {
+                                                        <form asp-controller="Pedido" asp-action="CambiarEstado" method="post" data-vu-confirm data-vu-confirm-title="Confirmar pedido" data-vu-confirm-message="El pedido pasará a estado Confirmado." data-vu-confirm-action="Confirmar">
+                                                            @Html.AntiForgeryToken()
+                                                            <input type="hidden" name="PedidoId" value="@pedido.Id" />
+                                                            <input type="hidden" name="NuevoEstado" value="Confirmado" />
+                                                            <button class="btn btn-sm vu-icon-btn vu-icon-enable" type="submit" title="Confirmar" aria-label="Confirmar pedido">
+                                                                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m20 6-11 11-5-5"></path></svg>
+                                                            </button>
+                                                        </form>
+                                                    }
+
+                                                    @if (pedido.Estado is "Pendiente" or "Confirmado")
+                                                    {
+                                                        <form asp-controller="Pedido" asp-action="CambiarEstado" method="post" data-vu-confirm data-vu-confirm-title="Cancelar pedido" data-vu-confirm-message="El pedido quedará cancelado sin eliminar el historial." data-vu-confirm-action="Cancelar pedido">
+                                                            @Html.AntiForgeryToken()
+                                                            <input type="hidden" name="PedidoId" value="@pedido.Id" />
+                                                            <input type="hidden" name="NuevoEstado" value="Cancelado" />
+                                                            <button class="btn btn-sm vu-icon-btn vu-icon-disable" type="submit" title="Cancelar" aria-label="Cancelar pedido">
+                                                                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
+                                                            </button>
+                                                        </form>
+                                                    }
+
+                                                    @if (pedido.Estado == "Confirmado")
+                                                    {
+                                                        <form asp-controller="Pedido" asp-action="CambiarEstado" method="post" data-vu-confirm data-vu-confirm-title="Marcar como entregado" data-vu-confirm-message="El pedido quedará marcado como Entregado." data-vu-confirm-action="Marcar entregado">
+                                                            @Html.AntiForgeryToken()
+                                                            <input type="hidden" name="PedidoId" value="@pedido.Id" />
+                                                            <input type="hidden" name="NuevoEstado" value="Entregado" />
+                                                            <button class="btn btn-sm vu-icon-btn vu-icon-reset" type="submit" title="Marcar como entregado" aria-label="Marcar pedido como entregado">
+                                                                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 8v13H3V8"></path><path d="M1 3h22v5H1Z"></path><path d="m9 14 2 2 4-4"></path></svg>
+                                                            </button>
+                                                        </form>
+                                                    }
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                </div>
             </div>
         </div>
     </div>
 </section>
+
+@functions {
+    private static string EstadoBadge(string estado)
+    {
+        return estado switch
+        {
+            "Pendiente" => "bg-warning text-dark",
+            "Confirmado" => "bg-primary",
+            "Entregado" => "bg-success",
+            "Cancelado" => "bg-danger",
+            _ => "bg-secondary"
+        };
+    }
+}

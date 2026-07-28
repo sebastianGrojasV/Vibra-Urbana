@@ -48,6 +48,7 @@ builder.Services.AddScoped<ActiveUserCookieAuthenticationEvents>();
 builder.Services.AddScoped<ICategoriaRepositorio, CategoriaRepositorio>();
 builder.Services.AddScoped<ICategoriaServicio, CategoriaServicio>();
 builder.Services.AddScoped<IVentaServicio, VentaServicio>();
+builder.Services.AddScoped<IPedidoServicio, PedidoServicio>();
 
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
