@@ -6,6 +6,7 @@ window.addEventListener("DOMContentLoaded", () => {
     setupSaleCancellation();
     setupSaleStatusChange();
     setupAutoDismissAlerts();
+    setupCatalogFilters();
 
     if (!window.jQuery || !jQuery.fn.DataTable) {
         return;
@@ -282,6 +283,99 @@ function setupAutoDismissAlerts() {
             alert.classList.add("vu-alert-dismissing");
             window.setTimeout(() => alert.remove(), 260);
         }, 3000);
+    });
+}
+
+function setupCatalogFilters() {
+    const form = document.querySelector("[data-vu-catalog-form]");
+    const results = document.querySelector("[data-vu-catalog-results]");
+
+    if (!form || !results) {
+        return;
+    }
+
+    const clear = document.querySelector("[data-vu-catalog-clear]");
+    let controller = null;
+    let timer = null;
+
+    const buildUrl = () => {
+        const url = new URL(form.action || window.location.href, window.location.origin);
+        const params = new URLSearchParams();
+
+        new FormData(form).forEach((value, key) => {
+            const text = value.toString().trim();
+
+            if (text) {
+                params.set(key, text);
+            }
+        });
+
+        url.search = params.toString();
+        return url;
+    };
+
+    const loadCatalog = async (url) => {
+        if (controller) {
+            controller.abort();
+        }
+
+        controller = new AbortController();
+        results.classList.add("is-loading");
+        form.classList.add("is-loading");
+
+        try {
+            const response = await fetch(url, {
+                headers: {
+                    "X-Requested-With": "XMLHttpRequest"
+                },
+                signal: controller.signal
+            });
+
+            if (!response.ok) {
+                throw new Error("No se pudo actualizar el catálogo.");
+            }
+
+            results.innerHTML = await response.text();
+            window.history.replaceState({}, "", url);
+        } catch (error) {
+            if (error.name !== "AbortError") {
+                form.submit();
+            }
+        } finally {
+            results.classList.remove("is-loading");
+            form.classList.remove("is-loading");
+        }
+    };
+
+    const queueCatalogLoad = () => {
+        window.clearTimeout(timer);
+        timer = window.setTimeout(() => loadCatalog(buildUrl()), 320);
+    };
+
+    form.addEventListener("submit", (event) => {
+        event.preventDefault();
+        window.clearTimeout(timer);
+        loadCatalog(buildUrl());
+    });
+
+    form.querySelectorAll("select").forEach((select) => {
+        select.addEventListener("change", queueCatalogLoad);
+    });
+
+    form.querySelectorAll("input").forEach((input) => {
+        input.addEventListener("input", queueCatalogLoad);
+    });
+
+    clear?.addEventListener("click", (event) => {
+        event.preventDefault();
+        form.reset();
+        form.querySelectorAll("input").forEach((input) => {
+            input.value = "";
+        });
+        form.querySelectorAll("select").forEach((select) => {
+            select.selectedIndex = 0;
+        });
+        loadCatalog(new URL(clear.href, window.location.origin));
     });
 }
 
