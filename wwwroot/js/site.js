@@ -389,23 +389,34 @@ function setupCatalogCartButtons() {
             const stock = Number(button.dataset.vuProductStock || "0");
             const productId = button.dataset.vuProductId;
             const feedback = document.querySelector("[data-vu-cart-feedback]");
+            const price = Number(button.dataset.vuProductPrice || "0");
 
             if (!productId || stock <= 0) {
+                showCartFeedback(feedback, "Este producto no tiene disponibilidad por el momento.", "error");
                 return;
             }
 
             const storageKey = "vibra.catalogCart";
-            const current = JSON.parse(localStorage.getItem(storageKey) || "[]");
+            const current = readCatalogCart();
             const item = current.find((product) => product.id === productId);
 
             if (item) {
-                item.quantity = Math.min(item.quantity + 1, stock);
+                if (Number(item.quantity || 0) >= stock) {
+                    showCartFeedback(feedback, `No hay más disponibilidad. Stock actual: ${stock}.`, "error");
+                    return;
+                }
+
+                item.quantity = Number(item.quantity || 0) + 1;
+                item.stock = stock;
+                item.price = price;
+                item.subtotal = item.price * item.quantity;
             } else {
                 current.push({
                     id: productId,
                     name: button.dataset.vuProductName || "Producto",
-                    price: Number(button.dataset.vuProductPrice || "0"),
+                    price,
                     quantity: 1,
+                    subtotal: price,
                     stock,
                     image: button.dataset.vuProductImage || "",
                     category: button.dataset.vuProductCategory || "",
@@ -418,11 +429,7 @@ function setupCatalogCartButtons() {
             updateCartNavigationCount();
 
             if (feedback) {
-                feedback.hidden = false;
-                feedback.innerHTML = 'Producto agregado al carrito. <a href="/Carrito">Ver carrito</a>';
-                window.setTimeout(() => {
-                    feedback.hidden = true;
-                }, 3000);
+                showCartFeedback(feedback, 'Producto agregado al carrito. <a href="/Carrito">Ver carrito</a>', "success");
             }
         });
     });
@@ -488,6 +495,7 @@ function setupCartPage() {
 
         const stock = Number(item.stock || input.max || "1");
         item.quantity = Math.max(1, Math.min(Number(input.value || "1"), stock));
+        item.subtotal = Number(item.price || 0) * item.quantity;
         writeCatalogCart(cart);
         renderCart();
     });
@@ -597,15 +605,47 @@ function renderCartItem(item) {
 }
 
 function readCatalogCart() {
-    return JSON.parse(localStorage.getItem("vibra.catalogCart") || "[]");
+    try {
+        return JSON.parse(localStorage.getItem("vibra.catalogCart") || "[]")
+            .filter((item) => item && item.id && Number(item.stock || 0) > 0)
+            .map((item) => {
+                const stock = Number(item.stock || 1);
+                const quantity = Math.max(1, Math.min(Number(item.quantity || 1), stock));
+                const price = Number(item.price || 0);
+
+                return {
+                    ...item,
+                    price,
+                    quantity,
+                    stock,
+                    subtotal: price * quantity
+                };
+            });
+    } catch {
+        return [];
+    }
 }
 
 function writeCatalogCart(cart) {
-    localStorage.setItem("vibra.catalogCart", JSON.stringify(cart));
+    const normalized = cart.map((item) => {
+        const stock = Number(item.stock || 1);
+        const quantity = Math.max(1, Math.min(Number(item.quantity || 1), stock));
+        const price = Number(item.price || 0);
+
+        return {
+            ...item,
+            price,
+            quantity,
+            stock,
+            subtotal: price * quantity
+        };
+    });
+
+    localStorage.setItem("vibra.catalogCart", JSON.stringify(normalized));
 }
 
 function calculateCartTotals(cart) {
-    const subtotal = cart.reduce((sum, item) => sum + Number(item.price || 0) * Number(item.quantity || 0), 0);
+    const subtotal = cart.reduce((sum, item) => sum + Number(item.subtotal || Number(item.price || 0) * Number(item.quantity || 0)), 0);
     const quantity = cart.reduce((sum, item) => sum + Number(item.quantity || 0), 0);
     const tax = subtotal * 0.13;
 
@@ -644,6 +684,20 @@ function showOrderMessage(message, text) {
 
     message.hidden = false;
     message.textContent = text;
+}
+
+function showCartFeedback(feedback, message, type) {
+    if (!feedback) {
+        return;
+    }
+
+    feedback.hidden = false;
+    feedback.classList.toggle("is-error", type === "error");
+    feedback.innerHTML = message;
+    window.setTimeout(() => {
+        feedback.hidden = true;
+        feedback.classList.remove("is-error");
+    }, 3000);
 }
 
 function escapeHtml(value) {

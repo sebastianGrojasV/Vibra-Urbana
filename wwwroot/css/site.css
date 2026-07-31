@@ -3537,6 +3537,17 @@ body.vu-sidebar-collapsed .vu-sidebar-brand {
     font-weight: 850;
 }
 
+.vu-product-cart-feedback a {
+    color: inherit;
+    font-weight: 950;
+}
+
+.vu-product-cart-feedback.is-error {
+    color: #8f2f22;
+    background: #fff3ed;
+    border-color: #f4c8ba;
+}
+
 .vu-product-unavailable {
     color: #8f2f22;
     background: #fff3ed;
