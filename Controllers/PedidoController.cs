@@ -51,7 +51,7 @@ public class PedidoController : Controller
             return Unauthorized();
         }
 
-        var result = await _pedidoServicio.CambiarEstadoAsync(model.PedidoId, model.NuevoEstado, usuarioId);
+        var result = await _pedidoServicio.CambiarEstadoAsync(model.PedidoId, model.NuevoEstado, usuarioId, model.Observacion);
 
         if (result.EsExitoso)
         {

@@ -274,13 +274,24 @@ public class PedidoServicio : IPedidoServicio
         return pedido;
     }
 
-    public async Task<PedidoOperacionResult> CambiarEstadoAsync(int pedidoId, string nuevoEstado, int usuarioId)
+    public async Task<PedidoOperacionResult> CambiarEstadoAsync(int pedidoId, string nuevoEstado, int usuarioId, string? observacion)
     {
         var estadoNormalizado = NormalizarEstado(nuevoEstado);
+        var observacionNormalizada = observacion?.Trim() ?? string.Empty;
 
         if (string.IsNullOrWhiteSpace(estadoNormalizado))
         {
             return PedidoOperacionResult.Failure("El estado seleccionado no es válido.");
+        }
+
+        if (observacionNormalizada.Length > 250)
+        {
+            return PedidoOperacionResult.Failure("La observación no puede superar 250 caracteres.");
+        }
+
+        if (estadoNormalizado == EstadoCancelado && string.IsNullOrWhiteSpace(observacionNormalizada))
+        {
+            return PedidoOperacionResult.Failure("Debes indicar una observación para cancelar el pedido.");
         }
 
         var pedido = await _context.Pedidos
@@ -312,12 +323,24 @@ public class PedidoServicio : IPedidoServicio
             UsuarioId = usuarioId,
             Modulo = "Pedidos",
             Accion = "Cambiar estado",
-            Descripcion = $"Pedido PED-{pedido.Id:D6} cambió de {estadoAnterior} a {estadoNormalizado}.",
+            Descripcion = CrearDescripcionCambioEstadoPedido(pedido.Id, estadoAnterior, estadoNormalizado, observacionNormalizada),
             FechaRegistro = _fechaHoraServicio.UtcNow
         });
 
         await _context.SaveChangesAsync();
         return PedidoOperacionResult.Success($"Pedido PED-{pedido.Id:D6} actualizado a {estadoNormalizado}.");
+    }
+
+    private static string CrearDescripcionCambioEstadoPedido(int pedidoId, string estadoAnterior, string estadoNuevo, string observacion)
+    {
+        var descripcion = $"Pedido PED-{pedidoId:D6} cambió de {estadoAnterior} a {estadoNuevo}.";
+
+        if (!string.IsNullOrWhiteSpace(observacion))
+        {
+            descripcion += $" Observación: {observacion}";
+        }
+
+        return descripcion;
     }
 
     private static bool PuedeCambiarEstado(string estadoActual, string nuevoEstado)

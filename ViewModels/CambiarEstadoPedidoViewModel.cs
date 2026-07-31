@@ -10,4 +10,7 @@ public class CambiarEstadoPedidoViewModel
     [Required]
     [StringLength(40)]
     public string NuevoEstado { get; set; } = string.Empty;
+
+    [StringLength(250, ErrorMessage = "La observación no puede superar 250 caracteres.")]
+    public string? Observacion { get; set; }
 }
