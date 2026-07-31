@@ -294,41 +294,187 @@ public class PedidoServicio : IPedidoServicio
             return PedidoOperacionResult.Failure("Debes indicar una observación para cancelar el pedido.");
         }
 
-        var pedido = await _context.Pedidos
-            .Include(item => item.ComprobantePago)
-            .SingleOrDefaultAsync(item => item.Id == pedidoId);
+        await using var transaction = await _context.Database.BeginTransactionAsync();
 
-        if (pedido is null)
+        try
         {
-            return PedidoOperacionResult.Failure("No se encontró el pedido seleccionado.");
+            var pedido = await _context.Pedidos
+                .Include(item => item.ComprobantePago)
+                .Include(item => item.DetallePedidos)
+                    .ThenInclude(detalle => detalle.Producto)
+                        .ThenInclude(producto => producto.Inventario)
+                .SingleOrDefaultAsync(item => item.Id == pedidoId);
+
+            if (pedido is null)
+            {
+                await transaction.RollbackAsync();
+                return PedidoOperacionResult.Failure("No se encontró el pedido seleccionado.");
+            }
+
+            if (!PuedeCambiarEstado(pedido.Estado, estadoNormalizado))
+            {
+                await transaction.RollbackAsync();
+                return PedidoOperacionResult.Failure("El cambio de estado solicitado no está permitido para este pedido.");
+            }
+
+            var estadoAnterior = pedido.Estado;
+            var fechaCambio = _fechaHoraServicio.UtcNow;
+
+            if (estadoAnterior == EstadoPendiente && estadoNormalizado == EstadoConfirmado)
+            {
+                var errorInventario = AplicarSalidaInventarioPorPedido(pedido, usuarioId, fechaCambio);
+
+                if (!string.IsNullOrWhiteSpace(errorInventario))
+                {
+                    await transaction.RollbackAsync();
+                    return PedidoOperacionResult.Failure(errorInventario);
+                }
+            }
+            else if (estadoAnterior == EstadoConfirmado && estadoNormalizado == EstadoCancelado)
+            {
+                RevertirInventarioPorPedido(pedido, usuarioId, fechaCambio, observacionNormalizada);
+            }
+
+            pedido.Estado = estadoNormalizado;
+
+            if (pedido.ComprobantePago is not null)
+            {
+                pedido.ComprobantePago.EstadoVerificacion = estadoNormalizado == EstadoConfirmado || estadoNormalizado == EstadoEntregado
+                    ? "Verificado"
+                    : estadoNormalizado == EstadoCancelado ? "Rechazado" : "Pendiente";
+            }
+
+            _context.Bitacora.Add(new Bitacora
+            {
+                UsuarioId = usuarioId,
+                Modulo = "Pedidos",
+                Accion = "Cambiar estado",
+                Descripcion = CrearDescripcionCambioEstadoPedido(pedido.Id, estadoAnterior, estadoNormalizado, observacionNormalizada),
+                FechaRegistro = fechaCambio
+            });
+
+            await _context.SaveChangesAsync();
+            await transaction.CommitAsync();
+            return PedidoOperacionResult.Success($"Pedido PED-{pedido.Id:D6} actualizado a {estadoNormalizado}.");
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            await transaction.RollbackAsync();
+            return PedidoOperacionResult.Failure(
+                "El inventario cambió mientras se actualizaba el pedido. Actualiza la página y vuelve a intentarlo.");
+        }
+        catch (DbUpdateException)
+        {
+            await transaction.RollbackAsync();
+            return PedidoOperacionResult.Failure("No se pudo actualizar el pedido. Inténtalo nuevamente.");
+        }
+    }
+
+    private string? AplicarSalidaInventarioPorPedido(Pedido pedido, int usuarioId, DateTime fechaMovimiento)
+    {
+        var detallesAgrupados = pedido.DetallePedidos
+            .GroupBy(detalle => detalle.ProductoId)
+            .Select(grupo => new
+            {
+                ProductoId = grupo.Key,
+                Producto = grupo.First().Producto,
+                Cantidad = grupo.Sum(detalle => (long)detalle.Cantidad)
+            })
+            .ToList();
+
+        foreach (var detalle in detallesAgrupados)
+        {
+            if (detalle.Cantidad <= 0 || detalle.Cantidad > int.MaxValue)
+            {
+                return "El pedido contiene cantidades inválidas.";
+            }
+
+            if (!detalle.Producto.Activo)
+            {
+                return $"El producto '{detalle.Producto.Nombre}' está inactivo y no puede confirmarse.";
+            }
+
+            if (detalle.Producto.Inventario is null)
+            {
+                return $"El producto '{detalle.Producto.Nombre}' no está registrado en inventario.";
+            }
+
+            if (detalle.Producto.Inventario.CantidadDisponible < detalle.Cantidad)
+            {
+                return $"Stock insuficiente para '{detalle.Producto.Nombre}'. Disponible: {detalle.Producto.Inventario.CantidadDisponible}, solicitado: {detalle.Cantidad}.";
+            }
         }
 
-        if (!PuedeCambiarEstado(pedido.Estado, estadoNormalizado))
+        foreach (var detalle in detallesAgrupados)
         {
-            return PedidoOperacionResult.Failure("El cambio de estado solicitado no está permitido para este pedido.");
+            var inventario = detalle.Producto.Inventario!;
+            var cantidad = (int)detalle.Cantidad;
+            var cantidadAnterior = inventario.CantidadDisponible;
+
+            if (inventario.CantidadDisponible < cantidad)
+            {
+                return $"Stock insuficiente para '{detalle.Producto.Nombre}'. Disponible: {inventario.CantidadDisponible}, solicitado: {cantidad}.";
+            }
+
+            inventario.CantidadDisponible -= cantidad;
+            inventario.FechaActualizacion = fechaMovimiento;
+
+            _context.MovimientosInventario.Add(new MovimientoInventario
+            {
+                ProductoId = detalle.ProductoId,
+                TipoMovimiento = "Salida",
+                Cantidad = cantidad,
+                CantidadAnterior = cantidadAnterior,
+                CantidadNueva = inventario.CantidadDisponible,
+                Motivo = $"Confirmación pedido PED-{pedido.Id:D6}",
+                FechaMovimiento = fechaMovimiento,
+                UsuarioId = usuarioId
+            });
         }
 
-        var estadoAnterior = pedido.Estado;
-        pedido.Estado = estadoNormalizado;
+        return null;
+    }
 
-        if (pedido.ComprobantePago is not null)
+    private void RevertirInventarioPorPedido(Pedido pedido, int usuarioId, DateTime fechaMovimiento, string observacion)
+    {
+        var detallesAgrupados = pedido.DetallePedidos
+            .GroupBy(detalle => detalle.ProductoId)
+            .Select(grupo => new
+            {
+                ProductoId = grupo.Key,
+                Producto = grupo.First().Producto,
+                Cantidad = grupo.Sum(detalle => detalle.Cantidad)
+            });
+
+        foreach (var detalle in detallesAgrupados)
         {
-            pedido.ComprobantePago.EstadoVerificacion = estadoNormalizado == EstadoConfirmado || estadoNormalizado == EstadoEntregado
-                ? "Verificado"
-                : estadoNormalizado == EstadoCancelado ? "Rechazado" : "Pendiente";
+            var inventario = detalle.Producto.Inventario;
+
+            if (inventario is null)
+            {
+                continue;
+            }
+
+            var cantidadAnterior = inventario.CantidadDisponible;
+            inventario.CantidadDisponible += detalle.Cantidad;
+            inventario.FechaActualizacion = fechaMovimiento;
+
+            var motivo = string.IsNullOrWhiteSpace(observacion)
+                ? $"Cancelación pedido PED-{pedido.Id:D6}"
+                : $"Cancelación pedido PED-{pedido.Id:D6}: {observacion}";
+
+            _context.MovimientosInventario.Add(new MovimientoInventario
+            {
+                ProductoId = detalle.ProductoId,
+                TipoMovimiento = "Reversión",
+                Cantidad = detalle.Cantidad,
+                CantidadAnterior = cantidadAnterior,
+                CantidadNueva = inventario.CantidadDisponible,
+                Motivo = motivo.Length > 300 ? motivo[..300] : motivo,
+                FechaMovimiento = fechaMovimiento,
+                UsuarioId = usuarioId
+            });
         }
-
-        _context.Bitacora.Add(new Bitacora
-        {
-            UsuarioId = usuarioId,
-            Modulo = "Pedidos",
-            Accion = "Cambiar estado",
-            Descripcion = CrearDescripcionCambioEstadoPedido(pedido.Id, estadoAnterior, estadoNormalizado, observacionNormalizada),
-            FechaRegistro = _fechaHoraServicio.UtcNow
-        });
-
-        await _context.SaveChangesAsync();
-        return PedidoOperacionResult.Success($"Pedido PED-{pedido.Id:D6} actualizado a {estadoNormalizado}.");
     }
 
     private static string CrearDescripcionCambioEstadoPedido(int pedidoId, string estadoAnterior, string estadoNuevo, string observacion)
