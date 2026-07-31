@@ -573,8 +573,10 @@ function setupCartPage() {
             return;
         }
 
+        clearOrderFieldMessages(form);
+
         if (!form.checkValidity()) {
-            showOrderMessage(message, "Completa los campos obligatorios antes de confirmar el pedido.");
+            showOrderValidationMessages(form, message);
             form.reportValidity();
             return;
         }
@@ -587,7 +589,28 @@ function setupCartPage() {
     });
 
     setupOrderClientLookup(form);
+    setupOrderFieldValidation(form);
     renderCart();
+}
+
+function setupOrderFieldValidation(form) {
+    if (!form) {
+        return;
+    }
+
+    form.querySelectorAll("input, textarea, select").forEach((field) => {
+        field.addEventListener("input", () => {
+            if (field.checkValidity()) {
+                clearOrderFieldMessage(field);
+            }
+        });
+
+        field.addEventListener("blur", () => {
+            if (!field.checkValidity()) {
+                showOrderFieldMessage(field, getFriendlyFieldMessage(field));
+            }
+        });
+    });
 }
 
 function setupOrderClientLookup(form) {
@@ -731,6 +754,8 @@ async function submitOnlineOrder(endpoint, token, data, cart, message, form) {
         submit.textContent = "Registrando...";
     }
 
+    showOrderMessage(message, "Estamos registrando tu pedido. Espera un momento.", "info");
+
     try {
         const response = await fetch(endpoint, {
             method: "POST",
@@ -748,7 +773,7 @@ async function submitOnlineOrder(endpoint, token, data, cart, message, form) {
         const resultTotal = result.total ?? result.Total;
 
         if (!response.ok || !isSuccessful) {
-            showOrderMessage(message, resultMessage || "No se pudo registrar el pedido.");
+            showOrderMessage(message, resultMessage || "No se pudo registrar el pedido. Revisa los datos e inténtalo nuevamente.", "error");
             return;
         }
 
@@ -766,7 +791,7 @@ async function submitOnlineOrder(endpoint, token, data, cart, message, form) {
         updateCartNavigationCount();
         window.location.href = "/Carrito/Confirmacion";
     } catch {
-        showOrderMessage(message, "No se pudo conectar con el servidor. Inténtalo nuevamente.");
+        showOrderMessage(message, "No se pudo conectar con el servidor. Revisa tu conexión e inténtalo nuevamente.", "error");
     } finally {
         if (submit) {
             submit.disabled = false;
@@ -905,13 +930,112 @@ function formatCurrency(value) {
     }).format(value || 0);
 }
 
-function showOrderMessage(message, text) {
+function showOrderValidationMessages(form, message) {
+    const invalidFields = Array.from(form.querySelectorAll("input, textarea, select"))
+        .filter((field) => !field.checkValidity());
+
+    invalidFields.forEach((field) => {
+        showOrderFieldMessage(field, getFriendlyFieldMessage(field));
+    });
+
+    const list = invalidFields
+        .map((field) => `<li>${escapeHtml(getFieldLabel(field))}: ${escapeHtml(getFriendlyFieldMessage(field))}</li>`)
+        .join("");
+
+    showOrderMessage(
+        message,
+        `<strong>Revisa los datos del pedido.</strong><ul>${list}</ul>`,
+        "error",
+        true);
+}
+
+function getFieldLabel(field) {
+    const label = field.id ? document.querySelector(`label[for="${field.id}"]`) : null;
+    return label?.textContent?.trim() || field.name || "Campo";
+}
+
+function getFriendlyFieldMessage(field) {
+    const label = getFieldLabel(field);
+
+    if (field.validity.valueMissing) {
+        return `${label} es obligatorio.`;
+    }
+
+    if (field.validity.patternMismatch) {
+        if (field.name === "cedulaCliente") {
+            return "La cédula debe tener 9 dígitos numéricos.";
+        }
+
+        if (field.name === "telefonoCliente") {
+            return "El teléfono debe tener 8 dígitos numéricos.";
+        }
+    }
+
+    if (field.validity.typeMismatch && field.type === "email") {
+        return "Ingresa un correo válido, por ejemplo nombre@correo.com.";
+    }
+
+    if (field.validity.tooLong) {
+        return `${label} supera la longitud permitida.`;
+    }
+
+    return field.validationMessage || `Revisa el campo ${label}.`;
+}
+
+function showOrderFieldMessage(field, text) {
+    if (!field) {
+        return;
+    }
+
+    field.classList.add("is-invalid");
+    field.setAttribute("aria-invalid", "true");
+
+    let feedback = field.parentElement?.querySelector(`[data-vu-field-error="${field.name}"]`);
+
+    if (!feedback) {
+        feedback = document.createElement("div");
+        feedback.className = "vu-field-error";
+        feedback.dataset.vuFieldError = field.name;
+        field.insertAdjacentElement("afterend", feedback);
+    }
+
+    feedback.textContent = text;
+}
+
+function clearOrderFieldMessage(field) {
+    if (!field) {
+        return;
+    }
+
+    field.classList.remove("is-invalid");
+    field.removeAttribute("aria-invalid");
+    field.parentElement?.querySelector(`[data-vu-field-error="${field.name}"]`)?.remove();
+}
+
+function clearOrderFieldMessages(form) {
+    if (!form) {
+        return;
+    }
+
+    form.querySelectorAll("input, textarea, select").forEach(clearOrderFieldMessage);
+}
+
+function showOrderMessage(message, text, type = "error", allowHtml = false) {
     if (!message) {
         return;
     }
 
     message.hidden = false;
-    message.textContent = text;
+    message.classList.toggle("is-success", type === "success");
+    message.classList.toggle("is-info", type === "info");
+    message.classList.toggle("is-error", type === "error");
+    message.setAttribute("role", "alert");
+
+    if (allowHtml) {
+        message.innerHTML = text;
+    } else {
+        message.textContent = text;
+    }
 }
 
 function showCartFeedback(feedback, message, type) {
@@ -920,10 +1044,13 @@ function showCartFeedback(feedback, message, type) {
     }
 
     feedback.hidden = false;
+    feedback.classList.toggle("is-success", type === "success");
     feedback.classList.toggle("is-error", type === "error");
+    feedback.setAttribute("role", "alert");
     feedback.innerHTML = message;
     window.setTimeout(() => {
         feedback.hidden = true;
+        feedback.classList.remove("is-success");
         feedback.classList.remove("is-error");
     }, 3000);
 }
