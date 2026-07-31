@@ -154,6 +154,7 @@ public class PedidoServicio : IPedidoServicio
         var clienteNormalizado = cliente?.Trim();
         var query = _context.Pedidos
             .AsNoTracking()
+            .Include(pedido => pedido.Cliente)
             .Include(pedido => pedido.MetodoPago)
             .Include(pedido => pedido.ComprobantePago)
             .AsQueryable();
@@ -177,7 +178,8 @@ public class PedidoServicio : IPedidoServicio
             query = query.Where(pedido =>
                 pedido.NombreCliente.Contains(clienteNormalizado) ||
                 pedido.Telefono.Contains(clienteNormalizado) ||
-                pedido.Correo.Contains(clienteNormalizado));
+                pedido.Correo.Contains(clienteNormalizado) ||
+                (pedido.Cliente != null && pedido.Cliente.Identificacion.Contains(clienteNormalizado)));
         }
 
         var pedidos = await query
@@ -187,6 +189,7 @@ public class PedidoServicio : IPedidoServicio
                 Id = pedido.Id,
                 FechaPedido = pedido.FechaPedido,
                 Cliente = pedido.NombreCliente,
+                IdentificacionCliente = pedido.Cliente == null ? string.Empty : pedido.Cliente.Identificacion,
                 Telefono = pedido.Telefono,
                 MetodoPago = pedido.MetodoPago.Nombre,
                 ReferenciaPago = pedido.ComprobantePago == null ? string.Empty : pedido.ComprobantePago.ReferenciaPago,
