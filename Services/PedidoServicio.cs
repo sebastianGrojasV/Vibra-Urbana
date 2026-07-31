@@ -8,7 +8,7 @@ namespace VibraUrbana.Services;
 
 public class PedidoServicio : IPedidoServicio
 {
-    public const string EstadoPendiente = "Pendiente";
+    public const string EstadoPendiente = "Pendiente de verificación";
     public const string EstadoConfirmado = "Confirmado";
     public const string EstadoCancelado = "Cancelado";
     public const string EstadoEntregado = "Entregado";
@@ -22,6 +22,102 @@ public class PedidoServicio : IPedidoServicio
     {
         _context = context;
         _fechaHoraServicio = fechaHoraServicio;
+    }
+
+    public async Task<RegistrarPedidoEnLineaResult> RegistrarPedidoEnLineaAsync(RegistrarPedidoEnLineaViewModel model)
+    {
+        if (model.Items.Count == 0)
+        {
+            return RegistrarPedidoEnLineaResult.Failure("Debes agregar al menos un producto al carrito.");
+        }
+
+        var productoIds = model.Items.Select(item => item.ProductoId).Distinct().ToList();
+        var productos = await _context.Productos
+            .Include(producto => producto.Inventario)
+            .Where(producto => productoIds.Contains(producto.Id))
+            .ToListAsync();
+
+        if (productos.Count != productoIds.Count)
+        {
+            return RegistrarPedidoEnLineaResult.Failure("Uno o más productos del carrito ya no están disponibles.");
+        }
+
+        foreach (var item in model.Items)
+        {
+            var producto = productos.Single(producto => producto.Id == item.ProductoId);
+            var stock = producto.Inventario?.CantidadDisponible ?? 0;
+
+            if (!producto.Activo || stock <= 0)
+            {
+                return RegistrarPedidoEnLineaResult.Failure($"El producto {producto.Nombre} no está disponible.");
+            }
+
+            if (item.Cantidad > stock)
+            {
+                return RegistrarPedidoEnLineaResult.Failure($"No hay stock suficiente para {producto.Nombre}. Disponible: {stock}.");
+            }
+        }
+
+        var metodoPago = await _context.MetodosPago
+            .SingleOrDefaultAsync(metodo => metodo.Activo && metodo.Nombre == "SINPE");
+
+        if (metodoPago is null)
+        {
+            return RegistrarPedidoEnLineaResult.Failure("No se encontró el método de pago SINPE.");
+        }
+
+        var cliente = await _context.Clientes
+            .Where(item => item.Activo && (item.Correo == model.CorreoCliente || item.Telefono == model.TelefonoCliente))
+            .OrderBy(item => item.Id)
+            .FirstOrDefaultAsync();
+        var subtotal = model.Items.Sum(item =>
+        {
+            var producto = productos.Single(producto => producto.Id == item.ProductoId);
+            return producto.Precio * item.Cantidad;
+        });
+        var impuesto = subtotal * 0.13m;
+        var pedido = new Pedido
+        {
+            ClienteId = cliente?.Id,
+            NombreCliente = model.NombreCliente.Trim(),
+            Telefono = model.TelefonoCliente.Trim(),
+            Correo = model.CorreoCliente.Trim(),
+            DireccionEntrega = model.DireccionEntrega.Trim(),
+            FechaPedido = _fechaHoraServicio.UtcNow,
+            MetodoPagoId = metodoPago.Id,
+            Subtotal = subtotal,
+            Descuento = 0,
+            Impuesto = impuesto,
+            Total = subtotal + impuesto,
+            Estado = EstadoPendiente,
+            Observacion = model.ObservacionPedido?.Trim() ?? string.Empty,
+            ComprobantePago = new ComprobantePago
+            {
+                MetodoPagoId = metodoPago.Id,
+                ReferenciaPago = model.ReferenciaPago.Trim(),
+                EstadoVerificacion = "Pendiente",
+                FechaRegistro = _fechaHoraServicio.UtcNow
+            }
+        };
+
+        foreach (var item in model.Items)
+        {
+            var producto = productos.Single(producto => producto.Id == item.ProductoId);
+            pedido.DetallePedidos.Add(new DetallePedido
+            {
+                ProductoId = producto.Id,
+                Cantidad = item.Cantidad,
+                PrecioUnitario = producto.Precio,
+                Subtotal = producto.Precio * item.Cantidad
+            });
+        }
+
+        await using var transaction = await _context.Database.BeginTransactionAsync();
+        _context.Pedidos.Add(pedido);
+        await _context.SaveChangesAsync();
+        await transaction.CommitAsync();
+
+        return RegistrarPedidoEnLineaResult.Success(pedido.Id, pedido.Total);
     }
 
     public async Task<PedidosIndexViewModel> ObtenerPedidosAsync(string? estado, DateTime? fechaInicio, DateTime? fechaFin, string? cliente)

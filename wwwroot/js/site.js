@@ -9,6 +9,7 @@ window.addEventListener("DOMContentLoaded", () => {
     setupCatalogFilters();
     setupCatalogCartButtons();
     setupCartPage();
+    setupCheckoutButton();
     setupOrderConfirmationPage();
     updateCartNavigationCount();
 
@@ -528,23 +529,98 @@ function setupCartPage() {
         }
 
         const data = Object.fromEntries(new FormData(form).entries());
-        const totals = calculateCartTotals(cart);
-        const order = {
-            number: `VU-${Date.now().toString().slice(-8)}`,
-            status: "Pendiente",
-            customer: data,
-            items: cart,
-            totals,
-            createdAt: new Date().toISOString()
-        };
+        const token = form.querySelector('input[name="__RequestVerificationToken"]')?.value || "";
+        const endpoint = form.dataset.vuOrderEndpoint || "/Carrito/RegistrarPedido";
 
-        localStorage.setItem("vibra.pendingOrder", JSON.stringify(order));
-        localStorage.removeItem("vibra.catalogCart");
-        updateCartNavigationCount();
-        window.location.href = "/Carrito/Confirmacion";
+        submitOnlineOrder(endpoint, token, data, cart, message, form);
     });
 
     renderCart();
+}
+
+function setupCheckoutButton() {
+    const button = document.querySelector("[data-vu-checkout]");
+
+    if (!button) {
+        return;
+    }
+
+    button.addEventListener("click", () => {
+        const cart = readCatalogCart();
+        const message = document.querySelector("[data-vu-checkout-message]");
+
+        if (cart.length === 0) {
+            showOrderMessage(message, "Debes agregar productos al carrito antes de finalizar la compra.");
+            return;
+        }
+
+        window.location.href = "/Carrito/Pedido";
+    });
+}
+
+async function submitOnlineOrder(endpoint, token, data, cart, message, form) {
+    const submit = form.querySelector('button[type="submit"]');
+    const originalText = submit?.textContent || "Confirmar pedido";
+    const payload = {
+        nombreCliente: data.nombreCliente,
+        telefonoCliente: data.telefonoCliente,
+        correoCliente: data.correoCliente,
+        direccionEntrega: data.direccionEntrega,
+        referenciaPago: data.referenciaPago,
+        observacionPedido: data.observacionPedido,
+        items: cart.map((item) => ({
+            productoId: Number(item.id),
+            cantidad: Number(item.quantity)
+        }))
+    };
+
+    if (submit) {
+        submit.disabled = true;
+        submit.textContent = "Registrando...";
+    }
+
+    try {
+        const response = await fetch(endpoint, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "RequestVerificationToken": token
+            },
+            body: JSON.stringify(payload)
+        });
+        const result = await response.json();
+
+        const isSuccessful = result.esExitoso ?? result.EsExitoso;
+        const resultMessage = result.mensaje ?? result.Mensaje;
+        const resultCode = result.codigo ?? result.Codigo;
+        const resultTotal = result.total ?? result.Total;
+
+        if (!response.ok || !isSuccessful) {
+            showOrderMessage(message, resultMessage || "No se pudo registrar el pedido.");
+            return;
+        }
+
+        localStorage.setItem("vibra.pendingOrder", JSON.stringify({
+            number: resultCode,
+            status: "Pendiente de verificación",
+            customer: data,
+            items: cart,
+            totals: {
+                total: resultTotal
+            },
+            createdAt: new Date().toISOString()
+        }));
+        localStorage.removeItem("vibra.catalogCart");
+        updateCartNavigationCount();
+        window.location.href = "/Carrito/Confirmacion";
+    } catch {
+        showOrderMessage(message, "No se pudo conectar con el servidor. Inténtalo nuevamente.");
+    } finally {
+        if (submit) {
+            submit.disabled = false;
+            submit.textContent = originalText;
+        }
+    }
 }
 
 function setupOrderConfirmationPage() {
