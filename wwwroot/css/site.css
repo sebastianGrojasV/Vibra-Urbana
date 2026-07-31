@@ -3418,6 +3418,47 @@ body.vu-sidebar-collapsed .vu-sidebar-brand {
     font-weight: 850;
 }
 
+.vu-order-warning.is-info {
+    color: #173f46;
+    background: #eaf6f3;
+    border-color: #cce5dd;
+}
+
+.vu-order-warning.is-success {
+    color: #176f62;
+    background: #eaf6f3;
+    border-color: #bdded5;
+}
+
+.vu-order-warning.is-error {
+    color: #8f2f22;
+    background: #fff3ed;
+    border-color: #f4c8ba;
+}
+
+.vu-order-warning strong {
+    display: block;
+    margin-bottom: .35rem;
+    color: inherit;
+}
+
+.vu-order-warning ul {
+    margin: .35rem 0 0;
+    padding-left: 1.1rem;
+}
+
+.vu-field-error {
+    margin-top: .4rem;
+    color: #a83a28;
+    font-size: .82rem;
+    font-weight: 800;
+}
+
+.vu-order-form .form-control.is-invalid {
+    border-color: #f05a3d;
+    box-shadow: 0 0 0 .18rem rgba(240, 90, 61, .12);
+}
+
 .vu-order-confirmation {
     position: relative;
     overflow: hidden;
@@ -3584,6 +3625,12 @@ body.vu-sidebar-collapsed .vu-sidebar-brand {
     border: 1px solid #cce5dd;
     border-radius: 8px;
     font-weight: 850;
+}
+
+.vu-product-cart-feedback.is-success {
+    color: #176f62;
+    background: #eaf6f3;
+    border-color: #bdded5;
 }
 
 .vu-product-cart-feedback a {
