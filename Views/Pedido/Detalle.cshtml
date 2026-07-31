@@ -154,7 +154,7 @@
                     </div>
 
                     <div class="vu-order-admin-actions">
-                        @if (Model.Estado == "Pendiente")
+                        @if (Model.Estado == "Pendiente de verificación")
                         {
                             <form asp-controller="Pedido" asp-action="CambiarEstado" method="post" data-vu-confirm data-vu-confirm-title="Confirmar pedido" data-vu-confirm-message="El pedido pasará a estado Confirmado." data-vu-confirm-action="Confirmar">
                                 @Html.AntiForgeryToken()
@@ -164,7 +164,7 @@
                             </form>
                         }
 
-                        @if (Model.Estado is "Pendiente" or "Confirmado")
+                        @if (Model.Estado is "Pendiente de verificación" or "Confirmado")
                         {
                             <form asp-controller="Pedido" asp-action="CambiarEstado" method="post" data-vu-confirm data-vu-confirm-title="Cancelar pedido" data-vu-confirm-message="El pedido quedará cancelado sin eliminar el historial." data-vu-confirm-action="Cancelar pedido">
                                 @Html.AntiForgeryToken()
@@ -195,7 +195,7 @@
     {
         return estado switch
         {
-            "Pendiente" => "bg-warning text-dark",
+            "Pendiente de verificación" => "bg-warning text-dark",
             "Confirmado" => "bg-primary",
             "Entregado" => "bg-success",
             "Cancelado" => "bg-danger",

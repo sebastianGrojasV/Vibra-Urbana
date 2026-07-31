@@ -1,0 +1,102 @@
+@{
+    ViewData["Title"] = "Confirmar pedido";
+}
+
+<section class="vu-cart-page">
+    <div class="container">
+        <div class="vu-cart-header">
+            <div>
+                <p class="vu-eyebrow">Pedido en línea</p>
+                <h1>Confirmar pedido</h1>
+                <p>Completa tus datos de contacto y la referencia SINPE para registrar tu solicitud de compra.</p>
+            </div>
+            <a class="btn btn-outline-dark" asp-controller="Carrito" asp-action="Index">Volver al carrito</a>
+        </div>
+
+        <div class="vu-cart-layout">
+            <section class="vu-cart-panel">
+                <div class="vu-cart-panel-header">
+                    <h2>Productos del pedido</h2>
+                    <span data-vu-cart-count-label>0 artículos</span>
+                </div>
+
+                <div class="vu-cart-empty" data-vu-cart-empty hidden>
+                    <strong>No hay productos para confirmar</strong>
+                    <span>Agrega productos al carrito antes de finalizar la compra.</span>
+                    <a class="btn btn-primary" asp-controller="Catalogo" asp-action="Index">Ver catálogo</a>
+                </div>
+
+                <div class="vu-cart-items" data-vu-cart-items></div>
+            </section>
+
+            <aside class="vu-cart-summary">
+                <h2>Resumen del pedido</h2>
+                <dl>
+                    <div>
+                        <dt>Subtotal</dt>
+                        <dd data-vu-cart-subtotal>₡0</dd>
+                    </div>
+                    <div>
+                        <dt>Impuesto estimado</dt>
+                        <dd data-vu-cart-tax>₡0</dd>
+                    </div>
+                    <div class="vu-cart-total-row">
+                        <dt>Total</dt>
+                        <dd data-vu-cart-total>₡0</dd>
+                    </div>
+                </dl>
+
+                <div class="vu-sinpe-box">
+                    <span>Datos SINPE</span>
+                    <strong>Vibra Urbana</strong>
+                    <p>Realiza el pago por SINPE Móvil y conserva el comprobante para la verificación del pedido.</p>
+                    <div>
+                        <small>Número</small>
+                        <b>0000-0000</b>
+                    </div>
+                </div>
+            </aside>
+        </div>
+
+        <form class="vu-order-form" data-vu-order-form data-vu-order-endpoint="@Url.Action("RegistrarPedido", "Carrito")">
+            @Html.AntiForgeryToken()
+
+            <div class="vu-cart-panel-header">
+                <h2>Datos del cliente</h2>
+                <span>Campos obligatorios</span>
+            </div>
+
+            <div class="vu-order-grid">
+                <div>
+                    <label class="form-label" for="nombreCliente">Nombre completo</label>
+                    <input class="form-control" id="nombreCliente" name="nombreCliente" required maxlength="120" autocomplete="name" />
+                </div>
+                <div>
+                    <label class="form-label" for="telefonoCliente">Teléfono</label>
+                    <input class="form-control" id="telefonoCliente" name="telefonoCliente" required inputmode="numeric" pattern="[0-9]{8}" maxlength="8" placeholder="88888888" autocomplete="tel" />
+                </div>
+                <div>
+                    <label class="form-label" for="correoCliente">Correo</label>
+                    <input class="form-control" id="correoCliente" name="correoCliente" type="email" required maxlength="120" autocomplete="email" />
+                </div>
+                <div>
+                    <label class="form-label" for="referenciaPago">Referencia SINPE</label>
+                    <input class="form-control" id="referenciaPago" name="referenciaPago" required maxlength="80" placeholder="Número o detalle del comprobante" />
+                </div>
+                <div class="vu-order-wide">
+                    <label class="form-label" for="direccionEntrega">Dirección de entrega</label>
+                    <textarea class="form-control" id="direccionEntrega" name="direccionEntrega" rows="3" required maxlength="250"></textarea>
+                </div>
+                <div class="vu-order-wide">
+                    <label class="form-label" for="observacionPedido">Observación</label>
+                    <textarea class="form-control" id="observacionPedido" name="observacionPedido" rows="2" maxlength="250" placeholder="Tallas alternativas, horario preferido u otra nota"></textarea>
+                </div>
+            </div>
+
+            <div class="vu-order-actions">
+                <div class="vu-order-warning" data-vu-order-message hidden></div>
+                <button class="btn btn-primary" type="submit">Confirmar pedido</button>
+            </div>
+        </form>
+    </div>
+</section>

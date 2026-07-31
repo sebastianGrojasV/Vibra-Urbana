@@ -118,7 +118,7 @@
                                                         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6Z"></path><circle cx="12" cy="12" r="3"></circle></svg>
                                                     </a>
 
-                                                    @if (pedido.Estado == "Pendiente")
+                                                    @if (pedido.Estado == "Pendiente de verificación")
                                                     {
                                                         <form asp-controller="Pedido" asp-action="CambiarEstado" method="post" data-vu-confirm data-vu-confirm-title="Confirmar pedido" data-vu-confirm-message="El pedido pasará a estado Confirmado." data-vu-confirm-action="Confirmar">
                                                             @Html.AntiForgeryToken()
@@ -130,7 +130,7 @@
                                                         </form>
                                                     }
 
-                                                    @if (pedido.Estado is "Pendiente" or "Confirmado")
+                                                    @if (pedido.Estado is "Pendiente de verificación" or "Confirmado")
                                                     {
                                                         <form asp-controller="Pedido" asp-action="CambiarEstado" method="post" data-vu-confirm data-vu-confirm-title="Cancelar pedido" data-vu-confirm-message="El pedido quedará cancelado sin eliminar el historial." data-vu-confirm-action="Cancelar pedido">
                                                             @Html.AntiForgeryToken()
@@ -172,7 +172,7 @@
     {
         return estado switch
         {
-            "Pendiente" => "bg-warning text-dark",
+            "Pendiente de verificación" => "bg-warning text-dark",
             "Confirmado" => "bg-primary",
             "Entregado" => "bg-success",
             "Cancelado" => "bg-danger",
