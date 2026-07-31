@@ -167,6 +167,10 @@ function setupInlineConfirmations() {
     const message = frame.querySelector("[data-vu-confirm-message]");
     const submit = frame.querySelector("[data-vu-confirm-submit]");
     const cancel = frame.querySelector("[data-vu-confirm-cancel]");
+    const observationWrap = frame.querySelector("[data-vu-confirm-observation-wrap]");
+    const observationLabel = frame.querySelector("[data-vu-confirm-observation-label]");
+    const observationInput = frame.querySelector("[data-vu-confirm-observation]");
+    const observationError = frame.querySelector("[data-vu-confirm-observation-error]");
     let pendingForm = null;
 
     document.querySelectorAll("form[data-vu-confirm]").forEach((form) => {
@@ -180,9 +184,24 @@ function setupInlineConfirmations() {
             title.textContent = form.dataset.vuConfirmTitle || "Confirmar acción";
             message.textContent = form.dataset.vuConfirmMessage || "Confirma para continuar.";
             submit.textContent = form.dataset.vuConfirmAction || "Confirmar";
+            const needsObservation = form.dataset.vuConfirmObservation === "true";
+
+            if (observationWrap && observationInput && observationLabel && observationError) {
+                observationWrap.hidden = !needsObservation;
+                observationInput.value = "";
+                observationLabel.textContent = form.dataset.vuConfirmObservationLabel || "Observación";
+                observationInput.placeholder = form.dataset.vuConfirmObservationPlaceholder || "";
+                observationInput.required = form.dataset.vuConfirmObservationRequired === "true";
+                observationError.hidden = true;
+            }
+
             frame.hidden = false;
             frame.classList.add("is-visible");
-            submit.focus();
+            if (needsObservation && observationInput) {
+                observationInput.focus();
+            } else {
+                submit.focus();
+            }
         });
     });
 
@@ -191,12 +210,43 @@ function setupInlineConfirmations() {
             return;
         }
 
+        if (observationInput && observationInput.required && !observationInput.value.trim()) {
+            if (observationError) {
+                observationError.hidden = false;
+            }
+
+            observationInput.focus();
+            return;
+        }
+
+        if (observationInput) {
+            let formObservation = pendingForm.querySelector('input[name="Observacion"]');
+
+            if (!formObservation) {
+                formObservation = document.createElement("input");
+                formObservation.type = "hidden";
+                formObservation.name = "Observacion";
+                pendingForm.appendChild(formObservation);
+            }
+
+            formObservation.value = observationInput.value.trim();
+        }
+
         pendingForm.dataset.vuConfirmed = "true";
         pendingForm.submit();
     });
 
     cancel.addEventListener("click", () => {
         pendingForm = null;
+        if (observationInput) {
+            observationInput.value = "";
+            observationInput.required = false;
+        }
+
+        if (observationError) {
+            observationError.hidden = true;
+        }
+
         frame.classList.remove("is-visible");
         frame.hidden = true;
     });

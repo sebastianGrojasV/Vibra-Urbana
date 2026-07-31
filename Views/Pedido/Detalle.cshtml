@@ -156,7 +156,7 @@
                     <div class="vu-order-admin-actions">
                         @if (Model.Estado == "Pendiente de verificación")
                         {
-                            <form asp-controller="Pedido" asp-action="CambiarEstado" method="post" data-vu-confirm data-vu-confirm-title="Confirmar pedido" data-vu-confirm-message="El pedido pasará a estado Confirmado." data-vu-confirm-action="Confirmar">
+                            <form asp-controller="Pedido" asp-action="CambiarEstado" method="post" data-vu-confirm data-vu-confirm-title="Confirmar pedido" data-vu-confirm-message="El pedido pasará a estado Confirmado." data-vu-confirm-action="Confirmar" data-vu-confirm-observation="true" data-vu-confirm-observation-label="Observación opcional" data-vu-confirm-observation-placeholder="Ejemplo: Pago verificado por SINPE.">
                                 @Html.AntiForgeryToken()
                                 <input type="hidden" name="PedidoId" value="@Model.Id" />
                                 <input type="hidden" name="NuevoEstado" value="Confirmado" />
@@ -166,7 +166,7 @@
 
                         @if (Model.Estado is "Pendiente de verificación" or "Confirmado")
                         {
-                            <form asp-controller="Pedido" asp-action="CambiarEstado" method="post" data-vu-confirm data-vu-confirm-title="Cancelar pedido" data-vu-confirm-message="El pedido quedará cancelado sin eliminar el historial." data-vu-confirm-action="Cancelar pedido">
+                            <form asp-controller="Pedido" asp-action="CambiarEstado" method="post" data-vu-confirm data-vu-confirm-title="Cancelar pedido" data-vu-confirm-message="El pedido quedará cancelado sin eliminar el historial." data-vu-confirm-action="Cancelar pedido" data-vu-confirm-observation="true" data-vu-confirm-observation-required="true" data-vu-confirm-observation-label="Motivo de cancelación" data-vu-confirm-observation-placeholder="Indica por qué el pedido no procede.">
                                 @Html.AntiForgeryToken()
                                 <input type="hidden" name="PedidoId" value="@Model.Id" />
                                 <input type="hidden" name="NuevoEstado" value="Cancelado" />
@@ -176,7 +176,7 @@
 
                         @if (Model.Estado == "Confirmado")
                         {
-                            <form asp-controller="Pedido" asp-action="CambiarEstado" method="post" data-vu-confirm data-vu-confirm-title="Marcar como entregado" data-vu-confirm-message="El pedido quedará marcado como Entregado." data-vu-confirm-action="Marcar entregado">
+                            <form asp-controller="Pedido" asp-action="CambiarEstado" method="post" data-vu-confirm data-vu-confirm-title="Marcar como entregado" data-vu-confirm-message="El pedido quedará marcado como Entregado." data-vu-confirm-action="Marcar entregado" data-vu-confirm-observation="true" data-vu-confirm-observation-label="Observación opcional" data-vu-confirm-observation-placeholder="Ejemplo: Entregado en tienda o por mensajería.">
                                 @Html.AntiForgeryToken()
                                 <input type="hidden" name="PedidoId" value="@Model.Id" />
                                 <input type="hidden" name="NuevoEstado" value="Entregado" />

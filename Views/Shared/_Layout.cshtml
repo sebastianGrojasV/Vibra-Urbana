@@ -81,6 +81,11 @@
         <div class="vu-confirm-copy">
             <strong data-vu-confirm-title>Confirmar acción</strong>
             <span data-vu-confirm-message>Confirma para continuar.</span>
+            <label class="vu-confirm-observation" data-vu-confirm-observation-wrap hidden>
+                <span data-vu-confirm-observation-label>Observación</span>
+                <textarea class="form-control form-control-sm" maxlength="250" rows="2" data-vu-confirm-observation></textarea>
+                <small data-vu-confirm-observation-error hidden>La observación es obligatoria.</small>
+            </label>
         </div>
         <div class="vu-confirm-actions">
             <button class="btn btn-sm btn-primary" type="button" data-vu-confirm-submit>Confirmar</button>

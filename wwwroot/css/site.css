@@ -1189,6 +1189,30 @@ body.vu-sidebar-collapsed .vu-sidebar-toggle {
     font-weight: 650;
 }
 
+.vu-confirm-observation {
+    display: grid;
+    gap: .35rem;
+    margin-top: .55rem;
+}
+
+.vu-confirm-observation span {
+    color: #44515f;
+    font-size: .75rem;
+    font-weight: 900;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+}
+
+.vu-confirm-observation textarea {
+    min-height: 4.25rem;
+    resize: vertical;
+}
+
+.vu-confirm-observation small {
+    color: #a83a28;
+    font-weight: 800;
+}
+
 .vu-confirm-actions {
     display: flex;
     flex-wrap: wrap;
