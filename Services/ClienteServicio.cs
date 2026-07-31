@@ -139,6 +139,28 @@ public class ClienteServicio : IClienteServicio
         return CambiarEstadoClienteResult.Success;
     }
 
+    public async Task<ClientePedidoLookupViewModel?> ObtenerClientePorIdentificacionAsync(string identificacion)
+    {
+        var identificacionNormalizada = identificacion.Trim();
+
+        if (string.IsNullOrWhiteSpace(identificacionNormalizada))
+        {
+            return null;
+        }
+
+        return await _dbContext.Clientes
+            .AsNoTracking()
+            .Where(cliente => cliente.Identificacion == identificacionNormalizada)
+            .Select(cliente => new ClientePedidoLookupViewModel
+            {
+                NombreCompleto = cliente.NombreCompleto,
+                Telefono = cliente.Telefono,
+                Correo = cliente.Correo,
+                Direccion = cliente.Direccion
+            })
+            .FirstOrDefaultAsync();
+    }
+
     public async Task<ClienteHistorialComprasViewModel?> ObtenerHistorialComprasAsync(int clienteId)
     {
         var cliente = await _dbContext.Clientes

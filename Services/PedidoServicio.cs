@@ -66,8 +66,14 @@ public class PedidoServicio : IPedidoServicio
             return RegistrarPedidoEnLineaResult.Failure("No se encontró el método de pago SINPE.");
         }
 
+        var nombreCliente = model.NombreCliente.Trim();
+        var cedulaCliente = model.CedulaCliente.Trim();
+        var telefonoCliente = model.TelefonoCliente.Trim();
+        var correoCliente = model.CorreoCliente.Trim();
+        var direccionEntrega = model.DireccionEntrega.Trim();
         var cliente = await _context.Clientes
-            .Where(item => item.Activo && (item.Correo == model.CorreoCliente || item.Telefono == model.TelefonoCliente))
+            .Where(item =>
+                item.Identificacion == cedulaCliente)
             .OrderBy(item => item.Id)
             .FirstOrDefaultAsync();
         var subtotal = model.Items.Sum(item =>
@@ -79,10 +85,10 @@ public class PedidoServicio : IPedidoServicio
         var pedido = new Pedido
         {
             ClienteId = cliente?.Id,
-            NombreCliente = model.NombreCliente.Trim(),
-            Telefono = model.TelefonoCliente.Trim(),
-            Correo = model.CorreoCliente.Trim(),
-            DireccionEntrega = model.DireccionEntrega.Trim(),
+            NombreCliente = nombreCliente,
+            Telefono = telefonoCliente,
+            Correo = correoCliente,
+            DireccionEntrega = direccionEntrega,
             FechaPedido = _fechaHoraServicio.UtcNow,
             MetodoPagoId = metodoPago.Id,
             Subtotal = subtotal,
@@ -99,6 +105,28 @@ public class PedidoServicio : IPedidoServicio
                 FechaRegistro = _fechaHoraServicio.UtcNow
             }
         };
+
+        if (cliente is null)
+        {
+            cliente = new Cliente
+            {
+                Identificacion = cedulaCliente,
+                NombreCompleto = nombreCliente,
+                Telefono = telefonoCliente,
+                Correo = correoCliente,
+                Direccion = direccionEntrega,
+                Activo = true,
+                FechaRegistro = _fechaHoraServicio.UtcNow
+            };
+
+            pedido.Cliente = cliente;
+        }
+        else
+        {
+            pedido.ClienteId = cliente.Id;
+            cliente.Activo = true;
+            ActualizarDatosClienteDesdePedido(cliente, nombreCliente, telefonoCliente, correoCliente, direccionEntrega);
+        }
 
         foreach (var item in model.Items)
         {
@@ -308,6 +336,34 @@ public class PedidoServicio : IPedidoServicio
     private static string? NormalizarEstado(string? estado)
     {
         return Estados.FirstOrDefault(item => string.Equals(item, estado?.Trim(), StringComparison.OrdinalIgnoreCase));
+    }
+
+    private static void ActualizarDatosClienteDesdePedido(
+        Cliente cliente,
+        string nombre,
+        string telefono,
+        string correo,
+        string direccion)
+    {
+        if (string.IsNullOrWhiteSpace(cliente.NombreCompleto))
+        {
+            cliente.NombreCompleto = nombre;
+        }
+
+        if (string.IsNullOrWhiteSpace(cliente.Telefono))
+        {
+            cliente.Telefono = telefono;
+        }
+
+        if (string.IsNullOrWhiteSpace(cliente.Correo))
+        {
+            cliente.Correo = correo;
+        }
+
+        if (string.IsNullOrWhiteSpace(cliente.Direccion))
+        {
+            cliente.Direccion = direccion;
+        }
     }
 
     private static IEnumerable<SelectListItem> ObtenerEstadosSelect(string? selected)

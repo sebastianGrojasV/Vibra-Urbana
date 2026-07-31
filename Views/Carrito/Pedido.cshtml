@@ -58,7 +58,7 @@
             </aside>
         </div>
 
-        <form class="vu-order-form" data-vu-order-form data-vu-order-endpoint="@Url.Action("RegistrarPedido", "Carrito")">
+        <form class="vu-order-form" data-vu-order-form data-vu-order-endpoint="@Url.Action("RegistrarPedido", "Carrito")" data-vu-client-lookup-endpoint="@Url.Action("BuscarClientePorCedula", "Carrito")">
             @Html.AntiForgeryToken()
 
             <div class="vu-cart-panel-header">
@@ -70,6 +70,11 @@
                 <div>
                     <label class="form-label" for="nombreCliente">Nombre completo</label>
                     <input class="form-control" id="nombreCliente" name="nombreCliente" required maxlength="120" autocomplete="name" />
+                </div>
+                <div>
+                    <label class="form-label" for="cedulaCliente">Cédula</label>
+                    <input class="form-control" id="cedulaCliente" name="cedulaCliente" required inputmode="numeric" pattern="[0-9]{9}" maxlength="9" placeholder="102340567" autocomplete="off" />
+                    <div class="vu-order-lookup-status" data-vu-client-lookup-status hidden></div>
                 </div>
                 <div>
                     <label class="form-label" for="telefonoCliente">Teléfono</label>
@@ -91,6 +96,10 @@
                     <label class="form-label" for="observacionPedido">Observación</label>
                     <textarea class="form-control" id="observacionPedido" name="observacionPedido" rows="2" maxlength="250" placeholder="Tallas alternativas, horario preferido u otra nota"></textarea>
                 </div>
+            </div>
+
+            <div class="vu-order-privacy">
+                Tus datos se utilizarán únicamente para gestionar este pedido y coordinar la entrega.
             </div>
 
             <div class="vu-order-actions">

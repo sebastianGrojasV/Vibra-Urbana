@@ -524,6 +524,7 @@ function setupCartPage() {
         }
 
         if (!form.checkValidity()) {
+            showOrderMessage(message, "Completa los campos obligatorios antes de confirmar el pedido.");
             form.reportValidity();
             return;
         }
@@ -535,7 +536,107 @@ function setupCartPage() {
         submitOnlineOrder(endpoint, token, data, cart, message, form);
     });
 
+    setupOrderClientLookup(form);
     renderCart();
+}
+
+function setupOrderClientLookup(form) {
+    if (!form) {
+        return;
+    }
+
+    const endpoint = form.dataset.vuClientLookupEndpoint;
+    const cedulaInput = form.querySelector('[name="cedulaCliente"]');
+    const status = form.querySelector("[data-vu-client-lookup-status]");
+    let lookupTimer = null;
+    let lastLookupValue = "";
+
+    if (!endpoint || !cedulaInput) {
+        return;
+    }
+
+    cedulaInput.addEventListener("input", () => {
+        const cedula = cedulaInput.value.replace(/\D/g, "").slice(0, 9);
+        cedulaInput.value = cedula;
+
+        window.clearTimeout(lookupTimer);
+
+        if (cedula.length !== 9) {
+            updateClientLookupStatus(status, "", "neutral");
+            return;
+        }
+
+        lookupTimer = window.setTimeout(async () => {
+            lastLookupValue = cedula;
+            updateClientLookupStatus(status, "Buscando datos del cliente...", "neutral");
+
+            try {
+                const response = await fetch(`${endpoint}?cedula=${encodeURIComponent(cedula)}`, {
+                    headers: {
+                        "Accept": "application/json"
+                    }
+                });
+
+                const result = await response.json();
+
+                if (lastLookupValue !== cedulaInput.value) {
+                    return;
+                }
+
+                if (!response.ok) {
+                    updateClientLookupStatus(status, result.mensaje || "Revisa la cédula ingresada.", "warning");
+                    return;
+                }
+
+                const encontrado = result.encontrado ?? result.Encontrado;
+                const cliente = result.cliente ?? result.Cliente;
+
+                if (!encontrado || !cliente) {
+                    updateClientLookupStatus(status, "No encontramos datos previos. Puedes continuar con el registro.", "neutral");
+                    return;
+                }
+
+                fillOrderClientData(form, cliente);
+                updateClientLookupStatus(status, "Datos encontrados y completados automáticamente.", "success");
+            } catch {
+                updateClientLookupStatus(status, "No se pudo consultar la cédula en este momento.", "warning");
+            }
+        }, 350);
+    });
+}
+
+function fillOrderClientData(form, cliente) {
+    const values = {
+        nombreCliente: cliente.nombreCompleto ?? cliente.NombreCompleto ?? "",
+        telefonoCliente: cliente.telefono ?? cliente.Telefono ?? "",
+        correoCliente: cliente.correo ?? cliente.Correo ?? "",
+        direccionEntrega: cliente.direccion ?? cliente.Direccion ?? ""
+    };
+
+    Object.entries(values).forEach(([name, value]) => {
+        const field = form.querySelector(`[name="${name}"]`);
+
+        if (field && value) {
+            field.value = value;
+        }
+    });
+}
+
+function updateClientLookupStatus(status, message, tone) {
+    if (!status) {
+        return;
+    }
+
+    if (!message) {
+        status.hidden = true;
+        status.textContent = "";
+        status.dataset.tone = "neutral";
+        return;
+    }
+
+    status.hidden = false;
+    status.textContent = message;
+    status.dataset.tone = tone || "neutral";
 }
 
 function setupCheckoutButton() {
@@ -563,6 +664,7 @@ async function submitOnlineOrder(endpoint, token, data, cart, message, form) {
     const originalText = submit?.textContent || "Confirmar pedido";
     const payload = {
         nombreCliente: data.nombreCliente,
+        cedulaCliente: data.cedulaCliente,
         telefonoCliente: data.telefonoCliente,
         correoCliente: data.correoCliente,
         direccionEntrega: data.direccionEntrega,

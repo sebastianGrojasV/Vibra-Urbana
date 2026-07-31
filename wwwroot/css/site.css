@@ -3352,6 +3352,31 @@ body.vu-sidebar-collapsed .vu-sidebar-brand {
     text-transform: uppercase;
 }
 
+.vu-order-lookup-status {
+    margin-top: .45rem;
+    color: #41505c;
+    font-size: .82rem;
+    font-weight: 750;
+}
+
+.vu-order-lookup-status[data-tone="success"] {
+    color: #176f62;
+}
+
+.vu-order-lookup-status[data-tone="warning"] {
+    color: #a83a28;
+}
+
+.vu-order-privacy {
+    margin-top: 1rem;
+    padding: .8rem .95rem;
+    color: #173f46;
+    background: #eaf6f3;
+    border: 1px solid #cce5dd;
+    border-radius: 8px;
+    font-weight: 800;
+}
+
 .vu-order-actions {
     display: flex;
     align-items: center;
