@@ -27,6 +27,8 @@ public class PedidoListadoItemViewModel
 
     public string Cliente { get; set; } = string.Empty;
 
+    public string IdentificacionCliente { get; set; } = string.Empty;
+
     public string Telefono { get; set; } = string.Empty;
 
     public string MetodoPago { get; set; } = string.Empty;

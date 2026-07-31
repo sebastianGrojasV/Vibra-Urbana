@@ -50,7 +50,7 @@
                         </div>
                         <div>
                             <label class="form-label" for="cliente">Cliente</label>
-                            <input class="form-control" id="cliente" name="cliente" value="@Model.Cliente" placeholder="Nombre, teléfono o correo" />
+                            <input class="form-control" id="cliente" name="cliente" value="@Model.Cliente" placeholder="Nombre, cédula, teléfono o correo" />
                         </div>
                         <div class="vu-filter-actions">
                             <button class="btn btn-primary" type="submit">Filtrar</button>
@@ -89,6 +89,10 @@
                                             <td>
                                                 <div class="d-flex flex-column">
                                                     <span>@pedido.Cliente</span>
+                                                    @if (!string.IsNullOrWhiteSpace(pedido.IdentificacionCliente))
+                                                    {
+                                                        <small class="text-muted">Cédula: @pedido.IdentificacionCliente</small>
+                                                    }
                                                     <small class="text-muted">@pedido.Telefono</small>
                                                 </div>
                                             </td>
