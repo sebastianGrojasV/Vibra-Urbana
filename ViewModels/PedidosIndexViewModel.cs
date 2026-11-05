@@ -38,4 +38,6 @@ public class PedidoListadoItemViewModel
     public decimal Total { get; set; }
 
     public string Estado { get; set; } = string.Empty;
+
+    public DateTime? FechaEntrega { get; set; }
 }

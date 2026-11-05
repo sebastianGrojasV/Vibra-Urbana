@@ -1,0 +1,67 @@
+@model VibraUrbana.ViewModels.PedidoDetalleViewModel
+
+@{
+    Layout = null;
+    ViewData["Title"] = $"Etiqueta {Model.Codigo}";
+    var seguimientoUrl = Url.Action("Seguimiento", "Pedido", new { token = Model.TokenEntrega }, Context.Request.Scheme);
+}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Vibra Urbana</title>
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/mobile.css" asp-append-version="true" />
+</head>
+<body class="vu-print-body">
+    <main class="vu-delivery-label-page">
+        <section class="vu-delivery-label">
+            <header>
+                <div>
+                    <span>Vibra Urbana</span>
+                    <strong>Etiqueta de entrega</strong>
+                </div>
+                <p>@Model.Codigo</p>
+            </header>
+
+            <div class="vu-delivery-label-main">
+                <img src="@Url.Action("QrEntrega", "Pedido", new { id = Model.Id })" alt="Código QR de entrega para @Model.Codigo" />
+                <div>
+                    <p>Escanea para ver el seguimiento y confirmar la recepción del pedido.</p>
+                    <dl>
+                        <div>
+                            <dt>Cliente</dt>
+                            <dd>@Model.NombreCliente</dd>
+                        </div>
+                        <div>
+                            <dt>Teléfono</dt>
+                            <dd>@Model.Telefono</dd>
+                        </div>
+                        <div>
+                            <dt>Estado</dt>
+                            <dd>@Model.Estado</dd>
+                        </div>
+                    </dl>
+                </div>
+            </div>
+
+            <footer>
+                <span>@seguimientoUrl</span>
+            </footer>
+        </section>
+
+        <div class="vu-delivery-print-actions">
+            <button class="btn btn-primary" type="button" onclick="window.print()">Imprimir etiqueta</button>
+            <button class="btn btn-outline-primary" type="button" onclick="window.close()">Cerrar</button>
+        </div>
+    </main>
+
+    <script>
+        window.addEventListener('load', () => {
+            window.setTimeout(() => window.print(), 350);
+        });
+    </script>
+</body>
+</html>

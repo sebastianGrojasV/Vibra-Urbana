@@ -4,5 +4,6 @@ public enum ActualizarClienteResult
 {
     Success,
     NotFound,
-    DuplicateIdentificacion
+    DuplicateIdentificacion,
+    DuplicateCorreo
 }

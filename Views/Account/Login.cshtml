@@ -31,7 +31,7 @@
                         <p>Ingresa con tu cuenta asignada para continuar.</p>
                     </div>
 
-                    <form asp-controller="Account" asp-action="Login" method="post" novalidate>
+                    <form asp-controller="Account" asp-action="Login" method="post" autocomplete="on" novalidate>
                         @Html.AntiForgeryToken()
                         <input asp-for="ReturnUrl" type="hidden" />
 
@@ -47,7 +47,7 @@
 
                         <div class="mb-3">
                             <label asp-for="Correo" class="form-label"></label>
-                            <input asp-for="Correo" class="form-control form-control-lg" autocomplete="email" placeholder="usuario@vibraurbana.com" />
+                            <input asp-for="Correo" class="form-control form-control-lg" autocomplete="username" placeholder="usuario@vibraurbana.com" />
                             <span asp-validation-for="Correo" class="text-danger small"></span>
                         </div>
                         <div class="mb-3">

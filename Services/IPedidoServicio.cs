@@ -10,6 +10,10 @@ public interface IPedidoServicio
 
     Task<PedidoOperacionResult> CambiarEstadoAsync(int pedidoId, string nuevoEstado, int usuarioId, string? observacion);
 
+    Task<PedidoSeguimientoViewModel?> ObtenerSeguimientoAsync(string token);
+
+    Task<PedidoOperacionResult> ConfirmarEntregaPorTokenAsync(string token);
+
     Task<RegistrarPedidoEnLineaResult> RegistrarPedidoEnLineaAsync(RegistrarPedidoEnLineaViewModel model);
 }
 

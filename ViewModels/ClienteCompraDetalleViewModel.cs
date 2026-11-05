@@ -30,5 +30,7 @@ public class ClienteCompraDetalleViewModel
 
     public decimal Total { get; set; }
 
+    public decimal AjusteRedondeo => Total - (Subtotal - Descuento + Impuesto);
+
     public IReadOnlyList<ClienteCompraDetalleItemViewModel> Productos { get; set; } = [];
 }

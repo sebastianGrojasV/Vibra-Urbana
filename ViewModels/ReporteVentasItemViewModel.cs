@@ -4,6 +4,8 @@ public class ReporteVentasItemViewModel
 {
     public int VentaId { get; set; }
 
+    public string CodigoTransaccion { get; set; } = string.Empty;
+
     public string NumeroFactura { get; set; } = string.Empty;
 
     public DateTime FechaVenta { get; set; }

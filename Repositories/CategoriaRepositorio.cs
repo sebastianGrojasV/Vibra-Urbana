@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using VibraUrbana.Data;
+using Microsoft.Data.SqlClient;
 using VibraUrbana.Models;
 
 namespace VibraUrbana.Repositories
@@ -26,15 +27,31 @@ namespace VibraUrbana.Repositories
         public async Task<bool> AgregarCategoriaAsync(Categoria categoria)
         {
             _context.Categorias.Add(categoria);
-            await _context.SaveChangesAsync();
-            return true;
+            return await GuardarAsync();
         }
 
         public async Task<bool> ActualizarCategoriaAsync(Categoria categoria)
         {
-            _context.Categorias.Update(categoria);
-            await _context.SaveChangesAsync();
-            return true;
+            var existente = await _context.Categorias.FindAsync(categoria.Id);
+            if (existente is null) return false;
+            existente.Nombre = categoria.Nombre;
+            existente.Descripcion = categoria.Descripcion;
+            existente.Activo = categoria.Activo;
+            return await GuardarAsync();
+        }
+
+        private async Task<bool> GuardarAsync()
+        {
+            try
+            {
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            catch (DbUpdateException exception) when
+                (exception.InnerException is SqlException { Number: 2601 or 2627 })
+            {
+                return false;
+            }
         }
 
         public async Task<bool> EliminarCategoriaAsync(int id)

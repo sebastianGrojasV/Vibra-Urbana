@@ -13,6 +13,8 @@ appsettings.Development.json
 appsettings.*.local.json
 secrets.json
 .database/
+.playwright-mcp/
+Properties/PublishProfiles/
 
 # OS and archive artifacts
 __MACOSX/

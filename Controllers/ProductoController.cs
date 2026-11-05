@@ -122,6 +122,12 @@ public class ProductoController : Controller
 
     private void AddProductError(ProductoOperacionResult result)
     {
+        if (result == ProductoOperacionResult.DuplicateName)
+        {
+            ModelState.AddModelError(nameof(ProductoFormViewModel.Nombre), "Ya existe un producto con ese nombre.");
+            return;
+        }
+
         var message = result switch
         {
             ProductoOperacionResult.CategoriaNotFound => "La categoría seleccionada no está disponible.",

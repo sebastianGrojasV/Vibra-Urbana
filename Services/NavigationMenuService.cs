@@ -76,16 +76,14 @@ public class NavigationMenuService : INavigationMenuService
 
     private async Task<HashSet<string>> GetPermisosAsync(ClaimsPrincipal user)
     {
-        var roleName = user.FindFirstValue(ClaimTypes.Role);
-
-        if (string.IsNullOrWhiteSpace(roleName))
+        if (!int.TryParse(user.FindFirstValue(ClaimTypes.NameIdentifier), out var userId))
         {
             return new HashSet<string>();
         }
 
-        var permisos = await _context.Roles
-            .Where(rol => rol.Activo && rol.Nombre == roleName)
-            .SelectMany(rol => rol.RolPermisos)
+        var permisos = await _context.Usuarios
+            .Where(usuario => usuario.Id == userId && usuario.Activo && usuario.Rol.Activo)
+            .SelectMany(usuario => usuario.Rol.RolPermisos)
             .Where(rolPermiso => rolPermiso.Permiso.Activo)
             .Select(rolPermiso => rolPermiso.Permiso.Nombre)
             .ToListAsync();

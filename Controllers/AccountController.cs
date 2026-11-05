@@ -3,34 +3,57 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.DataProtection;
+using System.Security.Cryptography;
 using VibraUrbana.Services;
 using VibraUrbana.ViewModels;
 
 namespace VibraUrbana.Controllers;
 
+[ResponseCache(Location = ResponseCacheLocation.None, NoStore = true)]
 public class AccountController : Controller
 {
     private readonly IUsuarioAuthenticationService _authenticationService;
     private readonly IUsuarioRegistrationService _usuarioRegistrationService;
+    private readonly INavigationMenuService _navigationMenuService;
+    private readonly IDataProtector _rememberedUserProtector;
+    private const string RememberedUserCookie = "VibraUrbana.RememberedUser";
 
     public AccountController(
         IUsuarioAuthenticationService authenticationService,
-        IUsuarioRegistrationService usuarioRegistrationService)
+        IUsuarioRegistrationService usuarioRegistrationService,
+        INavigationMenuService navigationMenuService,
+        IDataProtectionProvider dataProtectionProvider)
     {
         _authenticationService = authenticationService;
         _usuarioRegistrationService = usuarioRegistrationService;
+        _navigationMenuService = navigationMenuService;
+        _rememberedUserProtector = dataProtectionProvider.CreateProtector("VibraUrbana.RememberedUser.v1");
     }
 
     [HttpGet]
     [AllowAnonymous]
-    public IActionResult Login(string? returnUrl = null)
+    public async Task<IActionResult> Login(string? returnUrl = null)
     {
         if (User.Identity?.IsAuthenticated == true)
         {
-            return RedirectToRolePanel(User.FindFirstValue(ClaimTypes.Role));
+            return await RedirectToPanelAsync(User);
         }
 
-        return View(new LoginViewModel { ReturnUrl = returnUrl });
+        var model = new LoginViewModel { ReturnUrl = returnUrl };
+        if (Request.Cookies.TryGetValue(RememberedUserCookie, out var rememberedUser))
+        {
+            try
+            {
+                model.Correo = _rememberedUserProtector.Unprotect(rememberedUser);
+                model.Recordarme = true;
+            }
+            catch (CryptographicException)
+            {
+                Response.Cookies.Delete(RememberedUserCookie);
+            }
+        }
+        return View(model);
     }
 
     [HttpPost]
@@ -48,7 +71,7 @@ public class AccountController : Controller
 
         if (result.Result == LoginResult.InactiveUser)
         {
-            ModelState.AddModelError(string.Empty, "El usuario está desactivado. Contacta al administrador.");
+            ModelState.AddModelError(string.Empty, "La cuenta o su rol está desactivado. Contacta al administrador.");
             return View(model);
         }
 
@@ -63,6 +86,7 @@ public class AccountController : Controller
             new(ClaimTypes.NameIdentifier, result.Usuario.Id.ToString()),
             new(ClaimTypes.Name, result.Usuario.NombreCompleto),
             new(ClaimTypes.Email, result.Usuario.Correo),
+            new("RolId", result.Usuario.RolId.ToString()),
             new(ClaimTypes.Role, result.Usuario.Rol.Nombre)
         };
 
@@ -75,15 +99,33 @@ public class AccountController : Controller
             new AuthenticationProperties
             {
                 IsPersistent = model.Recordarme,
+                AllowRefresh = true,
                 ExpiresUtc = model.Recordarme ? DateTimeOffset.UtcNow.AddDays(7) : DateTimeOffset.UtcNow.AddHours(8)
             });
+
+        if (model.Recordarme)
+        {
+            Response.Cookies.Append(RememberedUserCookie,
+                _rememberedUserProtector.Protect(result.Usuario.Correo), new CookieOptions
+                {
+                    HttpOnly = true,
+                    Secure = Request.IsHttps,
+                    SameSite = SameSiteMode.Lax,
+                    IsEssential = true,
+                    Expires = DateTimeOffset.UtcNow.AddDays(30)
+                });
+        }
+        else
+        {
+            Response.Cookies.Delete(RememberedUserCookie);
+        }
 
         if (!string.IsNullOrWhiteSpace(model.ReturnUrl) && Url.IsLocalUrl(model.ReturnUrl))
         {
             return Redirect(model.ReturnUrl);
         }
 
-        return RedirectToRolePanel(result.Usuario.Rol.Nombre);
+        return await RedirectToPanelAsync(principal);
     }
 
     [HttpGet]
@@ -127,15 +169,12 @@ public class AccountController : Controller
         return RedirectToAction(nameof(Login));
     }
 
-    private IActionResult RedirectToRolePanel(string? roleName)
+    private async Task<IActionResult> RedirectToPanelAsync(ClaimsPrincipal principal)
     {
-        return roleName switch
-        {
-            "Administrador" => RedirectToAction("Index", "Admin"),
-            "Cajero" => RedirectToAction("Index", "Venta"),
-            "Inventario" => RedirectToAction("Index", "Inventario"),
-            "Consulta" => RedirectToAction("Index", "Reporte"),
-            _ => RedirectToAction("Index", "Home")
-        };
+        var items = await _navigationMenuService.GetItemsAsync(principal);
+        var panel = items.FirstOrDefault(item => item.Controller != "Home");
+        return panel is null
+            ? RedirectToAction("Index", "Home")
+            : RedirectToAction(panel.Action, panel.Controller);
     }
 }

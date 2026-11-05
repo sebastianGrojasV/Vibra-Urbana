@@ -19,8 +19,10 @@ public class ActiveUserCookieAuthenticationEvents : CookieAuthenticationEvents
     {
         var userIdValue = context.Principal?.FindFirstValue(ClaimTypes.NameIdentifier);
         var roleName = context.Principal?.FindFirstValue(ClaimTypes.Role);
+        var roleIdValue = context.Principal?.FindFirstValue("RolId");
 
-        if (!int.TryParse(userIdValue, out var userId) || string.IsNullOrWhiteSpace(roleName))
+        if (!int.TryParse(userIdValue, out var userId) ||
+            !int.TryParse(roleIdValue, out var roleId) || string.IsNullOrWhiteSpace(roleName))
         {
             await RejectPrincipalAsync(context);
             return;
@@ -32,6 +34,7 @@ public class ActiveUserCookieAuthenticationEvents : CookieAuthenticationEvents
             .Select(item => new
             {
                 item.Activo,
+                item.RolId,
                 RolActivo = item.Rol.Activo,
                 RolNombre = item.Rol.Nombre
             })
@@ -40,6 +43,7 @@ public class ActiveUserCookieAuthenticationEvents : CookieAuthenticationEvents
         if (usuario is null ||
             !usuario.Activo ||
             !usuario.RolActivo ||
+            usuario.RolId != roleId ||
             usuario.RolNombre != roleName)
         {
             await RejectPrincipalAsync(context);

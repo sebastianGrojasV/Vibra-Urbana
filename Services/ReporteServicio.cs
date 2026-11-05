@@ -86,6 +86,7 @@ public class ReporteServicio : IReporteServicio
             .Select(venta => new ReporteVentasItemViewModel
             {
                 VentaId = venta.Id,
+                CodigoTransaccion = $"#{venta.Id:D5}",
                 NumeroFactura = venta.Factura == null ? "Sin comprobante" : venta.Factura.NumeroFactura,
                 FechaVenta = venta.FechaVenta,
                 Cliente = venta.Cliente.NombreCompleto,
@@ -98,6 +99,36 @@ public class ReporteServicio : IReporteServicio
                 Estado = venta.Estado
             })
             .ToListAsync();
+
+        var pedidosSinVenta = await _context.Pedidos
+            .AsNoTracking()
+            .Include(pedido => pedido.Cliente)
+            .Include(pedido => pedido.MetodoPago)
+            .Where(pedido => pedido.VentaId == null)
+            .Where(pedido => pedido.FechaPedido >= rangoUtc.InicioUtc && pedido.FechaPedido < rangoUtc.FinExclusivoUtc)
+            .OrderByDescending(pedido => pedido.FechaPedido)
+            .Select(pedido => new ReporteVentasItemViewModel
+            {
+                VentaId = 0,
+                CodigoTransaccion = $"PED-{pedido.Id:D6}",
+                NumeroFactura = "Pedido en línea",
+                FechaVenta = pedido.FechaPedido,
+                Cliente = pedido.Cliente == null ? pedido.NombreCliente : pedido.Cliente.NombreCompleto,
+                Cajero = "Canal web",
+                MetodoPago = pedido.MetodoPago.Nombre,
+                Subtotal = pedido.Subtotal,
+                Descuento = pedido.Descuento,
+                Impuesto = pedido.Impuesto,
+                Total = pedido.Total,
+                Estado = MapearEstadoPedidoAEstadoVenta(pedido.Estado)
+            })
+            .ToListAsync();
+
+        ventas.AddRange(pedidosSinVenta);
+        ventas = ventas
+            .OrderByDescending(venta => venta.FechaVenta)
+            .ThenByDescending(venta => venta.CodigoTransaccion)
+            .ToList();
 
         foreach (var venta in ventas)
         {
@@ -195,6 +226,16 @@ public class ReporteServicio : IReporteServicio
             ReporteVentasViewModel.PeriodoMes => ReporteVentasViewModel.PeriodoMes,
             ReporteVentasViewModel.PeriodoRango => ReporteVentasViewModel.PeriodoRango,
             _ => ReporteVentasViewModel.PeriodoDia
+        };
+    }
+
+    private static string MapearEstadoPedidoAEstadoVenta(string estadoPedido)
+    {
+        return estadoPedido switch
+        {
+            PedidoServicio.EstadoCancelado => "Anulada",
+            PedidoServicio.EstadoConfirmado or PedidoServicio.EstadoEnviado or PedidoServicio.EstadoEnTransito or PedidoServicio.EstadoEntregado => "Aprobada",
+            _ => "Pendiente"
         };
     }
 }

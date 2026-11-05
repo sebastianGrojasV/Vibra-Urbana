@@ -7,6 +7,7 @@ public class CrearClienteViewModel
     [Required(ErrorMessage = "La identificación es obligatoria.")]
     [RegularExpression(@"^\d{9,12}$", ErrorMessage = "La identificación debe contener solo números, entre 9 y 12 dígitos.")]
     [Display(Name = "Identificación")]
+    [StringLength(12, ErrorMessage = "La identificación no puede superar 12 dígitos.")]
     public string Identificacion { get; set; } = string.Empty;
 
     [Required(ErrorMessage = "El nombre completo es obligatorio.")]
@@ -18,6 +19,7 @@ public class CrearClienteViewModel
     [Required(ErrorMessage = "El teléfono es obligatorio.")]
     [RegularExpression(@"^[245678]\d{7}$", ErrorMessage = "El teléfono debe tener 8 dígitos válidos de Costa Rica.")]
     [Display(Name = "Teléfono")]
+    [StringLength(8, ErrorMessage = "El teléfono no puede superar 8 dígitos.")]
     public string Telefono { get; set; } = string.Empty;
 
     [Required(ErrorMessage = "El correo electrónico es obligatorio.")]

@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Data.SqlClient;
 using VibraUrbana.Data;
 using VibraUrbana.Models;
 using VibraUrbana.ViewModels;
@@ -57,7 +58,7 @@ public class ProductoServicio : IProductoServicio
         decimal? precioMaximo)
     {
         var query = QueryProductos()
-            .Where(producto => producto.Activo);
+            .Where(producto => producto.Activo && producto.Categoria.Activo);
         var criterio = busqueda?.Trim();
         var tallaNormalizada = string.IsNullOrWhiteSpace(talla) ? null : talla.Trim();
         var colorNormalizado = string.IsNullOrWhiteSpace(color) ? null : color.Trim();
@@ -137,7 +138,7 @@ public class ProductoServicio : IProductoServicio
     public async Task<CatalogoDetalleViewModel?> ObtenerCatalogoDetalleAsync(int id)
     {
         return await QueryProductos()
-            .Where(producto => producto.Id == id && producto.Activo)
+            .Where(producto => producto.Id == id && producto.Activo && producto.Categoria.Activo)
             .Select(producto => new CatalogoDetalleViewModel
             {
                 Id = producto.Id,
@@ -222,14 +223,12 @@ public class ProductoServicio : IProductoServicio
         };
 
         _context.Productos.Add(producto);
-        await _context.SaveChangesAsync();
-
-        return ProductoOperacionResult.Success;
+        return await GuardarProductoAsync();
     }
 
     public async Task<ProductoOperacionResult> ActualizarAsync(ProductoFormViewModel model)
     {
-        var validationResult = await ValidarProductoAsync(model);
+        var validationResult = await ValidarProductoAsync(model, model.Id);
 
         if (validationResult != ProductoOperacionResult.Success)
         {
@@ -270,8 +269,22 @@ public class ProductoServicio : IProductoServicio
             producto.Inventario.FechaActualizacion = DateTime.UtcNow;
         }
 
-        await _context.SaveChangesAsync();
-        return ProductoOperacionResult.Success;
+        return await GuardarProductoAsync();
+    }
+
+    private async Task<ProductoOperacionResult> GuardarProductoAsync()
+    {
+        try
+        {
+            await _context.SaveChangesAsync();
+            return ProductoOperacionResult.Success;
+        }
+        catch (DbUpdateException exception) when (
+            exception.InnerException is SqlException { Number: 2601 or 2627 } sqlException &&
+            sqlException.Message.Contains("IX_Productos_NombreNormalizado", StringComparison.Ordinal))
+        {
+            return ProductoOperacionResult.DuplicateName;
+        }
     }
 
     public async Task<CambiarEstadoProductoResult> CambiarEstadoAsync(int id, bool active)
@@ -634,8 +647,15 @@ public class ProductoServicio : IProductoServicio
         };
     }
 
-    private async Task<ProductoOperacionResult> ValidarProductoAsync(ProductoFormViewModel model)
+    private async Task<ProductoOperacionResult> ValidarProductoAsync(ProductoFormViewModel model, int? productoId = null)
     {
+        var nombre = model.Nombre.Trim().ToLowerInvariant();
+        if (await _context.Productos.AnyAsync(producto => producto.Id != productoId &&
+            producto.Nombre.Trim().ToLower() == nombre))
+        {
+            return ProductoOperacionResult.DuplicateName;
+        }
+
         if (!model.Precio.HasValue || model.Precio.Value < 0)
         {
             return ProductoOperacionResult.InvalidPrice;

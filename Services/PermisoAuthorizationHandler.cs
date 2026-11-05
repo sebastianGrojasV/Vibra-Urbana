@@ -18,16 +18,15 @@ public class PermisoAuthorizationHandler : AuthorizationHandler<PermisoRequireme
         AuthorizationHandlerContext context,
         PermisoRequirement requirement)
     {
-        var roleName = context.User.FindFirstValue(ClaimTypes.Role);
-
-        if (string.IsNullOrWhiteSpace(roleName))
+        if (context.User.Identity?.IsAuthenticated != true ||
+            !int.TryParse(context.User.FindFirstValue(ClaimTypes.NameIdentifier), out var userId))
         {
             return;
         }
 
-        var tienePermiso = await _context.Roles
-            .Where(rol => rol.Activo && rol.Nombre == roleName)
-            .SelectMany(rol => rol.RolPermisos)
+        var tienePermiso = await _context.Usuarios
+            .Where(usuario => usuario.Id == userId && usuario.Activo && usuario.Rol.Activo)
+            .SelectMany(usuario => usuario.Rol.RolPermisos)
             .AnyAsync(rolPermiso =>
                 rolPermiso.Permiso.Activo &&
                 rolPermiso.Permiso.Nombre == requirement.Permiso);

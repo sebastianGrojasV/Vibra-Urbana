@@ -36,6 +36,8 @@
                 </div>
             </div>
 
+            <details class="vu-mobile-filters" open>
+                <summary>Buscar y filtrar <span aria-hidden="true">⌄</span></summary>
             <form asp-controller="Catalogo" asp-action="Index" method="get" class="vu-catalog-filters" data-vu-catalog-form>
                 <div class="vu-catalog-search-field">
                     <label class="form-label" for="busqueda">Buscar</label>
@@ -84,6 +86,7 @@
                     <a class="btn btn-outline-secondary" asp-controller="Catalogo" asp-action="Index" data-vu-catalog-clear>Limpiar</a>
                 </div>
             </form>
+            </details>
         </div>
 
         <div data-vu-catalog-results aria-live="polite">

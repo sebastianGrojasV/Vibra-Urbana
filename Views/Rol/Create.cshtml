@@ -32,18 +32,18 @@
                                 </div>
                             }
 
-                            <form asp-controller="Rol" asp-action="Create" method="post" novalidate>
+                            <form asp-controller="Rol" asp-action="Create" method="post" data-vu-character-counts novalidate>
                                 @Html.AntiForgeryToken()
 
                                 <div class="row g-3">
                                     <div class="col-md-6">
                                         <label asp-for="Nombre" class="form-label"></label>
-                                        <input asp-for="Nombre" class="form-control" autocomplete="off" />
+                                        <input asp-for="Nombre" maxlength="80" class="form-control" autocomplete="off" />
                                         <span asp-validation-for="Nombre" class="text-danger small"></span>
                                     </div>
                                     <div class="col-md-6">
                                         <label asp-for="Descripcion" class="form-label"></label>
-                                        <input asp-for="Descripcion" class="form-control" autocomplete="off" />
+                                        <input asp-for="Descripcion" maxlength="250" class="form-control" autocomplete="off" />
                                         <span asp-validation-for="Descripcion" class="text-danger small"></span>
                                     </div>
                                 </div>

@@ -2,13 +2,13 @@ using Microsoft.AspNetCore.Mvc.Filters;
 
 namespace VibraUrbana.Filters;
 
-public class NoCacheForAuthenticatedUsersFilter : IActionFilter
+public class NoCacheForAuthenticatedUsersFilter : IAlwaysRunResultFilter
 {
-    public void OnActionExecuting(ActionExecutingContext context)
+    public void OnResultExecuted(ResultExecutedContext context)
     {
     }
 
-    public void OnActionExecuted(ActionExecutedContext context)
+    public void OnResultExecuting(ResultExecutingContext context)
     {
         if (context.HttpContext.User.Identity?.IsAuthenticated != true)
         {
