@@ -162,7 +162,7 @@ public class VentaServicio : IVentaServicio
             }
 
             var impuesto = decimal.Round((subtotal - descuento) * TarifaIva, 2, MidpointRounding.AwayFromZero);
-            var total = subtotal - descuento + impuesto;
+            var total = RedondeoColones.TotalACobrar(subtotal - descuento + impuesto, metodoPago.Nombre);
             var fechaVenta = _fechaHoraServicio.UtcNow;
 
             var venta = new Venta

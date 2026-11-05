@@ -38,6 +38,14 @@ public class PedidoDetalleViewModel
 
     public DateTime? FechaComprobante { get; set; }
 
+    public string TokenEntrega { get; set; } = string.Empty;
+
+    public DateTime? FechaEnvio { get; set; }
+
+    public DateTime? FechaTransito { get; set; }
+
+    public DateTime? FechaEntrega { get; set; }
+
     public IReadOnlyList<PedidoDetalleProductoViewModel> Productos { get; set; } = [];
 }
 

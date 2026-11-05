@@ -137,6 +137,11 @@ public class ApplicationDbContext : DbContext
             entity.Property(cliente => cliente.NombreCompleto).IsRequired().HasMaxLength(150);
             entity.Property(cliente => cliente.Telefono).HasMaxLength(30);
             entity.Property(cliente => cliente.Correo).HasMaxLength(150);
+            entity.Property<string>("CorreoNormalizado")
+                .HasMaxLength(150)
+                .HasComputedColumnSql("NULLIF(LOWER(LTRIM(RTRIM([Correo]))), '')", stored: true);
+            entity.HasIndex("CorreoNormalizado").IsUnique()
+                .HasFilter("[Correo] IS NOT NULL AND [Correo] <> ''");
             entity.Property(cliente => cliente.Direccion).HasMaxLength(300);
             entity.Property(cliente => cliente.Activo).HasDefaultValue(true);
             entity.Property(cliente => cliente.FechaRegistro).HasDefaultValueSql("GETUTCDATE()");
@@ -165,6 +170,10 @@ public class ApplicationDbContext : DbContext
             entity.HasKey(producto => producto.Id);
 
             entity.Property(producto => producto.Nombre).IsRequired().HasMaxLength(150);
+            entity.Property<string>("NombreNormalizado")
+                .HasMaxLength(150)
+                .HasComputedColumnSql("LOWER(LTRIM(RTRIM([Nombre])))", stored: true);
+            entity.HasIndex("NombreNormalizado").IsUnique().HasFilter(null);
             entity.Property(producto => producto.Descripcion).HasMaxLength(500);
             entity.Property(producto => producto.Precio).HasPrecision(18, 2);
             entity.Property(producto => producto.Talla).HasMaxLength(20);
@@ -347,6 +356,10 @@ public class ApplicationDbContext : DbContext
             entity.Property(pedido => pedido.Total).HasPrecision(18, 2);
             entity.Property(pedido => pedido.Estado).IsRequired().HasMaxLength(40);
             entity.Property(pedido => pedido.Observacion).HasMaxLength(500);
+            entity.Property(pedido => pedido.TokenEntrega).IsRequired().HasMaxLength(64);
+
+            entity.HasIndex(pedido => pedido.TokenEntrega).IsUnique();
+            entity.HasIndex(pedido => pedido.VentaId).IsUnique().HasFilter("[VentaId] IS NOT NULL");
 
             entity.HasOne(pedido => pedido.Cliente)
                 .WithMany(cliente => cliente.Pedidos)
@@ -357,6 +370,11 @@ public class ApplicationDbContext : DbContext
                 .WithMany(metodoPago => metodoPago.Pedidos)
                 .HasForeignKey(pedido => pedido.MetodoPagoId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasOne(pedido => pedido.Venta)
+                .WithOne(venta => venta.Pedido)
+                .HasForeignKey<Pedido>(pedido => pedido.VentaId)
+                .OnDelete(DeleteBehavior.SetNull);
         });
 
         modelBuilder.Entity<DetallePedido>(entity =>

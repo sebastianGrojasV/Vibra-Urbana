@@ -103,6 +103,46 @@
                                 }
                             }
                         </section>
+
+                        <section class="vu-order-admin-card vu-delivery-qr-card">
+                            <h2>QR de entrega</h2>
+                            <div class="vu-delivery-qr">
+                                <img src="@Url.Action("QrEntrega", "Pedido", new { id = Model.Id })" alt="Código QR de entrega para @Model.Codigo" />
+                                <div>
+                                    <strong>@Model.Codigo</strong>
+                                    <span>Pega este QR en la caja para que el cliente confirme la recepción al escanearlo.</span>
+                                    <div class="vu-delivery-qr-actions">
+                                        <a class="btn btn-sm btn-primary" asp-controller="Pedido" asp-action="EtiquetaEntrega" asp-route-id="@Model.Id" target="_blank" rel="noopener">
+                                            <svg class="vu-inline-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9V2h12v7"></path><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><path d="M6 14h12v8H6z"></path></svg>
+                                            Imprimir QR
+                                        </a>
+                                        <a href="@Url.Action("Seguimiento", "Pedido", new { token = Model.TokenEntrega })" target="_blank" rel="noopener">Abrir seguimiento</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+
+                        <section class="vu-order-admin-card">
+                            <h2>Trazabilidad</h2>
+                            <ol class="vu-delivery-timeline">
+                                <li class="is-complete">
+                                    <strong>Pedido recibido</strong>
+                                    <span>@Model.FechaPedido.ToString("dd/MM/yyyy hh:mm tt")</span>
+                                </li>
+                                <li class="@(Model.FechaEnvio.HasValue ? "is-complete" : "")">
+                                    <strong>Enviado</strong>
+                                    <span>@(Model.FechaEnvio.HasValue ? Model.FechaEnvio.Value.ToString("dd/MM/yyyy hh:mm tt") : "Pendiente")</span>
+                                </li>
+                                <li class="@(Model.FechaTransito.HasValue ? "is-complete" : "")">
+                                    <strong>En tránsito</strong>
+                                    <span>@(Model.FechaTransito.HasValue ? Model.FechaTransito.Value.ToString("dd/MM/yyyy hh:mm tt") : "Pendiente")</span>
+                                </li>
+                                <li class="@(Model.FechaEntrega.HasValue ? "is-complete" : "")">
+                                    <strong>Entregado</strong>
+                                    <span>@(Model.FechaEntrega.HasValue ? Model.FechaEntrega.Value.ToString("dd/MM/yyyy hh:mm tt") : "Pendiente")</span>
+                                </li>
+                            </ol>
+                        </section>
                     </div>
 
                     <div class="table-responsive mt-4">
@@ -164,7 +204,7 @@
                             </form>
                         }
 
-                        @if (Model.Estado is "Pendiente de verificación" or "Confirmado")
+                        @if (Model.Estado is "Pendiente de verificación" or "Confirmado" or "Enviado" or "En tránsito")
                         {
                             <form asp-controller="Pedido" asp-action="CambiarEstado" method="post" data-vu-confirm data-vu-confirm-title="Cancelar pedido" data-vu-confirm-message="El pedido quedará cancelado sin eliminar el historial." data-vu-confirm-action="Cancelar pedido" data-vu-confirm-observation="true" data-vu-confirm-observation-required="true" data-vu-confirm-observation-label="Motivo de cancelación" data-vu-confirm-observation-placeholder="Indica por qué el pedido no procede.">
                                 @Html.AntiForgeryToken()
@@ -175,6 +215,26 @@
                         }
 
                         @if (Model.Estado == "Confirmado")
+                        {
+                            <form asp-controller="Pedido" asp-action="CambiarEstado" method="post" data-vu-confirm data-vu-confirm-title="Marcar como enviado" data-vu-confirm-message="El pedido pasará a estado Enviado." data-vu-confirm-action="Marcar enviado" data-vu-confirm-observation="true" data-vu-confirm-observation-label="Observación opcional" data-vu-confirm-observation-placeholder="Ejemplo: Pedido despachado para entrega.">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="PedidoId" value="@Model.Id" />
+                                <input type="hidden" name="NuevoEstado" value="Enviado" />
+                                <button class="btn btn-outline-primary" type="submit">Marcar como enviado</button>
+                            </form>
+                        }
+
+                        @if (Model.Estado is "Confirmado" or "Enviado")
+                        {
+                            <form asp-controller="Pedido" asp-action="CambiarEstado" method="post" data-vu-confirm data-vu-confirm-title="Marcar en tránsito" data-vu-confirm-message="El pedido pasará a estado En tránsito." data-vu-confirm-action="Marcar en tránsito" data-vu-confirm-observation="true" data-vu-confirm-observation-label="Observación opcional" data-vu-confirm-observation-placeholder="Ejemplo: Pedido en ruta con mensajería.">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="PedidoId" value="@Model.Id" />
+                                <input type="hidden" name="NuevoEstado" value="En tránsito" />
+                                <button class="btn btn-outline-primary" type="submit">Marcar en tránsito</button>
+                            </form>
+                        }
+
+                        @if (Model.Estado is "Confirmado" or "Enviado" or "En tránsito")
                         {
                             <form asp-controller="Pedido" asp-action="CambiarEstado" method="post" data-vu-confirm data-vu-confirm-title="Marcar como entregado" data-vu-confirm-message="El pedido quedará marcado como Entregado." data-vu-confirm-action="Marcar entregado" data-vu-confirm-observation="true" data-vu-confirm-observation-label="Observación opcional" data-vu-confirm-observation-placeholder="Ejemplo: Entregado en tienda o por mensajería.">
                                 @Html.AntiForgeryToken()
@@ -197,6 +257,8 @@
         {
             "Pendiente de verificación" => "bg-warning text-dark",
             "Confirmado" => "bg-primary",
+            "Enviado" => "bg-info text-dark",
+            "En tránsito" => "bg-info text-dark",
             "Entregado" => "bg-success",
             "Cancelado" => "bg-danger",
             _ => "bg-secondary"

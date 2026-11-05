@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using VibraUrbana.Data;
+using Microsoft.Data.SqlClient;
 using VibraUrbana.Models;
 using VibraUrbana.ViewModels;
 
@@ -50,25 +51,37 @@ public class ClienteServicio : IClienteServicio
     public async Task<CrearClienteResult> CrearAsync(CrearClienteViewModel model)
     {
         var identificacion = model.Identificacion.Trim();
+        var correo = model.Correo.Trim().ToLowerInvariant();
 
         if (await ExisteIdentificacionAsync(identificacion))
         {
             return CrearClienteResult.DuplicateIdentificacion;
         }
 
+        if (await ExisteCorreoAsync(correo)) return CrearClienteResult.DuplicateCorreo;
+
         var cliente = new Cliente
         {
             Identificacion = identificacion,
             NombreCompleto = model.NombreCompleto.Trim(),
             Telefono = model.Telefono.Trim(),
-            Correo = model.Correo.Trim(),
+            Correo = correo,
             Direccion = model.Direccion.Trim(),
             Activo = true,
             FechaRegistro = DateTime.UtcNow
         };
 
         _dbContext.Clientes.Add(cliente);
-        await _dbContext.SaveChangesAsync();
+        try
+        {
+            await _dbContext.SaveChangesAsync();
+        }
+        catch (DbUpdateException exception) when (EsDuplicado(exception))
+        {
+            _dbContext.Entry(cliente).State = EntityState.Detached;
+            return await ExisteCorreoAsync(correo)
+                ? CrearClienteResult.DuplicateCorreo : CrearClienteResult.DuplicateIdentificacion;
+        }
 
         return CrearClienteResult.Success;
     }
@@ -107,14 +120,26 @@ public class ClienteServicio : IClienteServicio
             return ActualizarClienteResult.DuplicateIdentificacion;
         }
 
+        var correo = model.Correo.Trim().ToLowerInvariant();
+        if (await ExisteCorreoAsync(correo, model.Id)) return ActualizarClienteResult.DuplicateCorreo;
+
         cliente.Identificacion = identificacion;
         cliente.NombreCompleto = model.NombreCompleto.Trim();
         cliente.Telefono = model.Telefono.Trim();
-        cliente.Correo = model.Correo.Trim();
+        cliente.Correo = correo;
         cliente.Direccion = model.Direccion.Trim();
         cliente.Activo = model.Activo;
 
-        await _dbContext.SaveChangesAsync();
+        try
+        {
+            await _dbContext.SaveChangesAsync();
+        }
+        catch (DbUpdateException exception) when (EsDuplicado(exception))
+        {
+            await _dbContext.Entry(cliente).ReloadAsync();
+            return await ExisteCorreoAsync(correo, model.Id)
+                ? ActualizarClienteResult.DuplicateCorreo : ActualizarClienteResult.DuplicateIdentificacion;
+        }
 
         return ActualizarClienteResult.Success;
     }
@@ -260,4 +285,11 @@ public class ClienteServicio : IClienteServicio
             cliente.Identificacion.ToLower() == normalizedIdentificacion &&
             (!excludedId.HasValue || cliente.Id != excludedId.Value));
     }
+
+    private Task<bool> ExisteCorreoAsync(string correo, int? excludedId = null) =>
+        _dbContext.Clientes.AnyAsync(cliente => cliente.Correo.Trim().ToLower() == correo &&
+            (!excludedId.HasValue || cliente.Id != excludedId.Value));
+
+    private static bool EsDuplicado(DbUpdateException exception) =>
+        exception.InnerException is SqlException { Number: 2601 or 2627 };
 }

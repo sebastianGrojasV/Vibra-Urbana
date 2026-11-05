@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using QRCoder;
 using VibraUrbana.Services;
 using VibraUrbana.ViewModels;
 
@@ -34,6 +35,76 @@ public class PedidoController : Controller
         }
 
         return View(model);
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> QrEntrega(int id)
+    {
+        var model = await _pedidoServicio.ObtenerDetalleAsync(id);
+
+        if (model is null || string.IsNullOrWhiteSpace(model.TokenEntrega))
+        {
+            return NotFound();
+        }
+
+        var seguimientoUrl = Url.Action(
+            nameof(Seguimiento),
+            "Pedido",
+            new { token = model.TokenEntrega },
+            Request.Scheme) ?? string.Empty;
+
+        using var generator = new QRCodeGenerator();
+        using var data = generator.CreateQrCode(seguimientoUrl, QRCodeGenerator.ECCLevel.Q);
+        var qr = new PngByteQRCode(data);
+        var bytes = qr.GetGraphic(18);
+
+        return File(bytes, "image/png");
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> EtiquetaEntrega(int id)
+    {
+        var model = await _pedidoServicio.ObtenerDetalleAsync(id);
+
+        if (model is null || string.IsNullOrWhiteSpace(model.TokenEntrega))
+        {
+            return NotFound();
+        }
+
+        return View(model);
+    }
+
+    [AllowAnonymous]
+    [HttpGet("Pedido/Seguimiento/{token}")]
+    public async Task<IActionResult> Seguimiento(string token)
+    {
+        var model = await _pedidoServicio.ObtenerSeguimientoAsync(token);
+
+        if (model is null)
+        {
+            return NotFound();
+        }
+
+        return View(model);
+    }
+
+    [AllowAnonymous]
+    [HttpPost("Pedido/ConfirmarEntrega/{token}")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> ConfirmarEntrega(string token)
+    {
+        var result = await _pedidoServicio.ConfirmarEntregaPorTokenAsync(token);
+
+        if (result.EsExitoso)
+        {
+            TempData["SuccessMessage"] = result.Mensaje;
+        }
+        else
+        {
+            TempData["ErrorMessage"] = result.Mensaje;
+        }
+
+        return RedirectToAction(nameof(Seguimiento), new { token });
     }
 
     [HttpPost]

@@ -21,61 +21,13 @@
                     <a class="btn btn-primary" asp-controller="Categoria" asp-action="Create">Crear categoría</a>
                 </div>
 
-                <!-- 🔹 Toasts de confirmación -->
-                @if (TempData["CategoriaCreada"] != null)
+                @if (TempData["SuccessMessage"] is string successMessage)
                 {
-                    <div class="toast-container position-fixed bottom-0 end-0 p-3">
-                        <div class="toast align-items-center text-bg-success border-0" role="alert">
-                            <div class="d-flex">
-                                <div class="toast-body">
-                                    @TempData["CategoriaCreada"]
-                                </div>
-                                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
-                            </div>
-                        </div>
-                    </div>
+                    <div class="alert alert-success" role="alert">@successMessage</div>
                 }
-
-                @if (TempData["CategoriaError"] != null)
+                @if (TempData["ErrorMessage"] is string errorMessage)
                 {
-                    <div class="toast-container position-fixed bottom-0 end-0 p-3">
-                        <div class="toast align-items-center text-bg-danger border-0" role="alert">
-                            <div class="d-flex">
-                                <div class="toast-body">
-                                    @TempData["CategoriaError"]
-                                </div>
-                                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
-                            </div>
-                        </div>
-                    </div>
-                }
-
-                @if (TempData["CategoriaActualizada"] != null)
-                {
-                    <div class="toast-container position-fixed bottom-0 end-0 p-3">
-                        <div class="toast align-items-center text-bg-info border-0" role="alert">
-                            <div class="d-flex">
-                                <div class="toast-body">
-                                    @TempData["CategoriaActualizada"]
-                                </div>
-                                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
-                            </div>
-                        </div>
-                    </div>
-                }
-
-                @if (TempData["CategoriaEliminada"] != null)
-                {
-                    <div class="toast-container position-fixed bottom-0 end-0 p-3">
-                        <div class="toast align-items-center text-bg-warning border-0" role="alert">
-                            <div class="d-flex">
-                                <div class="toast-body">
-                                    @TempData["CategoriaEliminada"]
-                                </div>
-                                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
-                            </div>
-                        </div>
-                    </div>
+                    <div class="alert alert-danger" role="alert">@errorMessage</div>
                 }
 
                 <div class="vu-panel">
@@ -172,25 +124,4 @@
         </div>
     </div>
 </section>
-
-@section Scripts {
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            var toastElList = [].slice.call(document.querySelectorAll('.toast'))
-            toastElList.map(function (toastEl) {
-                var toast = new bootstrap.Toast(toastEl, { delay: 4000, autohide: true })
-                toast.show()
-            });
-        });
-
-    </script>
-    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
-    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
-    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.print.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
-
-}
 

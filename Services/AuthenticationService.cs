@@ -29,7 +29,7 @@ public class AuthenticationService : IUsuarioAuthenticationService
             return new AuthenticationResult { Result = LoginResult.InvalidCredentials };
         }
 
-        if (!usuario.Activo)
+        if (!usuario.Activo || !usuario.Rol.Activo)
         {
             return new AuthenticationResult { Result = LoginResult.InactiveUser };
         }

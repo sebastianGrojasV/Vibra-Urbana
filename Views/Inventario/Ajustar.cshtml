@@ -22,7 +22,7 @@
                 <div class="row g-4">
                     <div class="col-xl-8">
                         <div class="vu-panel">
-                            <form asp-action="Ajustar" method="post" novalidate>
+                            <form asp-action="Ajustar" method="post" data-vu-character-counts novalidate>
                                 @Html.AntiForgeryToken()
                                 <input asp-for="ProductoId" type="hidden" />
                                 <input asp-for="Version" type="hidden" />

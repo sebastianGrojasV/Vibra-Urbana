@@ -14,7 +14,7 @@
                 </div>
             }
 
-            <form asp-controller="Producto" asp-action="@actionName" method="post" novalidate>
+            <form asp-controller="Producto" asp-action="@actionName" method="post" data-vu-character-counts novalidate>
                 @Html.AntiForgeryToken()
                 <input asp-for="Id" type="hidden" />
                 <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
@@ -22,7 +22,7 @@
                 <div class="row g-3">
                     <div class="col-md-8">
                         <label asp-for="Nombre" class="form-label"></label>
-                        <input asp-for="Nombre" class="form-control" />
+                        <input asp-for="Nombre" class="form-control" maxlength="150" />
                         <span asp-validation-for="Nombre" class="text-danger small"></span>
                     </div>
                     <div class="col-md-4">
@@ -79,7 +79,7 @@
                     </div>
                     <div class="col-12">
                         <label asp-for="Descripcion" class="form-label"></label>
-                        <textarea asp-for="Descripcion" class="form-control" rows="4" placeholder="Descripción comercial breve para identificar la prenda."></textarea>
+                        <textarea asp-for="Descripcion" class="form-control" rows="4" maxlength="500" placeholder="Descripción comercial breve para identificar la prenda."></textarea>
                         <span asp-validation-for="Descripcion" class="text-danger small"></span>
                     </div>
                     @if (Model.Id != 0)

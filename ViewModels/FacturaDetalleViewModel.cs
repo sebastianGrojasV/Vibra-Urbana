@@ -38,5 +38,7 @@ public class FacturaDetalleViewModel
 
     public decimal Total { get; set; }
 
+    public decimal AjusteRedondeo => Total - (Subtotal - Descuento + Impuesto);
+
     public IReadOnlyList<FacturaDetalleItemViewModel> Productos { get; set; } = new List<FacturaDetalleItemViewModel>();
 }

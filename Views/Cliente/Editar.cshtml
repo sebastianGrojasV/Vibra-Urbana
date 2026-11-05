@@ -22,7 +22,7 @@
                 <div class="row g-4">
                     <div class="col-xl-8">
                         <div class="vu-panel">
-                            <form asp-controller="Cliente" asp-action="Editar" method="post" novalidate>
+                            <form asp-controller="Cliente" asp-action="Editar" method="post" data-vu-character-counts novalidate>
                                 @Html.AntiForgeryToken()
                                 <input asp-for="Id" type="hidden" />
                                 <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
@@ -30,27 +30,27 @@
                                 <div class="row g-3">
                                     <div class="col-md-6">
                                         <label asp-for="Identificacion" class="form-label"></label>
-                                        <input asp-for="Identificacion" class="form-control" autocomplete="off" />
+                                        <input asp-for="Identificacion" maxlength="12" class="form-control" autocomplete="off" />
                                         <span asp-validation-for="Identificacion" class="text-danger small"></span>
                                     </div>
                                     <div class="col-md-6">
                                         <label asp-for="NombreCompleto" class="form-label"></label>
-                                        <input asp-for="NombreCompleto" class="form-control" autocomplete="name" />
+                                        <input asp-for="NombreCompleto" maxlength="150" class="form-control" autocomplete="name" />
                                         <span asp-validation-for="NombreCompleto" class="text-danger small"></span>
                                     </div>
                                     <div class="col-md-6">
                                         <label asp-for="Telefono" class="form-label"></label>
-                                        <input asp-for="Telefono" class="form-control" autocomplete="tel" />
+                                        <input asp-for="Telefono" maxlength="8" class="form-control" autocomplete="tel" />
                                         <span asp-validation-for="Telefono" class="text-danger small"></span>
                                     </div>
                                     <div class="col-md-6">
                                         <label asp-for="Correo" class="form-label"></label>
-                                        <input asp-for="Correo" class="form-control" autocomplete="email" />
+                                        <input asp-for="Correo" maxlength="150" class="form-control" autocomplete="email" />
                                         <span asp-validation-for="Correo" class="text-danger small"></span>
                                     </div>
                                     <div class="col-12">
                                         <label asp-for="Direccion" class="form-label"></label>
-                                        <textarea asp-for="Direccion" class="form-control" rows="3"></textarea>
+                                        <textarea asp-for="Direccion" maxlength="300" class="form-control" rows="3"></textarea>
                                         <span asp-validation-for="Direccion" class="text-danger small"></span>
                                     </div>
                                     <div class="col-md-6">

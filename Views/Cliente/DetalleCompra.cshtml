@@ -94,6 +94,13 @@
                                     <th colspan="6" class="text-end">Impuesto</th>
                                     <th class="text-end">@Model.Impuesto.ToString("C2")</th>
                                 </tr>
+                                @if (Model.AjusteRedondeo != 0)
+                                {
+                                    <tr>
+                                            <th colspan="6" class="text-end">Ajuste de redondeo</th>
+                                            <th class="text-end">@Model.AjusteRedondeo.ToString("C2")</th>
+                                    </tr>
+                                }
                                 <tr>
                                     <th colspan="6" class="text-end">Total</th>
                                     <th class="text-end text-primary">@Model.Total.ToString("C2")</th>

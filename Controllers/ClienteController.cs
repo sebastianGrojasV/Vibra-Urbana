@@ -51,7 +51,10 @@ public class ClienteController : Controller
             return RedirectToAction(nameof(Index));
         }
 
-        ModelState.AddModelError(string.Empty, "La identificación ya se encuentra registrada.");
+        ModelState.AddModelError(result == CrearClienteResult.DuplicateCorreo ? "Correo" : "Identificacion",
+            result == CrearClienteResult.DuplicateCorreo
+                ? "El correo electrónico ya está registrado por otro cliente."
+                : "La identificación ya se encuentra registrada.");
         return View(model);
     }
 
@@ -91,7 +94,10 @@ public class ClienteController : Controller
             return NotFound();
         }
 
-        ModelState.AddModelError(string.Empty, "La identificación ya se encuentra registrada por otro cliente.");
+        ModelState.AddModelError(result == ActualizarClienteResult.DuplicateCorreo ? "Correo" : "Identificacion",
+            result == ActualizarClienteResult.DuplicateCorreo
+                ? "El correo electrónico ya está registrado por otro cliente."
+                : "La identificación ya se encuentra registrada por otro cliente.");
         return View(model);
     }
 

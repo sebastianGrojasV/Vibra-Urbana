@@ -26,6 +26,9 @@ public class Venta
 
     public decimal Total { get; set; }
 
+    [System.ComponentModel.DataAnnotations.Schema.NotMapped]
+    public decimal AjusteRedondeo => Total - (Subtotal - Descuento + Impuesto);
+
     public string Estado { get; set; } = "Aprobada";
 
     public string Observacion { get; set; } = string.Empty;
@@ -45,4 +48,6 @@ public class Venta
     public ICollection<DetalleVenta> DetalleVentas { get; set; } = new List<DetalleVenta>();
 
     public Factura? Factura { get; set; }
+
+    public Pedido? Pedido { get; set; }
 }

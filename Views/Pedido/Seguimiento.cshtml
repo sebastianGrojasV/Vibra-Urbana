@@ -1,0 +1,74 @@
+@model VibraUrbana.ViewModels.PedidoSeguimientoViewModel
+
+@{
+    ViewData["Title"] = $"Seguimiento {Model.Codigo}";
+}
+
+<section class="vu-tracking-page">
+    <div class="container">
+        <article class="vu-tracking-card">
+            <span class="vu-order-status">@Model.Estado</span>
+            <p class="vu-eyebrow">Seguimiento de entrega</p>
+            <h1>@Model.Codigo</h1>
+            <p>Hola @Model.NombreCliente, aquí puedes revisar el avance de tu pedido y confirmar la recepción cuando tengas la caja en tus manos.</p>
+
+            @if (TempData["SuccessMessage"] is string successMessage)
+            {
+                <div class="alert alert-success" role="alert">@successMessage</div>
+            }
+
+            @if (TempData["ErrorMessage"] is string errorMessage)
+            {
+                <div class="alert alert-danger" role="alert">@errorMessage</div>
+            }
+
+            <ol class="vu-tracking-steps">
+                <li class="is-complete">
+                    <strong>Pedido recibido</strong>
+                    <span>@Model.FechaPedido.ToString("dd/MM/yyyy hh:mm tt")</span>
+                </li>
+                <li class="@(Model.FechaEnvio.HasValue ? "is-complete" : "")">
+                    <strong>Enviado</strong>
+                    <span>@(Model.FechaEnvio.HasValue ? Model.FechaEnvio.Value.ToString("dd/MM/yyyy hh:mm tt") : "Pendiente")</span>
+                </li>
+                <li class="@(Model.FechaTransito.HasValue ? "is-complete" : "")">
+                    <strong>En tránsito</strong>
+                    <span>@(Model.FechaTransito.HasValue ? Model.FechaTransito.Value.ToString("dd/MM/yyyy hh:mm tt") : "Pendiente")</span>
+                </li>
+                <li class="@(Model.FechaEntrega.HasValue ? "is-complete" : "")">
+                    <strong>Entregado</strong>
+                    <span>@(Model.FechaEntrega.HasValue ? Model.FechaEntrega.Value.ToString("dd/MM/yyyy hh:mm tt") : "Pendiente")</span>
+                </li>
+            </ol>
+
+            @if (Model.Estado == "Entregado")
+            {
+                <div class="vu-tracking-note is-success">
+                    Este pedido ya fue confirmado como entregado. Gracias por comprar en Vibra Urbana.
+                </div>
+            }
+            else if (Model.Estado == "Cancelado")
+            {
+                <div class="vu-tracking-note is-error">
+                    Este pedido fue cancelado. Si tienes dudas, comunícate con la tienda.
+                </div>
+            }
+            else if (Model.PuedeConfirmarEntrega)
+            {
+                <form asp-controller="Pedido" asp-action="ConfirmarEntrega" asp-route-token="@Model.TokenEntrega" method="post" class="vu-tracking-actions">
+                    @Html.AntiForgeryToken()
+                    <button class="btn btn-primary" type="submit">Confirmar recepción</button>
+                    <small>Presiona este botón únicamente cuando ya recibiste tu paquete.</small>
+                </form>
+            }
+            else
+            {
+                <div class="vu-tracking-note">
+                    Tu pedido todavía está en verificación. Pronto actualizaremos el estado.
+                </div>
+            }
+
+            <a class="btn btn-outline-dark" asp-controller="Catalogo" asp-action="Index">Volver al catálogo</a>
+        </article>
+    </div>
+</section>

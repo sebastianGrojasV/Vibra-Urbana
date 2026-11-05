@@ -15,27 +15,24 @@ namespace VibraUrbana.Controllers
             _categoriaServicio = categoriaServicio;
         }
 
-        // GET: Categoria
         public async Task<IActionResult> Index()
         {
             var categorias = await _categoriaServicio.ObtenerCategoriasAsync();
-            return View(categorias); // Vista Index.cshtml
+            return View(categorias);
         }
 
-        // GET: Categoria/Details/5
         public async Task<IActionResult> Details(int id)
         {
             var categoria = await _categoriaServicio.ObtenerPorIdAsync(id);
             if (categoria == null)
                 return NotFound();
 
-            return View(categoria); // Vista Details.cshtml
+            return View(categoria);
         }
 
-        // GET: Categoria/Create
         public IActionResult Create()
         {
-            return View(); // Vista Create.cshtml con formulario
+            return View();
         }
 
         [HttpPost]
@@ -44,39 +41,29 @@ namespace VibraUrbana.Controllers
         {
             if (ModelState.IsValid)
             {
-                // 🔹 Validar si ya existe una categoría con el mismo nombre
-                var categorias = await _categoriaServicio.ObtenerCategoriasAsync();
-                if (categorias.Any(c => c.Nombre.ToLower() == categoria.Nombre.ToLower()))
-                {
-                    ModelState.AddModelError("Nombre", "Ya existe una categoría con ese nombre");
-                    return View(categoria);
-                }
-
                 var creada = await _categoriaServicio.AgregarCategoriaAsync(categoria);
                 if (creada)
                 {
-                    TempData["CategoriaCreada"] = " La categoría se creó correctamente";
+                    TempData["SuccessMessage"] = "La categoría se creó correctamente";
                     return RedirectToAction(nameof(Index));
                 }
 
-                ModelState.AddModelError(string.Empty, "Error al crear la categoría");
+                ModelState.AddModelError("Nombre", "Ya existe una categoría con ese nombre.");
             }
 
             return View(categoria);
         }
 
 
-        // GET: Categoria/Edit/5
         public async Task<IActionResult> Edit(int id)
         {
             var categoria = await _categoriaServicio.ObtenerPorIdAsync(id);
             if (categoria == null)
                 return NotFound();
 
-            return View(categoria); // Vista Edit.cshtml
+            return View(categoria);
         }
 
-        // POST: Categoria/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(Categoria categoria)
@@ -86,25 +73,23 @@ namespace VibraUrbana.Controllers
                 var actualizada = await _categoriaServicio.ActualizarCategoriaAsync(categoria);
                 if (actualizada)
                 {
-                    TempData["CategoriaActualizada"] = "✏️ La categoría se actualizó correctamente";
+                    TempData["SuccessMessage"] = "La categoría se actualizó correctamente";
                     return RedirectToAction(nameof(Index));
                 }
-                ModelState.AddModelError(string.Empty, "Error al actualizar la categoría");
+                ModelState.AddModelError("Nombre", "Ya existe una categoría con ese nombre. Elige otro nombre.");
             }
             return View(categoria);
         }
 
-        // GET: Categoria/Delete/5 → Vista de confirmación
         public async Task<IActionResult> Delete(int id)
         {
             var categoria = await _categoriaServicio.ObtenerPorIdAsync(id);
             if (categoria == null)
                 return NotFound();
 
-            return View(categoria); // Vista Delete.cshtml
+            return View(categoria);
         }
 
-        // POST: Categoria/DeleteConfirmed/5 → Desactivación lógica
         [HttpPost, ActionName("DeleteConfirmed")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
@@ -113,11 +98,11 @@ namespace VibraUrbana.Controllers
 
             if (eliminada)
             {
-                TempData["CategoriaEliminada"] = "🛑 La categoría fue desactivada correctamente";
+                TempData["SuccessMessage"] = "La categoría fue desactivada correctamente";
             }
             else
             {
-                TempData["CategoriaError"] = "⚠️ No se pudo desactivar la categoría";
+                TempData["ErrorMessage"] = "No se pudo desactivar la categoría";
             }
 
             return RedirectToAction(nameof(Index));
@@ -130,7 +115,7 @@ namespace VibraUrbana.Controllers
             var categoria = await _categoriaServicio.ObtenerPorIdAsync(id);
             if (categoria == null)
             {
-                TempData["CategoriaError"] = "⚠️ No se encontró la categoría.";
+                TempData["ErrorMessage"] = "No se encontró la categoría.";
                 return RedirectToAction(nameof(Index));
             }
 
@@ -139,13 +124,13 @@ namespace VibraUrbana.Controllers
 
             if (actualizado)
             {
-                TempData["CategoriaActualizada"] = active
-                    ? "✅ La categoría fue activada correctamente"
-                    : "🛑 La categoría fue desactivada correctamente";
+                TempData["SuccessMessage"] = active
+                    ? "La categoría fue activada correctamente"
+                    : "La categoría fue desactivada correctamente";
             }
             else
             {
-                TempData["CategoriaError"] = "⚠️ No se pudo cambiar el estado de la categoría.";
+                TempData["ErrorMessage"] = "No se pudo cambiar el estado de la categoría.";
             }
 
             return RedirectToAction(nameof(Index));

@@ -56,7 +56,7 @@
                                             <option value="">-- Seleccione el método --</option>
                                             @foreach (var metodo in Model.MetodosPago)
                                             {
-                                                <option value="@metodo.Id">@metodo.Nombre</option>
+                                                <option value="@metodo.Id" data-efectivo="@(string.Equals(metodo.Nombre.Trim(), "Efectivo", StringComparison.OrdinalIgnoreCase) ? "true" : "false")">@metodo.Nombre</option>
                                             }
                                         </select>
                                     </div>
@@ -170,6 +170,10 @@
                                     <strong id="lblResumenImpuesto">₡0.00</strong>
                                 </div>
 
+                                <div class="d-flex justify-content-between mb-2 d-none" id="redondeoResumen">
+                                    <span class="text-muted">Ajuste por efectivo:</span>
+                                    <strong id="lblResumenRedondeo">₡0,00</strong>
+                                </div>
                                 <div class="d-flex justify-content-between align-items-center mb-4">
                                     <span class="h5 mb-0 text-dark">Total Neto:</span>
                                     <span class="h4 mb-0 text-primary font-weight-bold" id="lblResumenTotal">₡0.00</span>
@@ -190,6 +194,7 @@
 </section>
 
 @section Scripts {
+    <script src="~/js/sale-totals.js" asp-append-version="true"></script>
     <script>
         // Serializacion de productos y clientes para uso interactivo en el cliente
         const productosDisponibles = @Html.Raw(Json.Serialize(Model.Productos));
@@ -566,26 +571,18 @@
 
         // Calcular Totales
         function actualizarTotales() {
-            let subtotal = 0;
-            carrito.forEach(item => {
-                subtotal += item.precioUnitario * item.cantidad;
-            });
-
-            // Leer descuento
-            let descuento = parseFloat(descuentoInput.value);
-            if (isNaN(descuento) || descuento < 0) {
+            if (!Number.isFinite(Number(descuentoInput.value)) || Number(descuentoInput.value) < 0) {
                 descuentoInput.value = 0;
-                descuento = 0;
             }
-
-            if (descuento > subtotal) {
-                descuento = subtotal;
+            const efectivo = metodoPagoSelect.selectedOptions[0]?.dataset.efectivo === "true";
+            const { subtotal, descuento, gravable, impuesto, ajuste, total } =
+                window.VibraSaleTotals.calcular(carrito, descuentoInput.value, efectivo);
+            if (Number(descuentoInput.value) > subtotal) {
                 descuentoInput.value = subtotal;
             }
-
-            const gravable = subtotal - descuento;
-            const impuesto = gravable * 0.13; // IVA 13% Costa Rica
-            const total = gravable + impuesto;
+            document.getElementById("redondeoResumen").classList.toggle("d-none", !efectivo || ajuste === 0);
+            document.getElementById("lblResumenRedondeo").textContent =
+                (ajuste > 0 ? "+" : "") + formatMoneda(ajuste);
 
             lblResumenSubtotal.textContent = formatMoneda(subtotal);
             lblResumenGravable.textContent = formatMoneda(gravable);
@@ -600,6 +597,7 @@
         }
 
         descuentoInput.addEventListener("input", actualizarTotales);
+        metodoPagoSelect.addEventListener("change", actualizarTotales);
 
         function mostrarAviso(mensaje, tipo = "danger", destino = ventaNotice) {
             if (!destino) {

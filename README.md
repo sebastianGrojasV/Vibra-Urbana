@@ -17,6 +17,10 @@ El proyecto está desarrollado con ASP.NET Core MVC sobre .NET 8, utilizando Raz
 - Registro de entradas de inventario.
 - Visualización de stock bajo.
 - Módulo base de ventas.
+- Facturación y cierre de caja.
+- Catálogo público y carrito de compras.
+- Gestión administrativa de pedidos en línea.
+- Trazabilidad de entregas mediante código QR.
 - Reportes iniciales del sistema.
 
 ## Tecnologías utilizadas
@@ -156,6 +160,27 @@ Migraciones actuales:
 - `InitialIdentityStructure`
 - `CrearBaseDatosCompleta`
 - `AgregarControlConcurrenciaInventario`
+- `AgregarAnulacionVenta`
+- `AgregarTrazabilidadEntregaPedidos`
+- `VincularPedidosEnLineaConVentas`
+
+## Trazabilidad de entregas
+
+Cada pedido cuenta con un código de seguimiento interno. Desde el detalle administrativo del pedido se puede visualizar un código QR para pegar en la caja de entrega.
+
+Flujo esperado:
+
+1. El pedido se registra como `Pendiente de verificación`.
+2. El personal autorizado lo confirma y el sistema descuenta inventario.
+3. El pedido puede avanzar a `Enviado` y luego a `En tránsito`.
+4. El cliente escanea el QR y confirma la recepción.
+5. El sistema marca el pedido como `Entregado` y registra la fecha de entrega.
+
+El QR utiliza un token único por pedido para no exponer el identificador simple de la base de datos.
+
+## Pedidos en línea y reportes
+
+Los pedidos en línea se reflejan en el reporte de ventas y en el panel administrativo. Mientras están pendientes se muestran como operaciones pendientes del canal web. Cuando el personal autorizado confirma un pedido, el sistema lo vincula con una venta aprobada, genera su factura y permite que entre al flujo normal de facturación, cierre de caja y reportes comerciales.
 
 ## Seguridad de configuración
 
@@ -187,6 +212,8 @@ Remove-Item Env:\VIBRA_AZURE_CONNECTION
 
 ## Datos iniciales
 
+Los formularios de roles y clientes muestran contadores y limitan los caracteres según sus validaciones. Los correos de clientes son únicos, incluso al variar mayúsculas o espacios al inicio o al final; también se valida el registro desde pedidos. La migración `CorreoUnicoClientes` agrega la restricción en SQL Server. Si ya existen correos duplicados, debe corregirse esa información antes de aplicar la migración; no se eliminan ni modifican datos automáticamente.
+
 La base del sistema contempla datos iniciales para:
 
 - Roles: Administrador, Cajero, Inventario y Consulta.
@@ -194,5 +221,9 @@ La base del sistema contempla datos iniciales para:
 - Permisos base para usuarios, roles, clientes, productos, inventario, ventas, facturación y reportes.
 
 ## Estado del proyecto
+
+La interfaz adapta la navegación y los listados a teléfonos y tabletas. En pantallas pequeñas, los módulos se abren en un menú lateral desplegable, los registros se presentan como fichas con búsqueda y ordenación, y el catálogo incluye filtros plegables y navegación inferior al carrito. Los formularios tienen controles táctiles, foco visible y campos adecuados para el teclado móvil. Los estilos de impresión se conservan para comprobantes y etiquetas.
+
+Las nuevas ventas en efectivo redondean el total final al múltiplo de ₡10 más cercano; los empates se redondean hacia arriba. Esta es la política de cobro del sistema. El ajuste se muestra por separado en venta, factura y comprobante, sin modificar el descuento ni el IVA. SINPE y tarjeta conservan el importe a dos decimales. Reportes y cierre de caja usan el total guardado. Las ventas históricas no se recalculan. Este cambio no requiere migración.
 
 El proyecto se encuentra en desarrollo académico. Actualmente cuenta con la base funcional de seguridad, usuarios, roles, clientes, productos e inventario, y continúa evolucionando por medio de historias de usuario y tareas técnicas por sprint.

@@ -7,5 +7,6 @@ public enum ProductoOperacionResult
     CategoriaNotFound,
     InvalidPrice,
     InvalidInventoryQuantity,
-    InvalidMinimumStock
+    InvalidMinimumStock,
+    DuplicateName
 }

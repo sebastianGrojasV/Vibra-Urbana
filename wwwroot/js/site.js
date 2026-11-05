@@ -911,15 +911,17 @@ function calculateCartTotals(cart) {
 }
 
 function updateCartNavigationCount() {
-    const count = document.querySelector("[data-vu-cart-count]");
+    const counts = document.querySelectorAll("[data-vu-cart-count]");
 
-    if (!count) {
+    if (!counts.length) {
         return;
     }
 
     const total = readCatalogCart().reduce((sum, item) => sum + Number(item.quantity || 0), 0);
-    count.textContent = total.toString();
-    count.hidden = total === 0;
+    counts.forEach(count => {
+        count.textContent = total.toString();
+        count.hidden = total === 0;
+    });
 }
 
 function formatCurrency(value) {

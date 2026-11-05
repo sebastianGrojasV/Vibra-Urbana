@@ -16,9 +16,12 @@
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.2/css/buttons.dataTables.min.css">
+    <link rel="stylesheet" href="~/css/mobile.css" asp-append-version="true" />
 
 </head>
-<body>
+<body data-vu-authenticated="@(User.Identity?.IsAuthenticated == true ? "true" : "false")">
+    <script src="~/js/auth-navigation.js" asp-append-version="true"></script>
+    <a class="vu-skip-link" href="#main-content">Saltar al contenido</a>
     <header>
         <nav class="navbar navbar-expand-lg vu-navbar">
             <div class="container">
@@ -40,11 +43,24 @@
                                 <span class="vu-cart-nav-count" data-vu-cart-count hidden>0</span>
                             </a>
                         </li>
-                        @foreach (var item in menuItems)
+                        @if (User.Identity?.IsAuthenticated == true)
                         {
-                            <li class="nav-item">
-                                <a class="nav-link" asp-controller="@item.Controller" asp-action="@item.Action">@item.Texto</a>
+                            <li class="nav-item dropdown">
+                                <button class="nav-link dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">Administración</button>
+                                <ul class="dropdown-menu">
+                                    @foreach (var item in menuItems)
+                                    {
+                                        <li><a class="dropdown-item" asp-controller="@item.Controller" asp-action="@item.Action">@item.Texto</a></li>
+                                    }
+                                </ul>
                             </li>
+                        }
+                        else
+                        {
+                            @foreach (var item in menuItems)
+                            {
+                                <li class="nav-item"><a class="nav-link" asp-controller="@item.Controller" asp-action="@item.Action">@item.Texto</a></li>
+                            }
                         }
                         <li class="nav-item">
                             @if (User.Identity?.IsAuthenticated == true)
@@ -93,7 +109,7 @@
         </div>
     </div>
 
-    <main role="main">
+    <main id="main-content" role="main" tabindex="-1">
         @RenderBody()
     </main>
 
@@ -114,6 +130,8 @@
     <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
     <script src="~/js/scripts.js" asp-append-version="true"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="~/js/character-count.js" asp-append-version="true"></script>
+    <script src="~/js/mobile.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

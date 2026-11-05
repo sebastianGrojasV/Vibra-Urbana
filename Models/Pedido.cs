@@ -22,6 +22,10 @@ public class Pedido
 
     public MetodoPago MetodoPago { get; set; } = null!;
 
+    public int? VentaId { get; set; }
+
+    public Venta? Venta { get; set; }
+
     public decimal Subtotal { get; set; }
 
     public decimal Descuento { get; set; }
@@ -33,6 +37,14 @@ public class Pedido
     public string Estado { get; set; } = "Pendiente";
 
     public string Observacion { get; set; } = string.Empty;
+
+    public string TokenEntrega { get; set; } = Guid.NewGuid().ToString("N");
+
+    public DateTime? FechaEnvio { get; set; }
+
+    public DateTime? FechaTransito { get; set; }
+
+    public DateTime? FechaEntrega { get; set; }
 
     public ICollection<DetallePedido> DetallePedidos { get; set; } = new List<DetallePedido>();
 

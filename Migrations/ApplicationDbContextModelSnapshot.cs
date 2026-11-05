@@ -156,6 +156,12 @@ namespace VibraUrbana.Migrations
                         .HasMaxLength(150)
                         .HasColumnType("nvarchar(150)");
 
+                    b.Property<string>("CorreoNormalizado")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)")
+                        .HasComputedColumnSql("NULLIF(LOWER(LTRIM(RTRIM([Correo]))), '')", true);
+
                     b.Property<string>("Direccion")
                         .IsRequired()
                         .HasMaxLength(300)
@@ -182,6 +188,10 @@ namespace VibraUrbana.Migrations
                         .HasColumnType("nvarchar(30)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("CorreoNormalizado")
+                        .IsUnique()
+                        .HasFilter("[Correo] IS NOT NULL AND [Correo] <> ''");
 
                     b.HasIndex("Identificacion")
                         .IsUnique();
@@ -513,10 +523,19 @@ namespace VibraUrbana.Migrations
                         .HasMaxLength(40)
                         .HasColumnType("nvarchar(40)");
 
+                    b.Property<DateTime?>("FechaEntrega")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("FechaEnvio")
+                        .HasColumnType("datetime2");
+
                     b.Property<DateTime>("FechaPedido")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime2")
                         .HasDefaultValueSql("GETUTCDATE()");
+
+                    b.Property<DateTime?>("FechaTransito")
+                        .HasColumnType("datetime2");
 
                     b.Property<decimal>("Impuesto")
                         .HasPrecision(18, 2)
@@ -544,15 +563,30 @@ namespace VibraUrbana.Migrations
                         .HasMaxLength(30)
                         .HasColumnType("nvarchar(30)");
 
+                    b.Property<string>("TokenEntrega")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)");
+
                     b.Property<decimal>("Total")
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
+
+                    b.Property<int?>("VentaId")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
                     b.HasIndex("ClienteId");
 
                     b.HasIndex("MetodoPagoId");
+
+                    b.HasIndex("TokenEntrega")
+                        .IsUnique();
+
+                    b.HasIndex("VentaId")
+                        .IsUnique()
+                        .HasFilter("[VentaId] IS NOT NULL");
 
                     b.ToTable("Pedidos", (string)null);
                 });
@@ -687,6 +721,12 @@ namespace VibraUrbana.Migrations
                         .HasMaxLength(150)
                         .HasColumnType("nvarchar(150)");
 
+                    b.Property<string>("NombreNormalizado")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)")
+                        .HasComputedColumnSql("LOWER(LTRIM(RTRIM([Nombre])))", true);
+
                     b.Property<decimal>("Precio")
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
@@ -699,6 +739,9 @@ namespace VibraUrbana.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("CategoriaId");
+
+                    b.HasIndex("NombreNormalizado")
+                        .IsUnique();
 
                     b.ToTable("Productos", (string)null);
                 });
@@ -1117,9 +1160,16 @@ namespace VibraUrbana.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("VibraUrbana.Models.Venta", "Venta")
+                        .WithOne("Pedido")
+                        .HasForeignKey("VibraUrbana.Models.Pedido", "VentaId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
                     b.Navigation("Cliente");
 
                     b.Navigation("MetodoPago");
+
+                    b.Navigation("Venta");
                 });
 
             modelBuilder.Entity("VibraUrbana.Models.Producto", b =>
@@ -1276,6 +1326,8 @@ namespace VibraUrbana.Migrations
                     b.Navigation("DetalleVentas");
 
                     b.Navigation("Factura");
+
+                    b.Navigation("Pedido");
                 });
 #pragma warning restore 612, 618
         }

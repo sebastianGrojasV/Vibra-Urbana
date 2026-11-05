@@ -20,7 +20,9 @@ else
                 ? "VU"
                 : producto.Nombre[..Math.Min(2, producto.Nombre.Length)].ToUpperInvariant();
 
-            <article class="vu-catalog-card @(producto.Disponible ? "" : "is-sold-out")">
+            <a class="vu-catalog-card @(producto.Disponible ? "" : "is-sold-out")"
+               asp-controller="Catalogo" asp-action="Detalle" asp-route-id="@producto.Id"
+               aria-label="Ver detalle de @producto.Nombre">
                 <div class="vu-catalog-media">
                     @if (!string.IsNullOrWhiteSpace(producto.ImagenUrl))
                     {
@@ -54,9 +56,9 @@ else
                         <span>@producto.Color</span>
                         <span>@(producto.Disponible ? $"{producto.CantidadDisponible} disponible(s)" : "Sin stock")</span>
                     </div>
-                    <a class="btn btn-outline-primary vu-catalog-detail-link" asp-controller="Catalogo" asp-action="Detalle" asp-route-id="@producto.Id">Ver detalle</a>
+                    <span class="btn btn-outline-primary vu-catalog-detail-link" aria-hidden="true">Ver detalle</span>
                 </div>
-            </article>
+            </a>
         }
     </div>
 }
